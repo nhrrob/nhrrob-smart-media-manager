@@ -43,7 +43,9 @@ export default function SettingsApp() {
 				credentials: 'same-origin',
 				body: JSON.stringify( settings ),
 			} );
-			if ( ! res.ok ) throw new Error( 'Save failed' );
+			if ( ! res.ok ) {
+				throw new Error( 'Save failed' );
+			}
 			const saved = await res.json();
 			setSettings( saved );
 			setSaveStatus( 'saved' );
@@ -141,6 +143,7 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 
 				<div className="settings-row">
 					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
 						<label className="settings-row-label">
 							Default View
 						</label>
@@ -154,6 +157,7 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 							[ 'grid', 'ti-layout-grid', 'Grid' ],
 							[ 'list', 'ti-list', 'List' ],
 						].map( ( [ val, icon, lbl ] ) => (
+							// eslint-disable-next-line jsx-a11y/label-has-associated-control
 							<label key={ val } className="smm-radio-label">
 								<input
 									type="radio"
@@ -172,6 +176,7 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 
 				<div className="settings-row">
 					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
 						<label className="settings-row-label">
 							Default Thumbnail Size
 						</label>
@@ -185,6 +190,7 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 							[ 'medium', 'Medium' ],
 							[ 'large', 'Large' ],
 						].map( ( [ val, lbl ] ) => (
+							// eslint-disable-next-line jsx-a11y/label-has-associated-control
 							<label key={ val } className="smm-radio-label">
 								<input
 									type="radio"
@@ -203,6 +209,7 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 
 				<div className="settings-row">
 					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
 						<label className="settings-row-label">
 							Items Per Page
 						</label>

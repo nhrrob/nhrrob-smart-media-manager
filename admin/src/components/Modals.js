@@ -1,5 +1,4 @@
-import { useEffect, useRef } from '@wordpress/element';
-import { createPortal } from '@wordpress/element';
+import { useEffect, useRef, createPortal } from '@wordpress/element';
 import { useApp } from '../context';
 import { del, post } from '../api';
 import { copyToClipboard } from '../utils';
@@ -15,15 +14,19 @@ export function ConfirmModal() {
 
 	function confirm() {
 		dispatch( { type: 'HIDE_CONFIRM' } );
-		if ( confirmModal?.onOk ) confirmModal.onOk();
+		if ( confirmModal?.onOk ) {
+			confirmModal.onOk();
+		}
 	}
 
 	return createPortal(
+		// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
 		<div
 			className="smm-modal-overlay"
 			style={ { display: 'flex' } }
 			onClick={ cancel }
 		>
+			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 			<div
 				className="smm-modal smm-modal-sm"
 				onClick={ ( e ) => e.stopPropagation() }
@@ -60,7 +63,9 @@ export function ConfirmModal() {
 export function ContextMenus() {
 	const { state } = useApp();
 	const { contextMenu } = state;
-	if ( ! contextMenu ) return null;
+	if ( ! contextMenu ) {
+		return null;
+	}
 
 	const style = {
 		position: 'fixed',
@@ -122,6 +127,7 @@ function FolderCtxMenu( { id, style } ) {
 	}
 
 	return (
+		// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
 		<div
 			className="smm-context-menu"
 			style={ style }
@@ -192,6 +198,7 @@ function FileCtxMenu( { id, style } ) {
 	}
 
 	return (
+		// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
 		<div
 			className="smm-context-menu"
 			style={ style }
@@ -241,7 +248,9 @@ export function Toast() {
 		return () => clearTimeout( timerRef.current );
 	}, [ toast?.id, dispatch ] );
 
-	if ( ! toast ) return null;
+	if ( ! toast ) {
+		return null;
+	}
 
 	const iconMap = {
 		info: 'ti-info-circle',

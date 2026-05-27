@@ -1,27 +1,66 @@
 <?php
+/**
+ * REST API controller for AI alt text generation.
+ *
+ * @package Nhrsmm\SmartMediaManager
+ */
 
 namespace Nhrsmm\SmartMediaManager\Api;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use Nhrsmm\SmartMediaManager\Core\Ai;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
-
+/**
+ * Handles the REST route for generating alt text via the WordPress AI client.
+ */
 class RestAi {
 
+	/**
+	 * REST API namespace.
+	 *
+	 * @var string
+	 */
 	protected string $namespace = 'nhrsmm/v1';
 
+	/**
+	 * Registers the AI alt text REST route.
+	 *
+	 * @return void
+	 */
 	public function register_routes(): void {
-		register_rest_route( $this->namespace, '/ai/alt-text', [
-			[ 'methods' => 'POST', 'callback' => [ $this, 'generate_alt_text' ], 'permission_callback' => [ $this, 'check_permission' ] ],
-		] );
+		register_rest_route(
+			$this->namespace,
+			'/ai/alt-text',
+			[
+				[
+					'methods'             => 'POST',
+					'callback'            => [ $this, 'generate_alt_text' ],
+					'permission_callback' => [ $this, 'check_permission' ],
+				],
+			]
+		);
 	}
 
+	/**
+	 * Returns true when the current user can upload files.
+	 *
+	 * @return bool
+	 */
 	public function check_permission(): bool {
 		return current_user_can( 'upload_files' );
 	}
 
+	/**
+	 * Generates alt text for the given attachment via the AI provider.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
 	public function generate_alt_text( \WP_REST_Request $request ) {
-		$params        = $request->get_json_params() ?: [];
+		$params        = $request->get_json_params() ?? [];
 		$attachment_id = absint( $params['attachment_id'] ?? 0 );
 
 		if ( ! $attachment_id ) {
@@ -39,5 +78,4 @@ class RestAi {
 
 		return rest_ensure_response( $result );
 	}
-
 }

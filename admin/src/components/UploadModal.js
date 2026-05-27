@@ -120,15 +120,17 @@ export default function UploadModal() {
 
 	// Determine when all uploads are done
 	useEffect( () => {
-		if ( queue.length === 0 ) return;
+		if ( queue.length === 0 ) {
+			return;
+		}
 		const allDone = queue.every(
 			( item ) => item.status === 'ok' || item.status === 'fail'
 		);
 		setDone( allDone );
 	}, [ queue ] );
 
-	function renderFolderOptions( folders, indent = '' ) {
-		return folders.flatMap( ( f ) => [
+	function renderFolderOptions( folderList, indent = '' ) {
+		return folderList.flatMap( ( f ) => [
 			<option key={ f.id } value={ f.id }>
 				{ indent + f.name }
 			</option>,
@@ -139,11 +141,13 @@ export default function UploadModal() {
 	}
 
 	return (
+		// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
 		<div
 			className="smm-modal-overlay"
 			style={ { display: 'flex' } }
 			onClick={ close }
 		>
+			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 			<div className="smm-modal" onClick={ ( e ) => e.stopPropagation() }>
 				<div className="modal-header">
 					<span className="modal-title">
@@ -156,6 +160,7 @@ export default function UploadModal() {
 
 				<div className="modal-body">
 					{ /* Dropzone */ }
+					{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 					<div
 						className="upload-dropzone"
 						onClick={ () => fileInputRef.current?.click() }
@@ -169,8 +174,9 @@ export default function UploadModal() {
 						onDrop={ ( e ) => {
 							e.preventDefault();
 							e.currentTarget.classList.remove( 'drag-over' );
-							if ( e.dataTransfer.files.length )
+							if ( e.dataTransfer.files.length ) {
 								addFiles( e.dataTransfer.files );
+							}
 						} }
 					>
 						<div className="dropzone-inner">
@@ -183,8 +189,9 @@ export default function UploadModal() {
 								multiple
 								style={ { display: 'none' } }
 								onChange={ ( e ) => {
-									if ( e.target.files.length )
+									if ( e.target.files.length ) {
 										addFiles( e.target.files );
+									}
 									e.target.value = '';
 								} }
 							/>
@@ -205,6 +212,7 @@ export default function UploadModal() {
 						className="upload-options"
 						style={ { marginTop: '12px' } }
 					>
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
 						<label className="smm-label">Upload to folder</label>
 						<select
 							className="smm-select"
@@ -221,41 +229,48 @@ export default function UploadModal() {
 							className="upload-queue"
 							style={ { display: 'block' } }
 						>
-							{ queue.map( ( item ) => (
-								<div key={ item.id } className="upload-item">
-									<i
-										className={ `ti ${ item.icon } upload-item-icon` }
-									/>
-									<div className="upload-item-info">
-										<div className="upload-item-name">
-											{ item.name }
-										</div>
-										<div className="upload-progress-bar">
-											<div
-												className="upload-progress-fill"
-												style={ {
-													width: `${ item.progress }%`,
-												} }
-											/>
-										</div>
-									</div>
-									<span
-										className={ `upload-item-status${
-											item.status === 'ok'
-												? ' success'
-												: item.status === 'fail'
-												? ' error'
-												: ''
-										}` }
+							{ queue.map( ( item ) => {
+								let statusSuffix = '';
+								if ( item.status === 'ok' ) {
+									statusSuffix = ' success';
+								} else if ( item.status === 'fail' ) {
+									statusSuffix = ' error';
+								}
+								let statusIcon = 'Waiting…';
+								if ( item.status === 'ok' ) {
+									statusIcon = '✓';
+								} else if ( item.status === 'fail' ) {
+									statusIcon = '✗';
+								}
+								return (
+									<div
+										key={ item.id }
+										className="upload-item"
 									>
-										{ item.status === 'ok'
-											? '✓'
-											: item.status === 'fail'
-											? '✗'
-											: 'Waiting…' }
-									</span>
-								</div>
-							) ) }
+										<i
+											className={ `ti ${ item.icon } upload-item-icon` }
+										/>
+										<div className="upload-item-info">
+											<div className="upload-item-name">
+												{ item.name }
+											</div>
+											<div className="upload-progress-bar">
+												<div
+													className="upload-progress-fill"
+													style={ {
+														width: `${ item.progress }%`,
+													} }
+												/>
+											</div>
+										</div>
+										<span
+											className={ `upload-item-status${ statusSuffix }` }
+										>
+											{ statusIcon }
+										</span>
+									</div>
+								);
+							} ) }
 						</div>
 					) }
 				</div>

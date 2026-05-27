@@ -5,7 +5,7 @@
 
 /* ── DESIGN TOKENS ─────────────────────────────────────────── */
 .nhrsmm {
-    --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: 'DM Sans', -apple-system, blinkmacsystemfont, sans-serif;
     --font-mono: 'DM Mono', 'Menlo', monospace;
 
     /* Brand */
@@ -20,7 +20,7 @@
     --gray-900: #1a1a1a;
     --gray-800: #2c2c2c;
     --gray-700: #3f3f3f;
-    --gray-600: #555555;
+    --gray-600: #555;
     --gray-500: #737373;
     --gray-400: #9e9e9e;
     --gray-300: #c8c8c8;
@@ -28,7 +28,7 @@
     --gray-150: #ebebeb;
     --gray-100: #f3f3f3;
     --gray-50:  #f9f9f9;
-    --white:    #ffffff;
+    --white:    #fff;
 
     /* Semantic */
     --color-danger:     #c0392b;
@@ -123,6 +123,8 @@
     box-sizing: border-box;
 }
 
+
+/* stylelint-disable-next-line no-duplicate-selectors */
 .nhrsmm {
     font-family: var(--font-sans);
     font-size: var(--text-base);
@@ -526,6 +528,7 @@ body.nhrsmm-page .wrap {
     color: var(--brand-700);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm .folder-new-btn i {
     font-size: 0.875rem;
 }
@@ -565,6 +568,7 @@ body.nhrsmm-page .wrap {
     color: var(--brand-700);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm .folder-item i {
     font-size: 0.9375rem;
     color: var(--gray-400);
@@ -623,6 +627,7 @@ body.nhrsmm-page .wrap {
     color: var(--gray-700);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm .tool-item i {
     font-size: 0.9375rem;
     color: var(--gray-400);
@@ -790,6 +795,7 @@ body.nhrsmm-page .wrap {
     border: 1px solid var(--brand-100);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm .filter-chip i {
     font-size: 0.75rem;
     cursor: pointer;
@@ -1009,6 +1015,7 @@ body.nhrsmm-page .wrap {
     color: var(--gray-900);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm .smm-list-table th i {
     font-size: 0.6875rem;
     margin-left: 3px;
@@ -1030,7 +1037,9 @@ body.nhrsmm-page .wrap {
 }
 
 .nhrsmm .col-check { width: 36px; }
+
 .nhrsmm .col-thumb { width: 48px; }
+
 .nhrsmm .col-name  { min-width: 160px; }
 
 .nhrsmm .list-thumb {
@@ -1076,9 +1085,13 @@ body.nhrsmm-page .wrap {
 }
 
 .nhrsmm .list-type-badge.type-image    { background: #dbeafe; color: #1e40af; }
+
 .nhrsmm .list-type-badge.type-video    { background: #fce7f3; color: #9d174d; }
+
 .nhrsmm .list-type-badge.type-audio    { background: #fef3c7; color: #92400e; }
+
 .nhrsmm .list-type-badge.type-pdf      { background: #fee2e2; color: #991b1b; }
+
 .nhrsmm .list-type-badge.type-document { background: #e0e7ff; color: #3730a3; }
 
 /* ── PAGINATION ─────────────────────────────────────────────── */
@@ -1113,10 +1126,12 @@ body.nhrsmm-page .wrap {
 }
 
 @keyframes slideInRight {
+
     from {
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -1287,6 +1302,7 @@ body.nhrsmm-page .wrap {
     border-bottom: 1px solid var(--brand-100);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm .ai-card-header i {
     color: var(--ai-from);
 }
@@ -1305,7 +1321,9 @@ body.nhrsmm-page .wrap {
 }
 
 @keyframes shimmer {
+
     0%   { background-position:  200% 0; }
+
     100% { background-position: -200% 0; }
 }
 
@@ -1360,6 +1378,7 @@ body.nhrsmm-page .wrap {
     color: var(--gray-600);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm .usage-item i {
     font-size: 0.75rem;
     color: var(--gray-400);
@@ -1435,7 +1454,9 @@ body.nhrsmm-page .wrap {
 }
 
 @keyframes fadeIn {
+
     from { opacity: 0; }
+
     to   { opacity: 1; }
 }
 
@@ -1453,10 +1474,12 @@ body.nhrsmm-page .wrap {
 }
 
 @keyframes scaleIn {
+
     from {
         opacity: 0;
         transform: scale(0.96);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -1484,6 +1507,7 @@ body.nhrsmm-page .wrap {
     color: var(--gray-800);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm .modal-title i {
     font-size: 1rem;
 }
@@ -1521,7 +1545,9 @@ body.nhrsmm-page .wrap {
 }
 
 @keyframes pulseDropzone {
+
     0%, 100% { border-color: var(--brand-600); }
+
     50%       { border-color: var(--ai-from); }
 }
 
@@ -1603,6 +1629,7 @@ body.nhrsmm-page .wrap {
 }
 
 .nhrsmm .upload-item-status.success { color: var(--color-success); }
+
 .nhrsmm .upload-item-status.error   { color: var(--color-danger); }
 
 /* ── BULK ACTION BAR ────────────────────────────────────────── */
@@ -1624,10 +1651,12 @@ body.nhrsmm-page .wrap {
 }
 
 @keyframes bulkBarIn {
+
     from {
         opacity: 0;
         transform: translateX(-50%) translateY(8px);
     }
+
     to {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
@@ -1700,6 +1729,7 @@ body.nhrsmm-page .wrap {
     background: var(--color-danger-bg);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm .ctx-item i {
     font-size: 0.875rem;
     color: var(--gray-400);
@@ -1739,6 +1769,7 @@ body.nhrsmm-page .wrap {
     text-align: center;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm .smm-empty-state i {
     font-size: 2.5rem;
     color: var(--gray-300);
@@ -1775,6 +1806,7 @@ body.nhrsmm-page .wrap {
 }
 
 @keyframes spin {
+
     to { transform: rotate(360deg); }
 }
 
@@ -1842,6 +1874,7 @@ body.nhrsmm-page .wrap {
     line-height: 1.5;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm .smm-notice i {
     font-size: 1rem;
     flex-shrink: 0;
@@ -1849,8 +1882,11 @@ body.nhrsmm-page .wrap {
 }
 
 .nhrsmm .smm-notice-success { background: var(--color-success-bg); color: var(--color-success); }
+
 .nhrsmm .smm-notice-info    { background: var(--color-info-bg);    color: var(--color-info); }
+
 .nhrsmm .smm-notice-warning { background: var(--color-warning-bg); color: var(--color-warning); }
+
 .nhrsmm .smm-notice-danger  { background: var(--color-danger-bg);  color: var(--color-danger); }
 
 /* ── FILTER DROPDOWN ────────────────────────────────────────── */
@@ -1897,6 +1933,7 @@ body.nhrsmm-page .wrap {
     background: var(--gray-50);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm .smm-dropdown-opt input {
     margin: 0;
     accent-color: var(--brand-600);
@@ -1966,6 +2003,7 @@ body.nhrsmm-page .wrap {
     outline-offset: 2px;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .settings-nav-item i {
     font-size: 0.9375rem;
     color: var(--gray-400);
@@ -2009,6 +2047,7 @@ body.nhrsmm-page .wrap {
     border-bottom: var(--border-default);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .settings-section-title i {
     font-size: 1.125rem;
     color: var(--brand-600);
@@ -2044,6 +2083,7 @@ body.nhrsmm-page .wrap {
     color: var(--gray-500);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .settings-row-desc a {
     color: var(--brand-700);
 }
@@ -2075,10 +2115,12 @@ body.nhrsmm-page .wrap {
     color: var(--brand-800);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .smm-radio-label input {
     accent-color: var(--brand-600);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .smm-radio-label i {
     font-size: 0.875rem;
 }
@@ -2106,6 +2148,7 @@ body.nhrsmm-page .wrap {
     box-shadow: 0 0 0 3px var(--brand-50);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .smm-password-field input {
     flex: 1;
     border: none;
@@ -2141,6 +2184,7 @@ body.nhrsmm-page .wrap {
     justify-content: center;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .pro-upgrade-icon i {
     font-size: 1.75rem;
     color: var(--white);
@@ -2175,6 +2219,7 @@ body.nhrsmm-page .wrap {
     padding: 4px 0;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .pro-feature-list li i {
     color: var(--color-success);
     font-size: 0.875rem;
@@ -2201,10 +2246,12 @@ body.nhrsmm-page .wrap {
 
 /* ── UTILITIES ──────────────────────────────────────────────── */
 .nhrsmm .u-mono     { font-family: var(--font-mono); }
+
 .nhrsmm .u-truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ── REDUCED MOTION ─────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
+
     .nhrsmm *,
     .nhrsmm *::before,
     .nhrsmm *::after,

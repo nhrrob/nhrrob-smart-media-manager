@@ -74,7 +74,9 @@ export default function DetailsPanel( { fileId } ) {
 		clearTimeout( saveTimerRef.current );
 		saveTimerRef.current = setTimeout( async () => {
 			const body = { title, caption, description: desc };
-			if ( file?.type === 'image' ) body.alt = alt;
+			if ( file?.type === 'image' ) {
+				body.alt = alt;
+			}
 			try {
 				await put( `/media/${ fileId }`, body );
 			} catch ( e ) {
@@ -131,13 +133,15 @@ export default function DetailsPanel( { fileId } ) {
 	}
 
 	function editAlt() {
-		if ( aiState?.altText ) setAlt( aiState.altText );
+		if ( aiState?.altText ) {
+			setAlt( aiState.altText );
+		}
 		setAiState( null );
 	}
 
 	/* ── Folder options ──────────────────────────────────────── */
-	function renderFolderOptions( folders, indent = '' ) {
-		return folders.flatMap( ( f ) => [
+	function renderFolderOptions( folderList, indent = '' ) {
+		return folderList.flatMap( ( f ) => [
 			<option key={ f.id } value={ f.id }>
 				{ indent + f.name }
 			</option>,
@@ -249,6 +253,7 @@ export default function DetailsPanel( { fileId } ) {
 
 				{ file.type === 'image' && (
 					<div className="details-field">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
 						<label className="details-label">
 							Alt Text <span className="ai-tag">AI</span>
 						</label>

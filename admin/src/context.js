@@ -66,16 +66,20 @@ export function reducer( state, action ) {
 					sel.add( action.id );
 				}
 			} else if ( action.mode === 'toggle' ) {
-				sel.has( action.id )
-					? sel.delete( action.id )
-					: sel.add( action.id );
+				if ( sel.has( action.id ) ) {
+					sel.delete( action.id );
+				} else {
+					sel.add( action.id );
+				}
 			} else if ( action.mode === 'range' ) {
 				const ids = state.files.map( ( f ) => f.id );
 				const last = [ ...state.selection ].pop();
 				const from = last ? ids.indexOf( last ) : 0;
 				const to = ids.indexOf( action.id );
 				const [ a, b ] = from <= to ? [ from, to ] : [ to, from ];
-				for ( let i = a; i <= b; i++ ) sel.add( ids[ i ] );
+				for ( let i = a; i <= b; i++ ) {
+					sel.add( ids[ i ] );
+				}
 			}
 			const detailsTarget = sel.size === 1 ? [ ...sel ][ 0 ] : null;
 			return { ...state, selection: sel, detailsTarget };

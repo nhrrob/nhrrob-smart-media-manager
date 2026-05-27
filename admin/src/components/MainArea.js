@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, memo } from '@wordpress/element';
+import { useState, useCallback, memo } from '@wordpress/element';
 import { useApp } from '../context';
 import {
 	setUrlParams,
@@ -13,7 +13,7 @@ import {
 
 /* ── Main Area (toolbar + content + pagination) ──────────────── */
 export default function MainArea() {
-	const { state, dispatch, loadMedia } = useApp();
+	const { state, dispatch } = useApp();
 
 	function onDragOver( e ) {
 		if ( e.dataTransfer.types.includes( 'Files' ) ) {
@@ -60,8 +60,6 @@ function Toolbar() {
 		filterType,
 		view,
 		thumbSize,
-		sortBy,
-		sortOrder,
 	} = state;
 	const [ filterOpen, setFilterOpen ] = useState( false );
 
@@ -70,7 +68,9 @@ function Toolbar() {
 
 	const checkRef = useCallback(
 		( node ) => {
-			if ( node ) node.indeterminate = indeterminate;
+			if ( node ) {
+				node.indeterminate = indeterminate;
+			}
 		},
 		[ indeterminate ]
 	);
@@ -84,20 +84,18 @@ function Toolbar() {
 	}
 
 	function getBreadcrumb() {
-		if ( currentFolder === null ) return 'All Files';
-		if ( currentFolder === 0 ) return 'Uncategorized';
+		if ( currentFolder === null ) {
+			return 'All Files';
+		}
+		if ( currentFolder === 0 ) {
+			return 'Uncategorized';
+		}
 		const f = findFolder( folders, currentFolder );
 		return f ? f.name : '…';
 	}
 
 	function switchView( v ) {
 		dispatch( { type: 'SET_VIEW', view: v } );
-	}
-
-	function onSort( col ) {
-		const order = sortBy === col && sortOrder === 'ASC' ? 'DESC' : 'ASC';
-		dispatch( { type: 'SET_SORT', sortBy: col, sortOrder: order } );
-		loadMedia( { sortBy: col, sortOrder: order } );
 	}
 
 	function setFilter( type ) {
@@ -126,6 +124,7 @@ function Toolbar() {
 			/>
 
 			<div className="breadcrumb">
+				{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 				<span
 					className="breadcrumb-item"
 					style={ { cursor: 'pointer' } }
@@ -147,13 +146,15 @@ function Toolbar() {
 			<div className="toolbar-filter-chips">
 				{ state.search && (
 					<span className="filter-chip">
-						"{ state.search }"
+						&ldquo;{ state.search }&rdquo;
+						{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 						<i className="ti ti-x" onClick={ clearSearch } />
 					</span>
 				) }
 				{ filterType && (
 					<span className="filter-chip">
 						{ filterType }
+						{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 						<i
 							className="ti ti-x"
 							onClick={ () => setFilter( '' ) }
@@ -195,6 +196,7 @@ function Toolbar() {
 								[ 'document', 'Documents' ],
 								[ 'other', 'Other' ],
 							].map( ( [ val, label ] ) => (
+								// eslint-disable-next-line jsx-a11y/label-has-associated-control
 								<label key={ val } className="smm-dropdown-opt">
 									<input
 										type="radio"
@@ -266,7 +268,7 @@ function Toolbar() {
 
 /* ── Grid View ───────────────────────────────────────────────── */
 function GridView() {
-	const { state, dispatch, loadMedia } = useApp();
+	const { state, dispatch } = useApp();
 	const { files, loading, selection, thumbSize } = state;
 
 	if ( loading && files.length === 0 ) {
@@ -333,11 +335,10 @@ const MediaCard = memo( function MediaCard( {
 	selectionSize,
 	dispatch,
 } ) {
-	const selClass = isSelected
-		? selectionSize === 1
-			? 'selected'
-			: 'multi-selected'
-		: '';
+	let selClass = '';
+	if ( isSelected ) {
+		selClass = selectionSize === 1 ? 'selected' : 'multi-selected';
+	}
 
 	function onDragStart( e ) {
 		// Use the current selection if file is in it, else just this file
@@ -369,8 +370,9 @@ const MediaCard = memo( function MediaCard( {
 
 	function onContextMenu( e ) {
 		e.preventDefault();
-		if ( ! isSelected )
+		if ( ! isSelected ) {
 			dispatch( { type: 'SELECT_FILE', id: f.id, mode: 'single' } );
+		}
 		dispatch( {
 			type: 'SHOW_CONTEXT_MENU',
 			kind: 'file',
@@ -381,6 +383,7 @@ const MediaCard = memo( function MediaCard( {
 	}
 
 	return (
+		// eslint-disable-next-line jsx-a11y/no-static-element-interactions
 		<div
 			className={ `smm-media-card ${ selClass }` }
 			draggable
@@ -483,34 +486,40 @@ function ListView() {
 					</tr>
 				</thead>
 				<tbody>
-					{ loading && files.length === 0 ? (
-						<tr>
-							<td
-								colSpan="8"
-								style={ {
-									textAlign: 'center',
-									padding: '40px',
-									color: 'var(--gray-400)',
-								} }
-							>
-								<span className="smm-spinner" />
-							</td>
-						</tr>
-					) : files.length === 0 ? (
-						<tr>
-							<td
-								colSpan="8"
-								style={ {
-									textAlign: 'center',
-									padding: '40px',
-									color: 'var(--gray-400)',
-								} }
-							>
-								No files found.
-							</td>
-						</tr>
-					) : (
-						files.map( ( f ) => (
+					{ ( () => {
+						if ( loading && files.length === 0 ) {
+							return (
+								<tr>
+									<td
+										colSpan="8"
+										style={ {
+											textAlign: 'center',
+											padding: '40px',
+											color: 'var(--gray-400)',
+										} }
+									>
+										<span className="smm-spinner" />
+									</td>
+								</tr>
+							);
+						}
+						if ( files.length === 0 ) {
+							return (
+								<tr>
+									<td
+										colSpan="8"
+										style={ {
+											textAlign: 'center',
+											padding: '40px',
+											color: 'var(--gray-400)',
+										} }
+									>
+										No files found.
+									</td>
+								</tr>
+							);
+						}
+						return files.map( ( f ) => (
 							<MediaRow
 								key={ f.id }
 								file={ f }
@@ -518,8 +527,8 @@ function ListView() {
 								folders={ folders }
 								dispatch={ dispatch }
 							/>
-						) )
-					) }
+						) );
+					} )() }
 				</tbody>
 			</table>
 		</div>
@@ -538,7 +547,9 @@ const MediaRow = memo( function MediaRow( {
 		: '—';
 
 	function onClick( e ) {
-		if ( e.target.matches( '.list-row-check' ) ) return; // handled by onChange
+		if ( e.target.matches( '.list-row-check' ) ) {
+			return;
+		} // handled by onChange
 		if ( e.shiftKey ) {
 			dispatch( { type: 'SELECT_FILE', id: f.id, mode: 'range' } );
 		} else if ( e.ctrlKey || e.metaKey ) {
@@ -550,8 +561,9 @@ const MediaRow = memo( function MediaRow( {
 
 	function onContextMenu( e ) {
 		e.preventDefault();
-		if ( ! isSelected )
+		if ( ! isSelected ) {
 			dispatch( { type: 'SELECT_FILE', id: f.id, mode: 'single' } );
+		}
 		dispatch( {
 			type: 'SHOW_CONTEXT_MENU',
 			kind: 'file',
@@ -620,7 +632,9 @@ function Pagination() {
 	const { state, dispatch, loadMedia } = useApp();
 	const { pagination } = state;
 
-	if ( pagination.pages <= 1 ) return null;
+	if ( pagination.pages <= 1 ) {
+		return null;
+	}
 
 	function goTo( page ) {
 		dispatch( { type: 'SET_PAGE', page } );

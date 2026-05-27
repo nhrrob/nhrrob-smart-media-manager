@@ -9,14 +9,15 @@ export default function BulkBar() {
 		loadMedia,
 		loadFolders,
 		showToast,
-		showConfirm,
 		deleteSelected,
 	} = useApp();
 	const { selection, folders } = state;
 	const [ selectedFolder, setSelectedFolder ] = useState( '' );
 
 	async function moveSelected() {
-		if ( ! selectedFolder ) return;
+		if ( ! selectedFolder ) {
+			return;
+		}
 		const folderId = parseInt( selectedFolder );
 		const ids = [ ...selection ];
 		try {
@@ -37,8 +38,8 @@ export default function BulkBar() {
 		}
 	}
 
-	function renderFolderOptions( folders, indent = '' ) {
-		return folders.flatMap( ( f ) => [
+	function renderFolderOptions( folderList, indent = '' ) {
+		return folderList.flatMap( ( f ) => [
 			<option key={ f.id } value={ f.id }>
 				{ indent + f.name }
 			</option>,

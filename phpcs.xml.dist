@@ -25,6 +25,11 @@
 	<rule ref="WordPress">
 		<!-- Short array syntax [] is allowed -->
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<!-- PSR-4 class filenames (e.g. Folders.php) are intentional — not WordPress-style class-folders.php -->
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+		<!-- Main plugin file intentionally holds both the class and the bootstrap function — standard WP pattern -->
+		<exclude name="Universal.Files.SeparateFunctionsFromOO.Mixed"/>
 	</rule>
 
 	<!-- Enforce the plugin text domain for all i18n calls -->

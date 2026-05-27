@@ -36,9 +36,15 @@ export default function App() {
 		const sortOrd =
 			opts.sortOrder !== undefined ? opts.sortOrder : s.sortOrder;
 
-		if ( folder !== null ) params.set( 'folder', folder );
-		if ( search ) params.set( 'search', search );
-		if ( filter ) params.set( 'type', filter );
+		if ( folder !== null ) {
+			params.set( 'folder', folder );
+		}
+		if ( search ) {
+			params.set( 'search', search );
+		}
+		if ( filter ) {
+			params.set( 'type', filter );
+		}
 		params.set( 'page', page );
 		params.set( 'per_page', s.pagination.perPage );
 		params.set( 'orderby', sortBy );
@@ -76,7 +82,9 @@ export default function App() {
 
 	const deleteSelected = useCallback( () => {
 		const s = stateRef.current;
-		if ( s.selection.size === 0 ) return;
+		if ( s.selection.size === 0 ) {
+			return;
+		}
 		const count = s.selection.size;
 		showConfirm(
 			`Delete ${ count } file${
@@ -105,7 +113,9 @@ export default function App() {
 	/* ── KEYBOARD SHORTCUTS ────────────────────────────────── */
 	useEffect( () => {
 		function onKeyDown( e ) {
-			if ( e.target.matches( 'input, textarea, select' ) ) return;
+			if ( e.target.matches( 'input, textarea, select' ) ) {
+				return;
+			}
 			if ( e.key === 'Escape' ) {
 				dispatch( { type: 'CLEAR_SELECTION' } );
 				dispatch( { type: 'HIDE_CONTEXT_MENUS' } );
@@ -152,21 +162,27 @@ export default function App() {
 				folder: urlFolder === 'all' ? null : parseInt( urlFolder ),
 			} );
 		}
-		if ( urlType )
+		if ( urlType ) {
 			dispatch( { type: 'SET_FILTER_TYPE', filterType: urlType } );
-		if ( urlQ ) dispatch( { type: 'SET_SEARCH', search: urlQ } );
+		}
+		if ( urlQ ) {
+			dispatch( { type: 'SET_SEARCH', search: urlQ } );
+		}
 
 		// Load folders
 		loadFolders();
 
 		// Load media with URL params directly (don't wait for state to sync)
+		let initialFolder;
+		if ( urlFolder === null ) {
+			initialFolder = undefined;
+		} else if ( urlFolder === 'all' ) {
+			initialFolder = null;
+		} else {
+			initialFolder = parseInt( urlFolder );
+		}
 		loadMedia( {
-			folder:
-				urlFolder === null
-					? undefined
-					: urlFolder === 'all'
-					? null
-					: parseInt( urlFolder ),
+			folder: initialFolder,
 			filter: urlType || undefined,
 			page: urlPage ? parseInt( urlPage ) : undefined,
 			search: urlQ || undefined,

@@ -1,11 +1,27 @@
 <?php
+/**
+ * AI alt text generation.
+ *
+ * @package Nhrsmm\SmartMediaManager
+ */
 
 namespace Nhrsmm\SmartMediaManager\Core;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
+/**
+ * Generates alt text for image attachments via the WordPress AI client.
+ */
 class Ai {
 
+	/**
+	 * Generates alt text for an image attachment using the configured AI provider.
+	 *
+	 * @param int $attachment_id Attachment post ID.
+	 * @return array|\WP_Error
+	 */
 	public function generate_alt_text( int $attachment_id ) {
 		if ( ! wp_attachment_is_image( $attachment_id ) ) {
 			return new \WP_Error( 'not_image', __( 'Alt text generation is only available for image files.', 'nhrrob-smart-media-manager' ) );
@@ -20,7 +36,10 @@ class Ai {
 			return new \WP_Error( 'no_file', __( 'Could not retrieve image file.', 'nhrrob-smart-media-manager' ) );
 		}
 
-		$mime  = get_post_mime_type( $attachment_id ) ?: 'image/jpeg';
+		$mime = get_post_mime_type( $attachment_id );
+		if ( ! $mime ) {
+			$mime = 'image/jpeg';
+		}
 		$start = microtime( true );
 
 		$result = wp_ai_client_prompt()

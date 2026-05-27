@@ -1,5 +1,7 @@
 export function formatBytes( bytes ) {
-	if ( ! bytes ) return '0 B';
+	if ( ! bytes ) {
+		return '0 B';
+	}
 	const k = 1024;
 	const sizes = [ 'B', 'KB', 'MB', 'GB' ];
 	const i = Math.floor( Math.log( bytes ) / Math.log( k ) );
@@ -11,7 +13,9 @@ export function formatBytes( bytes ) {
 }
 
 export function formatDate( dateStr ) {
-	if ( ! dateStr ) return '';
+	if ( ! dateStr ) {
+		return '';
+	}
 	const d = new Date( dateStr );
 	return d.toLocaleDateString( undefined, {
 		year: 'numeric',
@@ -21,15 +25,30 @@ export function formatDate( dateStr ) {
 }
 
 export function mimeToLabel( mime ) {
-	if ( ! mime ) return 'FILE';
-	if ( mime.startsWith( 'image' ) ) return 'IMG';
-	if ( mime.startsWith( 'video' ) ) return 'VID';
-	if ( mime.startsWith( 'audio' ) ) return 'AUD';
-	if ( mime.includes( 'pdf' ) ) return 'PDF';
-	if ( mime.includes( 'zip' ) || mime.includes( 'rar' ) ) return 'ZIP';
-	if ( mime.includes( 'word' ) || mime.includes( 'document' ) ) return 'DOC';
-	if ( mime.includes( 'excel' ) || mime.includes( 'spreadsheet' ) )
+	if ( ! mime ) {
+		return 'FILE';
+	}
+	if ( mime.startsWith( 'image' ) ) {
+		return 'IMG';
+	}
+	if ( mime.startsWith( 'video' ) ) {
+		return 'VID';
+	}
+	if ( mime.startsWith( 'audio' ) ) {
+		return 'AUD';
+	}
+	if ( mime.includes( 'pdf' ) ) {
+		return 'PDF';
+	}
+	if ( mime.includes( 'zip' ) || mime.includes( 'rar' ) ) {
+		return 'ZIP';
+	}
+	if ( mime.includes( 'word' ) || mime.includes( 'document' ) ) {
+		return 'DOC';
+	}
+	if ( mime.includes( 'excel' ) || mime.includes( 'spreadsheet' ) ) {
 		return 'XLS';
+	}
 	return 'FILE';
 }
 
@@ -52,11 +71,21 @@ export function typeToClass( type ) {
 }
 
 export function iconForMime( mime ) {
-	if ( ! mime ) return 'ti-file';
-	if ( mime.startsWith( 'image' ) ) return 'ti-photo';
-	if ( mime.startsWith( 'video' ) ) return 'ti-player-play';
-	if ( mime.startsWith( 'audio' ) ) return 'ti-music';
-	if ( mime.includes( 'pdf' ) ) return 'ti-file-type-pdf';
+	if ( ! mime ) {
+		return 'ti-file';
+	}
+	if ( mime.startsWith( 'image' ) ) {
+		return 'ti-photo';
+	}
+	if ( mime.startsWith( 'video' ) ) {
+		return 'ti-player-play';
+	}
+	if ( mime.startsWith( 'audio' ) ) {
+		return 'ti-music';
+	}
+	if ( mime.includes( 'pdf' ) ) {
+		return 'ti-file-type-pdf';
+	}
 	return 'ti-file';
 }
 
@@ -93,10 +122,14 @@ export function setUrlParams( params ) {
 
 export function findFolder( folders, id ) {
 	for ( const f of folders ) {
-		if ( f.id === id ) return f;
+		if ( f.id === id ) {
+			return f;
+		}
 		if ( f.children ) {
 			const found = findFolder( f.children, id );
-			if ( found ) return found;
+			if ( found ) {
+				return found;
+			}
 		}
 	}
 	return null;

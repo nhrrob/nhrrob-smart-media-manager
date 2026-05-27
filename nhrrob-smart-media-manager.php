@@ -11,6 +11,8 @@
  * Text Domain: nhrrob-smart-media-manager
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * @package Nhrsmm\SmartMediaManager
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,10 +21,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+/**
+ * Main plugin class — singleton bootstrap.
+ */
 final class Nhrsmm_Smart_Media_Manager {
 
-	const version = '1.0.0';
+	/**
+	 * Plugin version.
+	 *
+	 * @var string
+	 */
+	const VERSION = '1.0.0';
 
+	/**
+	 * Registers activation/deactivation hooks and defers boot to plugins_loaded.
+	 */
 	private function __construct() {
 		$this->define_constants();
 		add_action( 'plugins_loaded', [ $this, 'init_plugin' ] );
@@ -30,6 +43,11 @@ final class Nhrsmm_Smart_Media_Manager {
 		register_deactivation_hook( NHRSMM_FILE, [ $this, 'deactivate' ] );
 	}
 
+	/**
+	 * Returns the single plugin instance, creating it on first call.
+	 *
+	 * @return self
+	 */
 	public static function init(): self {
 		static $instance = false;
 		if ( ! $instance ) {
@@ -38,28 +56,53 @@ final class Nhrsmm_Smart_Media_Manager {
 		return $instance;
 	}
 
+	/**
+	 * Defines all six plugin-wide constants.
+	 *
+	 * @return void
+	 */
 	private function define_constants(): void {
-		define( 'NHRSMM_VERSION',    self::version );
-		define( 'NHRSMM_FILE',       __FILE__ );
-		define( 'NHRSMM_PATH',       __DIR__ );
+		define( 'NHRSMM_VERSION', self::VERSION );
+		define( 'NHRSMM_FILE', __FILE__ );
+		define( 'NHRSMM_PATH', __DIR__ );
 		define( 'NHRSMM_PLUGIN_DIR', plugin_dir_path( NHRSMM_FILE ) );
-		define( 'NHRSMM_URL',        plugins_url( '', NHRSMM_FILE ) );
-		define( 'NHRSMM_ASSETS',     NHRSMM_URL . '/assets' );
+		define( 'NHRSMM_URL', plugins_url( '', NHRSMM_FILE ) );
+		define( 'NHRSMM_ASSETS', NHRSMM_URL . '/assets' );
 	}
 
+	/**
+	 * Boots the plugin after all plugins are loaded.
+	 *
+	 * @return void
+	 */
 	public function init_plugin(): void {
 		\Nhrsmm\SmartMediaManager\App::init();
 	}
 
+	/**
+	 * Runs activation tasks.
+	 *
+	 * @return void
+	 */
 	public function activate(): void {
 		\Nhrsmm\SmartMediaManager\Activator::run();
 	}
 
+	/**
+	 * Runs deactivation tasks.
+	 *
+	 * @return void
+	 */
 	public function deactivate(): void {
 		\Nhrsmm\SmartMediaManager\Deactivator::run();
 	}
 }
 
+/**
+ * Returns the main plugin instance.
+ *
+ * @return Nhrsmm_Smart_Media_Manager
+ */
 function nhrsmm_smart_media_manager() {
 	return Nhrsmm_Smart_Media_Manager::init();
 }

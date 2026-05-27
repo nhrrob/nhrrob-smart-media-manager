@@ -1,31 +1,55 @@
 <?php
+/**
+ * Folder (taxonomy term) CRUD operations.
+ *
+ * @package Nhrsmm\SmartMediaManager
+ */
 
 namespace Nhrsmm\SmartMediaManager\Core;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
+/**
+ * Manages virtual media folders stored as nhrsmm_media_folder taxonomy terms.
+ */
 class Folders {
 
+	/**
+	 * Returns the full hierarchical folder tree.
+	 *
+	 * @return array
+	 */
 	public function get_tree(): array {
-		$terms = get_terms( [
-			'taxonomy'   => 'nhrsmm_media_folder',
-			'hide_empty' => false,
-			'orderby'    => 'meta_value_num',
-			'meta_key'   => 'nhrsmm_order',
-			'order'      => 'ASC',
-		] );
+		$terms = get_terms(
+			[
+				'taxonomy'   => 'nhrsmm_media_folder',
+				'hide_empty' => false,
+				'orderby'    => 'meta_value_num',
+				'meta_key'   => 'nhrsmm_order', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'order'      => 'ASC',
+			]
+		);
 
 		if ( is_wp_error( $terms ) ) {
 			return [];
 		}
 
-		return $this->build_tree( $terms, 0 );
+		return $this->build_tree( $terms, 0 ); // folder_parent = 0 = top-level.
 	}
 
-	private function build_tree( array $terms, int $parent ): array {
+	/**
+	 * Recursively builds a nested folder array from a flat term list.
+	 *
+	 * @param array $terms         Flat array of WP_Term objects.
+	 * @param int   $folder_parent Parent term ID to start from.
+	 * @return array
+	 */
+	private function build_tree( array $terms, int $folder_parent ): array {
 		$tree = [];
 		foreach ( $terms as $term ) {
-			if ( (int) $term->parent !== $parent ) {
+			if ( (int) $term->parent !== $folder_parent ) {
 				continue;
 			}
 			$tree[] = [
@@ -40,13 +64,20 @@ class Folders {
 		return $tree;
 	}
 
-	public function create( string $name, int $parent = 0 ) {
+	/**
+	 * Creates a new folder term.
+	 *
+	 * @param string $name          Folder display name.
+	 * @param int    $folder_parent Parent term ID (0 for top-level).
+	 * @return array|\WP_Error
+	 */
+	public function create( string $name, int $folder_parent = 0 ) {
 		$name = sanitize_text_field( $name );
 		if ( empty( $name ) ) {
 			return new \WP_Error( 'empty_name', __( 'Folder name cannot be empty.', 'nhrrob-smart-media-manager' ) );
 		}
 
-		$args = [ 'parent' => $parent ];
+		$args   = [ 'parent' => $folder_parent ];
 		$result = wp_insert_term( $name, 'nhrsmm_media_folder', $args );
 
 		if ( is_wp_error( $result ) ) {
@@ -64,6 +95,13 @@ class Folders {
 		];
 	}
 
+	/**
+	 * Renames an existing folder term.
+	 *
+	 * @param int    $term_id Term ID.
+	 * @param string $name    New display name.
+	 * @return array|\WP_Error
+	 */
 	public function rename( int $term_id, string $name ) {
 		$name = sanitize_text_field( $name );
 		if ( empty( $name ) ) {
@@ -85,6 +123,12 @@ class Folders {
 		];
 	}
 
+	/**
+	 * Deletes a folder and recursively removes all child folders.
+	 *
+	 * @param int $term_id Term ID.
+	 * @return bool|\WP_Error
+	 */
 	public function delete( int $term_id ) {
 		// Move files to Uncategorized (remove from this folder, not delete them).
 		$attachments = get_objects_in_term( $term_id, 'nhrsmm_media_folder' );
@@ -102,6 +146,13 @@ class Folders {
 		return is_wp_error( $result ) ? $result : (bool) $result;
 	}
 
+	/**
+	 * Moves a folder under a new parent term.
+	 *
+	 * @param int $term_id    Term ID to move.
+	 * @param int $new_parent New parent term ID (0 for top-level).
+	 * @return array|\WP_Error
+	 */
 	public function move( int $term_id, int $new_parent ) {
 		$result = wp_update_term( $term_id, 'nhrsmm_media_folder', [ 'parent' => $new_parent ] );
 		if ( is_wp_error( $result ) ) {

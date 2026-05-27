@@ -8,7 +8,7 @@
 		"start": "wp-scripts start admin/src/index.js admin/src/settings.js --output-path=admin/build",
 		"build": "wp-scripts build admin/src/index.js admin/src/settings.js --output-path=admin/build",
 		"lint:js": "wp-scripts lint-js admin/src",
-		"lint:css": "wp-scripts lint-style admin/css",
+		"lint:css": "wp-scripts lint-style 'admin/css/*.css'",
 		"lint:php": "composer run phpcs",
 		"lint": "npm run lint:js && npm run lint:css && npm run lint:php",
 		"format:js": "wp-scripts format admin/src",
