@@ -36,7 +36,7 @@ class Assets {
 	public function add_body_class( string $classes ): string {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '';
-		if ( false !== strpos( $page, 'nhr-smart-media' ) ) {
+		if ( false !== strpos( $page, 'nhrsmm-' ) ) {
 			$classes .= ' nhrsmm-page';
 		}
 		return $classes;
@@ -111,7 +111,7 @@ class Assets {
 					'nonce'         => wp_create_nonce( 'wp_rest' ),
 					'adminUrl'      => esc_url( admin_url() ),
 					'pluginUrl'     => esc_url( NHRSMM_URL ),
-					'settingsUrl'   => esc_url( admin_url( 'options-general.php?page=nhr-smart-media' ) ),
+					'settingsUrl'   => esc_url( admin_url( 'options-general.php?page=nhrsmm-settings' ) ),
 					'defaultView'   => sanitize_key( $settings['default_view'] ?? 'grid' ),
 					'thumbSize'     => sanitize_key( $settings['thumbnail_size'] ?? 'medium' ),
 					'perPage'       => absint( $settings['items_per_page'] ?? 40 ),
@@ -133,7 +133,7 @@ class Assets {
 				[
 					'restUrl'         => esc_url_raw( rest_url( 'nhrsmm/v1' ) ),
 					'nonce'           => wp_create_nonce( 'wp_rest' ),
-					'mediaLibraryUrl' => esc_url( admin_url( 'upload.php?page=nhr-smart-media-library' ) ),
+					'mediaLibraryUrl' => esc_url( admin_url( 'upload.php?page=nhrsmm-media-library' ) ),
 					'connectorsUrl'   => esc_url( admin_url( 'options-general.php#ai-connectors' ) ),
 					'aiConfigured'    => function_exists( 'is_supported_for_text_generation' ) && is_supported_for_text_generation(),
 					'settings'        => [
@@ -176,7 +176,7 @@ class Assets {
 	 * @return bool
 	 */
 	private function is_media_page( string $hook ): bool {
-		return false !== strpos( $hook, 'nhr-smart-media-library' );
+		return false !== strpos( $hook, 'nhrsmm-media-library' );
 	}
 
 	/**
@@ -186,6 +186,6 @@ class Assets {
 	 * @return bool
 	 */
 	private function is_settings_page( string $hook ): bool {
-		return false !== strpos( $hook, 'nhr-smart-media' ) && ! $this->is_media_page( $hook );
+		return false !== strpos( $hook, 'nhrsmm-settings' );
 	}
 }

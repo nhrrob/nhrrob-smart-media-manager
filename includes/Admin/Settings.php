@@ -35,7 +35,7 @@ class Settings {
 			__( 'NHR Smart Media', 'nhrrob-smart-media-manager' ),
 			__( 'NHR Smart Media', 'nhrrob-smart-media-manager' ),
 			'manage_options',
-			'nhr-smart-media',
+			'nhrsmm-settings',
 			[ $this, 'render_page' ]
 		);
 	}

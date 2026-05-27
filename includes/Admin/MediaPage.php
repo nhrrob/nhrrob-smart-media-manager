@@ -35,7 +35,7 @@ class MediaPage {
 			__( 'NHR Smart Media Manager', 'nhrrob-smart-media-manager' ),
 			__( 'Smart Library', 'nhrrob-smart-media-manager' ),
 			'upload_files',
-			'nhr-smart-media-library',
+			'nhrsmm-media-library',
 			[ $this, 'render_page' ]
 		);
 	}

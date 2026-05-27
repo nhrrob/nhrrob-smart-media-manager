@@ -16,8 +16,8 @@ test.describe( 'Smart Media Library', () => {
 	test( 'sidebar renders folder tree', async ( { page } ) => {
 		await page.goto( '/wp-admin/upload.php?page=nhrsmm-media-library' );
 
-		// Sidebar container appears (may be empty if no folders yet).
-		await expect( page.locator( '.nhrsmm' ) ).toBeVisible();
+		// React mount point is present (sidebar may be empty if no folders yet).
+		await expect( page.locator( '#nhrsmm-app' ) ).toBeVisible();
 	} );
 
 	test( 'settings page mounts the settings React app', async ( { page } ) => {
