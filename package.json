@@ -1,0 +1,13 @@
+{
+	"name": "nhrrob-smart-media-manager",
+	"version": "1.0.0",
+	"private": true,
+	"description": "NHR Smart Media Manager WordPress Plugin",
+	"scripts": {
+		"start": "wp-scripts start admin/src/index.js admin/src/settings.js --output-path=admin/build",
+		"build": "wp-scripts build admin/src/index.js admin/src/settings.js --output-path=admin/build"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^30.0.0"
+	}
+}

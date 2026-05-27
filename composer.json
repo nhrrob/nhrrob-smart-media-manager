@@ -1,0 +1,18 @@
+{
+    "name": "nhrsmm/smart-media-manager",
+    "description": "AI-powered WordPress media manager with virtual folders, smart search, and one-click alt text generation.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Nazmul Hasan Robin",
+            "email": "robin.sust08@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Nhrsmm\\SmartMediaManager\\": "includes/"
+        }
+    },
+    "require": {}
+}

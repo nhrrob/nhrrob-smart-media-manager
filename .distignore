@@ -1,0 +1,74 @@
+# React source (admin/build/ ships to WP.org; source does not)
+admin/src
+
+# Claude / AI context (dev-only)
+CLAUDE.md
+.ai/
+.sass-cache
+.DS_Store
+.phpintel
+.idea/*
+
+# Package managers
+package-lock.json
+pnpm-lock.yaml
+composer.lock
+
+# Dependencies
+node_modules
+
+# Development tools
+/.phpunit.result.cache
+/vendor/phpunit
+/vendor/10up
+/vendor/mockery
+/vendor/hamcrest
+/vendor/sebastian
+/vendor/bin
+/vendor/symfony/yaml
+/vendor/antecedent
+/vendor/doctrine
+/vendor/myclabs
+/vendor/nikic
+/vendor/phar-io
+/vendor/theseer
+
+# Additional WordPress.org exclusions
+.babelrc
+.deployignore
+.distignore
+.editorconfig
+.eslintignore
+.eslintrc
+.git
+.github
+.gitattributes
+.gitignore
+.gitlab-ci.yml
+.travis.yml
+Thumbs.db
+behat.yml
+bitbucket-pipelines.yml
+bin
+.circleci/config.yml
+dependencies.yml
+Gruntfile.js
+package.json
+phpunit.xml
+phpunit.xml.dist
+multisite.xml
+multisite.xml.dist
+.phpcs.xml
+phpcs.xml
+.phpcs.xml.dist
+phpcs.xml.dist
+README.md
+webpack.config.js
+wp-cli.local.yml
+yarn.lock
+tests
+*.sql
+*.tar.gz
+*.zip
+postcss.config.js
+.wordpress-org

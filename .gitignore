@@ -1,0 +1,29 @@
+# System files
+.sass-cache
+.DS_Store
+.phpintel
+.idea/*
+
+# Package managers
+package-lock.json
+pnpm-lock.yaml
+composer.lock
+
+# Dependencies
+/node_modules
+
+# Development tools
+/.phpunit.result.cache
+/vendor/phpunit
+/vendor/10up
+/vendor/mockery
+/vendor/hamcrest
+/vendor/sebastian
+/vendor/bin
+/vendor/symfony/yaml
+/vendor/antecedent
+/vendor/doctrine
+/vendor/myclabs
+/vendor/nikic
+/vendor/phar-io
+/vendor/theseer

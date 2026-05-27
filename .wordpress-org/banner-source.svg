@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 772 250" width="772" height="250">
+<defs>
+  <!-- Brand accent gradient -->
+  <linearGradient id="acc" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#667eea"/>
+    <stop offset="100%" stop-color="#764ba2"/>
+  </linearGradient>
+  <!-- Lighter/highlight accent -->
+  <linearGradient id="accH" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#8b9cf4"/>
+    <stop offset="100%" stop-color="#9b6fcb"/>
+  </linearGradient>
+  <!-- Thumbnail gradients -->
+  <linearGradient id="tg1" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#667eea"/>
+    <stop offset="100%" stop-color="#764ba2"/>
+  </linearGradient>
+  <linearGradient id="tg2" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#0891b2"/>
+    <stop offset="100%" stop-color="#0e7490"/>
+  </linearGradient>
+  <linearGradient id="tg4" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#f59e0b"/>
+    <stop offset="100%" stop-color="#b45309"/>
+  </linearGradient>
+  <linearGradient id="tg5" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#10b981"/>
+    <stop offset="100%" stop-color="#059669"/>
+  </linearGradient>
+  <!-- Vertical separator gradient -->
+  <linearGradient id="sepG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#667eea" stop-opacity="0"/>
+    <stop offset="30%" stop-color="#667eea" stop-opacity="0.35"/>
+    <stop offset="70%" stop-color="#764ba2" stop-opacity="0.35"/>
+    <stop offset="100%" stop-color="#764ba2" stop-opacity="0"/>
+  </linearGradient>
+</defs>
+
+<!-- ===== BACKGROUND ===== -->
+<rect width="772" height="250" fill="#1a1a2e"/>
+<!-- Subtle ambient left glow -->
+<circle cx="180" cy="125" r="220" fill="#667eea" fill-opacity="0.035"/>
+<!-- Subtle ambient right glow -->
+<circle cx="600" cy="125" r="180" fill="#764ba2" fill-opacity="0.05"/>
+<!-- Top accent bar -->
+<rect x="0" y="0" width="772" height="4" fill="url(#acc)"/>
+<!-- Subtle bottom line -->
+<rect x="0" y="247" width="772" height="3" fill="url(#acc)" fill-opacity="0.25"/>
+
+<!-- ===== LEFT COLUMN — TEXT ===== -->
+<!-- "Smart Media" — bold primary heading -->
+<text x="58" y="98"
+      font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+      font-size="58" font-weight="800" letter-spacing="-1.5"
+      fill="white">Smart Media</text>
+
+<!-- "Manager" — light secondary heading -->
+<text x="58" y="158"
+      font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+      font-size="58" font-weight="300" letter-spacing="-1"
+      fill="white" fill-opacity="0.45">Manager</text>
+
+<!-- Tagline -->
+<text x="60" y="192"
+      font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+      font-size="11.5" font-weight="400" letter-spacing="3.5"
+      fill="white" fill-opacity="0.28">ORGANIZE  ·  OPTIMIZE  ·  MANAGE</text>
+
+<!-- ===== SEPARATOR ===== -->
+<rect x="456" y="0" width="1" height="250" fill="url(#sepG)"/>
+
+<!-- ===== RIGHT COLUMN — MEDIA GRID ===== -->
+<!-- Subtle glow behind grid -->
+<ellipse cx="594" cy="125" rx="145" ry="95" fill="#667eea" fill-opacity="0.04"/>
+
+<!-- ——— THUMBNAIL 1 (purple/brand) — top-left ——— -->
+<rect x="474" y="67" width="72" height="52" rx="7" fill="url(#tg1)"/>
+<!-- mountains -->
+<path d="M474,119 L474,104 L494,89 L510,102 L526,87 L546,100 L546,119 Z"
+      fill="white" fill-opacity="0.22"/>
+<!-- sun -->
+<circle cx="486" cy="81" r="7" fill="white" fill-opacity="0.65"/>
+<!-- subtle border -->
+<rect x="474" y="67" width="72" height="52" rx="7" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
+
+<!-- ——— THUMBNAIL 2 (teal) — top-center ——— -->
+<rect x="558" y="67" width="72" height="52" rx="7" fill="url(#tg2)"/>
+<path d="M558,119 L558,104 L578,89 L594,102 L610,87 L630,100 L630,119 Z"
+      fill="white" fill-opacity="0.22"/>
+<circle cx="570" cy="81" r="7" fill="white" fill-opacity="0.65"/>
+<rect x="558" y="67" width="72" height="52" rx="7" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
+
+<!-- ——— THUMBNAIL 3 (video / dark) — top-right ——— -->
+<rect x="642" y="67" width="72" height="52" rx="7" fill="#0d0d1f"/>
+<rect x="642" y="67" width="72" height="52" rx="7" fill="url(#acc)" fill-opacity="0.15"/>
+<!-- Play button -->
+<circle cx="678" cy="93" r="16" fill="white" fill-opacity="0.1"/>
+<polygon points="671,84 671,102 689,93" fill="white" fill-opacity="0.80"/>
+<!-- "VIDEO" label -->
+<text x="662" y="112" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+      font-size="7" font-weight="600" letter-spacing="1.5" fill="white" fill-opacity="0.35">VIDEO</text>
+<rect x="642" y="67" width="72" height="52" rx="7" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
+
+<!-- ——— THUMBNAIL 4 (amber/warm) — bottom-left ——— -->
+<rect x="474" y="131" width="72" height="52" rx="7" fill="url(#tg4)"/>
+<path d="M474,183 L474,168 L494,153 L510,166 L526,151 L546,164 L546,183 Z"
+      fill="white" fill-opacity="0.22"/>
+<circle cx="486" cy="145" r="7" fill="white" fill-opacity="0.65"/>
+<rect x="474" y="131" width="72" height="52" rx="7" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
+
+<!-- ——— THUMBNAIL 5 (green/nature) — bottom-center ——— -->
+<rect x="558" y="131" width="72" height="52" rx="7" fill="url(#tg5)"/>
+<path d="M558,183 L558,168 L578,153 L594,166 L610,151 L630,164 L630,183 Z"
+      fill="white" fill-opacity="0.22"/>
+<circle cx="570" cy="145" r="7" fill="white" fill-opacity="0.65"/>
+<rect x="558" y="131" width="72" height="52" rx="7" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
+
+<!-- ——— THUMBNAIL 6 (selected / active state) — bottom-right ——— -->
+<!-- Glowing selected border -->
+<rect x="639" y="128" width="78" height="58" rx="10" fill="url(#acc)"/>
+<rect x="642" y="131" width="72" height="52" rx="7" fill="url(#tg1)"/>
+<path d="M642,183 L642,168 L662,153 L678,166 L694,151 L714,164 L714,183 Z"
+      fill="white" fill-opacity="0.22"/>
+<circle cx="654" cy="145" r="7" fill="white" fill-opacity="0.65"/>
+<!-- Selected checkmark badge -->
+<circle cx="707" cy="136" r="8" fill="url(#acc)"/>
+<path d="M703,136 L706,139 L712,133" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

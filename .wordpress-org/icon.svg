@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+<defs>
+  <radialGradient id="bgG" cx="40%" cy="35%" r="65%" gradientUnits="objectBoundingBox">
+    <stop offset="0%" stop-color="#252565"/>
+    <stop offset="100%" stop-color="#1a1a2e"/>
+  </radialGradient>
+  <linearGradient id="acc" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#667eea"/>
+    <stop offset="100%" stop-color="#764ba2"/>
+  </linearGradient>
+  <linearGradient id="accH" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#8b9cf4"/>
+    <stop offset="100%" stop-color="#9b6fcb"/>
+  </linearGradient>
+  <clipPath id="fc">
+    <rect x="63" y="82" width="130" height="93" rx="10"/>
+  </clipPath>
+</defs>
+
+<!-- Background -->
+<rect width="256" height="256" rx="42" fill="url(#bgG)"/>
+
+<!-- Ambient glow orbs -->
+<circle cx="172" cy="72" r="92" fill="#667eea" fill-opacity="0.08"/>
+<circle cx="68" cy="200" r="66" fill="#764ba2" fill-opacity="0.06"/>
+
+<!-- Top accent stripe -->
+<rect x="0" y="0" width="256" height="5" rx="2" fill="url(#acc)" fill-opacity="0.6"/>
+
+<!-- Image frame — gradient border layer -->
+<rect x="58" y="78" width="140" height="103" rx="15" fill="url(#acc)"/>
+<!-- Image frame — dark interior -->
+<rect x="63" y="82" width="130" height="93" rx="10" fill="#0d0d1f"/>
+<!-- Sky gradient inside frame -->
+<rect x="63" y="82" width="130" height="56" rx="10" fill="#1c1c40" fill-opacity="0.9"/>
+
+<!-- Sun glow halo -->
+<circle cx="97" cy="107" r="21" fill="#fbbf24" fill-opacity="0.14"/>
+<!-- Sun disk -->
+<circle cx="97" cy="107" r="13" fill="#fde68a"/>
+
+<!-- Mountain range (clipped to frame) -->
+<path d="M63 175 L63 148 L98 112 L124 137 L155 108 L183 131 L193 121 L193 175 Z"
+      fill="url(#accH)" fill-opacity="0.85" clip-path="url(#fc)"/>
+<!-- Snow highlights -->
+<polygon points="98,112 109,126 87,126" fill="white" fill-opacity="0.22" clip-path="url(#fc)"/>
+<polygon points="155,108 165,122 145,122" fill="white" fill-opacity="0.18" clip-path="url(#fc)"/>
+
+<!-- Smart badge — outer gradient ring -->
+<circle cx="194" cy="54" r="25" fill="url(#acc)"/>
+<!-- Smart badge — dark inner circle -->
+<circle cx="194" cy="54" r="21" fill="#1a1a3e"/>
+<!-- Sparkle / 4-point star -->
+<path d="M194,43 L196.8,51.2 L205,54 L196.8,56.8 L194,65 L191.2,56.8 L183,54 L191.2,51.2 Z"
+      fill="url(#acc)"/>
+</svg>
