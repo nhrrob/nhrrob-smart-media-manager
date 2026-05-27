@@ -1,6 +1,9 @@
 # React source (admin/build/ ships to WP.org; source does not)
 admin/src
 
+# Node version pin
+.nvmrc
+
 # Claude / AI context (dev-only)
 CLAUDE.md
 .ai/
@@ -32,6 +35,12 @@ node_modules
 /vendor/nikic
 /vendor/phar-io
 /vendor/theseer
+/vendor/brain
+/vendor/dealerdirect
+/vendor/phpcsstandards
+/vendor/squizlabs
+/vendor/wp-coding-standards
+/vendor/yoast
 
 # Additional WordPress.org exclusions
 .babelrc
@@ -40,6 +49,10 @@ node_modules
 .editorconfig
 .eslintignore
 .eslintrc
+.eslintrc.js
+.stylelintrc.json
+.wp-env.json
+playwright.config.js
 .git
 .github
 .gitattributes

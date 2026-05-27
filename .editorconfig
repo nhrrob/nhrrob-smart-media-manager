@@ -1,0 +1,41 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# PHP — WordPress uses tabs
+[*.php]
+indent_style = tab
+indent_size = 4
+
+# JavaScript, JSX, TypeScript — tabs per @wordpress/scripts default
+[*.{js,jsx,ts,tsx}]
+indent_style = tab
+indent_size = 4
+
+# CSS / SCSS / Less
+[*.{css,scss,less}]
+indent_style = tab
+indent_size = 4
+
+# Config / data files
+[*.{json,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# XML (phpcs, composer, etc.)
+[*.xml]
+indent_style = tab
+indent_size = 4
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+
+# Git
+[.{gitattributes,gitignore}]
+indent_style = space
+indent_size = 2

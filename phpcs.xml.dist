@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<ruleset
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	name="NHR Smart Media Manager"
+	xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd"
+>
+	<description>NHR Smart Media Manager PHP Coding Standards</description>
+
+	<!-- PHP files only — JS/CSS are linted by ESLint/Stylelint -->
+	<arg name="extensions" value="php"/>
+
+	<!-- Files/directories to scan -->
+	<file>.</file>
+
+	<!-- Exclude generated / dependency directories -->
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/node_modules/*</exclude-pattern>
+	<exclude-pattern>/admin/build/*</exclude-pattern>
+	<exclude-pattern>/tests/*</exclude-pattern>
+
+	<!-- Minimum PHP version supported by the plugin -->
+	<config name="testVersion" value="7.4-"/>
+
+	<!-- Apply full WordPress Coding Standards -->
+	<rule ref="WordPress">
+		<!-- Short array syntax [] is allowed -->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+	</rule>
+
+	<!-- Enforce the plugin text domain for all i18n calls -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="nhrrob-smart-media-manager"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- All global symbols must carry the plugin prefix -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="nhrsmm"/>
+				<element value="Nhrsmm"/>
+				<element value="NHRSMM"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Enforce Yoda conditions per WordPress style -->
+	<rule ref="WordPress.PHP.YodaConditions"/>
+</ruleset>

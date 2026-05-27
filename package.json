@@ -3,11 +3,28 @@
 	"version": "1.0.0",
 	"private": true,
 	"description": "NHR Smart Media Manager WordPress Plugin",
+	"prettier": "@wordpress/prettier-config",
 	"scripts": {
 		"start": "wp-scripts start admin/src/index.js admin/src/settings.js --output-path=admin/build",
-		"build": "wp-scripts build admin/src/index.js admin/src/settings.js --output-path=admin/build"
+		"build": "wp-scripts build admin/src/index.js admin/src/settings.js --output-path=admin/build",
+		"lint:js": "wp-scripts lint-js admin/src",
+		"lint:css": "wp-scripts lint-style admin/css",
+		"lint:php": "composer run phpcs",
+		"lint": "npm run lint:js && npm run lint:css && npm run lint:php",
+		"format:js": "wp-scripts format admin/src",
+		"format": "npm run format:js",
+		"env:start": "wp-env start",
+		"env:stop": "wp-env stop",
+		"env:clean": "wp-env clean all",
+		"env:destroy": "wp-env destroy",
+		"test:unit": "composer run test:unit",
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
+		"test": "npm run test:unit && npm run test:e2e"
 	},
 	"devDependencies": {
+		"@playwright/test": "^1.50.0",
+		"@wordpress/env": "^10.19.0",
 		"@wordpress/scripts": "^30.0.0"
 	}
 }

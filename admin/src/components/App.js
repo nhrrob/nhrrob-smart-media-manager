@@ -2,12 +2,12 @@ import { useReducer, useCallback, useEffect, useRef } from '@wordpress/element';
 import { AppContext, initialState, reducer } from '../context';
 import { get, del } from '../api';
 import { getUrlParam } from '../utils';
-import Topbar        from './Topbar';
-import Sidebar        from './Sidebar';
-import MainArea       from './MainArea';
-import DetailsPanel   from './DetailsPanel';
-import UploadModal    from './UploadModal';
-import BulkBar        from './BulkBar';
+import Topbar from './Topbar';
+import Sidebar from './Sidebar';
+import MainArea from './MainArea';
+import DetailsPanel from './DetailsPanel';
+import UploadModal from './UploadModal';
+import BulkBar from './BulkBar';
 import { ConfirmModal, ContextMenus, Toast, StatusBar } from './Modals';
 
 const cfg = window.nhrsmmConfig || {};
@@ -26,28 +26,34 @@ export default function App() {
 		const s = stateRef.current;
 		dispatch( { type: 'SET_LOADING', loading: true } );
 
-		const params  = new URLSearchParams();
-		const folder  = opts.folder     !== undefined ? opts.folder     : s.currentFolder;
-		const page    = opts.page       !== undefined ? opts.page       : s.pagination.page;
-		const search  = opts.search     !== undefined ? opts.search     : s.search;
-		const filter  = opts.filter     !== undefined ? opts.filter     : s.filterType;
-		const sortBy  = opts.sortBy     !== undefined ? opts.sortBy     : s.sortBy;
-		const sortOrd = opts.sortOrder  !== undefined ? opts.sortOrder  : s.sortOrder;
+		const params = new URLSearchParams();
+		const folder =
+			opts.folder !== undefined ? opts.folder : s.currentFolder;
+		const page = opts.page !== undefined ? opts.page : s.pagination.page;
+		const search = opts.search !== undefined ? opts.search : s.search;
+		const filter = opts.filter !== undefined ? opts.filter : s.filterType;
+		const sortBy = opts.sortBy !== undefined ? opts.sortBy : s.sortBy;
+		const sortOrd =
+			opts.sortOrder !== undefined ? opts.sortOrder : s.sortOrder;
 
 		if ( folder !== null ) params.set( 'folder', folder );
-		if ( search )          params.set( 'search', search );
-		if ( filter )          params.set( 'type', filter );
-		params.set( 'page',     page );
+		if ( search ) params.set( 'search', search );
+		if ( filter ) params.set( 'type', filter );
+		params.set( 'page', page );
 		params.set( 'per_page', s.pagination.perPage );
-		params.set( 'orderby',  sortBy );
-		params.set( 'order',    sortOrd );
+		params.set( 'orderby', sortBy );
+		params.set( 'order', sortOrd );
 
 		try {
 			const result = await get( '/media?' + params.toString() );
 			dispatch( { type: 'SET_FILES', ...result } );
 		} catch ( e ) {
 			dispatch( { type: 'SET_LOADING', loading: false } );
-			dispatch( { type: 'SHOW_TOAST', message: e.message || 'Failed to load media.', kind: 'danger' } );
+			dispatch( {
+				type: 'SHOW_TOAST',
+				message: e.message || 'Failed to load media.',
+				kind: 'danger',
+			} );
 		}
 	}, [] );
 
@@ -73,12 +79,19 @@ export default function App() {
 		if ( s.selection.size === 0 ) return;
 		const count = s.selection.size;
 		showConfirm(
-			`Delete ${ count } file${ count === 1 ? '' : 's' }? This cannot be undone.`,
+			`Delete ${ count } file${
+				count === 1 ? '' : 's'
+			}? This cannot be undone.`,
 			async () => {
 				const ids = [ ...stateRef.current.selection ];
 				try {
 					const res = await del( '/media/bulk-delete', { ids } );
-					showToast( `Deleted ${ res.deleted } file${ res.deleted === 1 ? '' : 's' }.`, 'success' );
+					showToast(
+						`Deleted ${ res.deleted } file${
+							res.deleted === 1 ? '' : 's'
+						}.`,
+						'success'
+					);
 					dispatch( { type: 'CLEAR_SELECTION' } );
 					await loadFolders();
 					loadMedia();
@@ -128,26 +141,35 @@ export default function App() {
 	/* ── INITIAL LOAD (once, with URL params) ──────────────── */
 	useEffect( () => {
 		const urlFolder = getUrlParam( 'folder' );
-		const urlType   = getUrlParam( 'type' );
-		const urlPage   = getUrlParam( 'page' );
-		const urlQ      = getUrlParam( 'q' );
+		const urlType = getUrlParam( 'type' );
+		const urlPage = getUrlParam( 'page' );
+		const urlQ = getUrlParam( 'q' );
 
 		// Sync URL params into state
 		if ( urlFolder !== null ) {
-			dispatch( { type: 'SET_FOLDER', folder: urlFolder === 'all' ? null : parseInt( urlFolder ) } );
+			dispatch( {
+				type: 'SET_FOLDER',
+				folder: urlFolder === 'all' ? null : parseInt( urlFolder ),
+			} );
 		}
-		if ( urlType ) dispatch( { type: 'SET_FILTER_TYPE', filterType: urlType } );
-		if ( urlQ )    dispatch( { type: 'SET_SEARCH', search: urlQ } );
+		if ( urlType )
+			dispatch( { type: 'SET_FILTER_TYPE', filterType: urlType } );
+		if ( urlQ ) dispatch( { type: 'SET_SEARCH', search: urlQ } );
 
 		// Load folders
 		loadFolders();
 
 		// Load media with URL params directly (don't wait for state to sync)
 		loadMedia( {
-			folder:  urlFolder === null   ? undefined : urlFolder === 'all' ? null : parseInt( urlFolder ),
-			filter:  urlType   || undefined,
-			page:    urlPage   ? parseInt( urlPage ) : undefined,
-			search:  urlQ      || undefined,
+			folder:
+				urlFolder === null
+					? undefined
+					: urlFolder === 'all'
+					? null
+					: parseInt( urlFolder ),
+			filter: urlType || undefined,
+			page: urlPage ? parseInt( urlPage ) : undefined,
+			search: urlQ || undefined,
 		} );
 	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -169,7 +191,9 @@ export default function App() {
 			<div className="smm-body">
 				<Sidebar />
 				<MainArea />
-				{ state.detailsTarget !== null && <DetailsPanel fileId={ state.detailsTarget } /> }
+				{ state.detailsTarget !== null && (
+					<DetailsPanel fileId={ state.detailsTarget } />
+				) }
 			</div>
 			<StatusBar />
 			{ state.uploadOpen && <UploadModal /> }

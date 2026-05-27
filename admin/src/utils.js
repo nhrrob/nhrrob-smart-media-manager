@@ -1,15 +1,23 @@
 export function formatBytes( bytes ) {
 	if ( ! bytes ) return '0 B';
-	const k     = 1024;
+	const k = 1024;
 	const sizes = [ 'B', 'KB', 'MB', 'GB' ];
-	const i     = Math.floor( Math.log( bytes ) / Math.log( k ) );
-	return parseFloat( ( bytes / Math.pow( k, i ) ).toFixed( 1 ) ) + ' ' + sizes[ i ];
+	const i = Math.floor( Math.log( bytes ) / Math.log( k ) );
+	return (
+		parseFloat( ( bytes / Math.pow( k, i ) ).toFixed( 1 ) ) +
+		' ' +
+		sizes[ i ]
+	);
 }
 
 export function formatDate( dateStr ) {
 	if ( ! dateStr ) return '';
 	const d = new Date( dateStr );
-	return d.toLocaleDateString( undefined, { year: 'numeric', month: 'short', day: 'numeric' } );
+	return d.toLocaleDateString( undefined, {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+	} );
 }
 
 export function mimeToLabel( mime ) {
@@ -20,20 +28,21 @@ export function mimeToLabel( mime ) {
 	if ( mime.includes( 'pdf' ) ) return 'PDF';
 	if ( mime.includes( 'zip' ) || mime.includes( 'rar' ) ) return 'ZIP';
 	if ( mime.includes( 'word' ) || mime.includes( 'document' ) ) return 'DOC';
-	if ( mime.includes( 'excel' ) || mime.includes( 'spreadsheet' ) ) return 'XLS';
+	if ( mime.includes( 'excel' ) || mime.includes( 'spreadsheet' ) )
+		return 'XLS';
 	return 'FILE';
 }
 
 export function typeToIcon( type ) {
 	const map = {
-		image:       'ti-photo',
-		video:       'ti-player-play',
-		audio:       'ti-music',
-		pdf:         'ti-file-type-pdf',
-		document:    'ti-file-type-doc',
+		image: 'ti-photo',
+		video: 'ti-player-play',
+		audio: 'ti-music',
+		pdf: 'ti-file-type-pdf',
+		document: 'ti-file-type-doc',
 		spreadsheet: 'ti-file-spreadsheet',
-		archive:     'ti-file-zip',
-		other:       'ti-file',
+		archive: 'ti-file-zip',
+		other: 'ti-file',
 	};
 	return map[ type ] || 'ti-file';
 }
@@ -56,9 +65,9 @@ export async function copyToClipboard( text ) {
 		return navigator.clipboard.writeText( text );
 	}
 	const el = document.createElement( 'textarea' );
-	el.value          = text;
+	el.value = text;
 	el.style.position = 'fixed';
-	el.style.opacity  = '0';
+	el.style.opacity = '0';
 	document.body.appendChild( el );
 	el.select();
 	document.execCommand( 'copy' );

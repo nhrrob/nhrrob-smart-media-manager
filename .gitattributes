@@ -1,6 +1,9 @@
 # React source (compiled output in admin/build/ ships to WP.org; source does not)
 admin/src/              export-ignore
 
+# Node version pin
+.nvmrc                  export-ignore
+
 # Claude / AI context (dev-only)
 CLAUDE.md               export-ignore
 .ai/                    export-ignore
@@ -32,6 +35,12 @@ vendor/myclabs/         export-ignore
 vendor/nikic/           export-ignore
 vendor/phar-io/         export-ignore
 vendor/theseer/         export-ignore
+vendor/brain/           export-ignore
+vendor/dealerdirect/    export-ignore
+vendor/phpcsstandards/  export-ignore
+vendor/squizlabs/       export-ignore
+vendor/wp-coding-standards/ export-ignore
+vendor/yoast/           export-ignore
 
 # WordPress.org exclusions
 .babelrc                export-ignore
@@ -40,6 +49,10 @@ vendor/theseer/         export-ignore
 .editorconfig           export-ignore
 .eslintignore           export-ignore
 .eslintrc               export-ignore
+.eslintrc.js            export-ignore
+.stylelintrc.json       export-ignore
+.wp-env.json            export-ignore
+playwright.config.js    export-ignore
 .git                    export-ignore
 .github                 export-ignore
 .gitattributes          export-ignore

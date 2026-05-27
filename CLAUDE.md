@@ -11,6 +11,47 @@ npm run start   # development watch mode
 
 PHP has no build step. Composer autoload is pre-generated; run `composer dump-autoload` only when adding new classes to `includes/`.
 
+## Linting & Formatting
+
+```bash
+npm run lint          # JS + CSS + PHP (all)
+npm run lint:js       # wp-scripts lint-js admin/src
+npm run lint:css      # wp-scripts lint-style admin/src
+npm run lint:php      # phpcs via composer
+npm run format:js     # wp-scripts format admin/src
+
+composer run phpcbf   # auto-fix PHP CS violations
+```
+
+## Sandbox Environment (wp-env / Docker)
+
+```bash
+npm run env:start     # spin up WP on http://localhost:8888 (admin/password)
+npm run env:stop      # stop containers
+npm run env:clean     # wipe DB and uploads, keep containers
+npm run env:destroy   # remove containers and volumes entirely
+```
+
+wp-env requires Docker Desktop running. Config: `.wp-env.json`.
+
+## Testing
+
+```bash
+composer run test:unit          # PHPUnit unit tests (Brain Monkey, no DB)
+npm run test:unit               # same, via npm proxy
+
+npm run test:e2e                # Playwright E2E (requires wp-env running)
+npm run test:e2e:ui             # Playwright in interactive UI mode
+WP_BASE_URL=http://... npm run test:e2e  # override base URL
+```
+
+PHPUnit config: `phpunit.xml.dist`. Tests live in `tests/php/Unit/`.
+Playwright config: `playwright.config.js`. Tests live in `tests/e2e/`.
+
+## Node Version
+
+Pin: Node 24 (`.nvmrc`). Run `nvm use` in the project root to switch.
+
 ## Architecture
 
 ### Boot Flow

@@ -6,7 +6,7 @@ const cfg = window.nhrsmmConfig || {};
 
 export default function Topbar() {
 	const { dispatch, loadMedia } = useApp();
-	const searchRef  = useRef( null );
+	const searchRef = useRef( null );
 	const debounceRef = useRef( null );
 
 	const onSearchInput = useCallback( () => {
@@ -44,10 +44,7 @@ export default function Topbar() {
 			<div className="topbar-spacer" />
 
 			<div className="topbar-actions">
-				<button
-					className="btn btn-sm btn-ai"
-					onClick={ () => {} }
-				>
+				<button className="btn btn-sm btn-ai" onClick={ () => {} }>
 					<i className="ti ti-sparkles" />
 					AI Tools
 				</button>

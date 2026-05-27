@@ -1,6 +1,15 @@
 import { useState, useCallback, useRef, memo } from '@wordpress/element';
 import { useApp } from '../context';
-import { setUrlParams, findFolder, getFolderName, mimeToLabel, typeToIcon, typeToClass, formatBytes, formatDate } from '../utils';
+import {
+	setUrlParams,
+	findFolder,
+	getFolderName,
+	mimeToLabel,
+	typeToIcon,
+	typeToClass,
+	formatBytes,
+	formatDate,
+} from '../utils';
 
 /* ── Main Area (toolbar + content + pagination) ──────────────── */
 export default function MainArea() {
@@ -43,15 +52,28 @@ export default function MainArea() {
 /* ── Toolbar ─────────────────────────────────────────────────── */
 function Toolbar() {
 	const { state, dispatch, loadMedia } = useApp();
-	const { currentFolder, folders, selection, files, filterType, view, thumbSize, sortBy, sortOrder } = state;
+	const {
+		currentFolder,
+		folders,
+		selection,
+		files,
+		filterType,
+		view,
+		thumbSize,
+		sortBy,
+		sortOrder,
+	} = state;
 	const [ filterOpen, setFilterOpen ] = useState( false );
 
-	const allChecked    = files.length > 0 && selection.size === files.length;
+	const allChecked = files.length > 0 && selection.size === files.length;
 	const indeterminate = selection.size > 0 && selection.size < files.length;
 
-	const checkRef = useCallback( node => {
-		if ( node ) node.indeterminate = indeterminate;
-	}, [ indeterminate ] );
+	const checkRef = useCallback(
+		( node ) => {
+			if ( node ) node.indeterminate = indeterminate;
+		},
+		[ indeterminate ]
+	);
 
 	function onSelectAll( e ) {
 		if ( e.target.checked ) {
@@ -63,7 +85,7 @@ function Toolbar() {
 
 	function getBreadcrumb() {
 		if ( currentFolder === null ) return 'All Files';
-		if ( currentFolder === 0 )   return 'Uncategorized';
+		if ( currentFolder === 0 ) return 'Uncategorized';
 		const f = findFolder( folders, currentFolder );
 		return f ? f.name : '…';
 	}
@@ -107,15 +129,21 @@ function Toolbar() {
 				<span
 					className="breadcrumb-item"
 					style={ { cursor: 'pointer' } }
-					onClick={ () => { dispatch( { type: 'SET_FOLDER', folder: null } ); setUrlParams( { folder: null, page: null } ); loadMedia( { folder: null } ); } }
+					onClick={ () => {
+						dispatch( { type: 'SET_FOLDER', folder: null } );
+						setUrlParams( { folder: null, page: null } );
+						loadMedia( { folder: null } );
+					} }
 				>
 					<i className="ti ti-home" style={ { fontSize: '12px' } } />
 				</span>
-				<span className="breadcrumb-sep"><i className="ti ti-chevron-right" /></span>
+				<span className="breadcrumb-sep">
+					<i className="ti ti-chevron-right" />
+				</span>
 				<span className="breadcrumb-current">{ getBreadcrumb() }</span>
 			</div>
 
-			{/* Filter chips */}
+			{ /* Filter chips */ }
 			<div className="toolbar-filter-chips">
 				{ state.search && (
 					<span className="filter-chip">
@@ -126,27 +154,47 @@ function Toolbar() {
 				{ filterType && (
 					<span className="filter-chip">
 						{ filterType }
-						<i className="ti ti-x" onClick={ () => setFilter( '' ) } />
+						<i
+							className="ti ti-x"
+							onClick={ () => setFilter( '' ) }
+						/>
 					</span>
 				) }
 			</div>
 
 			<div style={ { flex: 1 } } />
 
-			{/* Filter dropdown */}
-			<div className="toolbar-filter-group" style={ { position: 'relative' } }>
+			{ /* Filter dropdown */ }
+			<div
+				className="toolbar-filter-group"
+				style={ { position: 'relative' } }
+			>
 				<button
 					className="btn btn-sm btn-default"
 					id="smm-filter-btn"
-					onClick={ e => { e.stopPropagation(); setFilterOpen( v => ! v ); } }
+					onClick={ ( e ) => {
+						e.stopPropagation();
+						setFilterOpen( ( v ) => ! v );
+					} }
 				>
 					<i className="ti ti-filter" /> Filter
 				</button>
 				{ filterOpen && (
-					<div className="smm-dropdown" id="smm-filter-dropdown" style={ { display: 'block' } }>
+					<div
+						className="smm-dropdown"
+						id="smm-filter-dropdown"
+						style={ { display: 'block' } }
+					>
 						<div className="smm-dropdown-section">
 							<div className="smm-dropdown-label">File Type</div>
-							{ [ [ '', 'All Types' ], [ 'image', 'Images' ], [ 'video', 'Video' ], [ 'audio', 'Audio' ], [ 'document', 'Documents' ], [ 'other', 'Other' ] ].map( ( [ val, label ] ) => (
+							{ [
+								[ '', 'All Types' ],
+								[ 'image', 'Images' ],
+								[ 'video', 'Video' ],
+								[ 'audio', 'Audio' ],
+								[ 'document', 'Documents' ],
+								[ 'other', 'Other' ],
+							].map( ( [ val, label ] ) => (
 								<label key={ val } className="smm-dropdown-opt">
 									<input
 										type="radio"
@@ -154,8 +202,8 @@ function Toolbar() {
 										value={ val }
 										checked={ ( filterType || '' ) === val }
 										onChange={ () => setFilter( val ) }
-									/>
-									{ ' ' }{ label }
+									/>{ ' ' }
+									{ label }
 								</label>
 							) ) }
 						</div>
@@ -163,17 +211,21 @@ function Toolbar() {
 				) }
 			</div>
 
-			{/* View toggle */}
+			{ /* View toggle */ }
 			<div className="view-toggle">
 				<button
-					className={ `btn btn-sm btn-default${ view === 'grid' ? ' is-active' : '' }` }
+					className={ `btn btn-sm btn-default${
+						view === 'grid' ? ' is-active' : ''
+					}` }
 					title="Grid view"
 					onClick={ () => switchView( 'grid' ) }
 				>
 					<i className="ti ti-layout-grid" />
 				</button>
 				<button
-					className={ `btn btn-sm btn-default${ view === 'list' ? ' is-active' : '' }` }
+					className={ `btn btn-sm btn-default${
+						view === 'list' ? ' is-active' : ''
+					}` }
 					title="List view"
 					onClick={ () => switchView( 'list' ) }
 				>
@@ -181,18 +233,31 @@ function Toolbar() {
 				</button>
 			</div>
 
-			{/* Thumb size slider (grid only) */}
+			{ /* Thumb size slider (grid only) */ }
 			{ view === 'grid' && (
 				<div className="thumb-size-control">
-					<i className="ti ti-photo" style={ { fontSize: '11px', color: 'var(--gray-400)' } } />
+					<i
+						className="ti ti-photo"
+						style={ { fontSize: '11px', color: 'var(--gray-400)' } }
+					/>
 					<input
 						type="range"
-						min="80" max="200" step="20"
+						min="80"
+						max="200"
+						step="20"
 						value={ thumbSize }
 						title="Thumbnail size"
-						onChange={ e => dispatch( { type: 'SET_THUMB_SIZE', size: parseInt( e.target.value ) } ) }
+						onChange={ ( e ) =>
+							dispatch( {
+								type: 'SET_THUMB_SIZE',
+								size: parseInt( e.target.value ),
+							} )
+						}
 					/>
-					<i className="ti ti-photo" style={ { fontSize: '15px', color: 'var(--gray-400)' } } />
+					<i
+						className="ti ti-photo"
+						style={ { fontSize: '15px', color: 'var(--gray-400)' } }
+					/>
 				</div>
 			) }
 		</div>
@@ -225,7 +290,9 @@ function GridView() {
 				<div className="smm-empty-state" style={ { display: 'flex' } }>
 					<i className="ti ti-folder-off" />
 					<p className="smm-empty-title">No files here</p>
-					<p className="smm-empty-sub">Upload files or move some here from another folder.</p>
+					<p className="smm-empty-sub">
+						Upload files or move some here from another folder.
+					</p>
 					<button
 						className="btn btn-default"
 						onClick={ () => dispatch( { type: 'OPEN_UPLOAD' } ) }
@@ -241,9 +308,11 @@ function GridView() {
 		<div className="smm-grid-view" id="smm-grid-view">
 			<div
 				className="smm-media-grid"
-				style={ { gridTemplateColumns: `repeat(auto-fill, minmax(${ thumbSize }px, 1fr))` } }
+				style={ {
+					gridTemplateColumns: `repeat(auto-fill, minmax(${ thumbSize }px, 1fr))`,
+				} }
 			>
-				{ files.map( f => (
+				{ files.map( ( f ) => (
 					<MediaCard
 						key={ f.id }
 						file={ f }
@@ -258,19 +327,30 @@ function GridView() {
 }
 
 /* ── Media Card ──────────────────────────────────────────────── */
-const MediaCard = memo( function MediaCard( { file: f, isSelected, selectionSize, dispatch } ) {
+const MediaCard = memo( function MediaCard( {
+	file: f,
+	isSelected,
+	selectionSize,
+	dispatch,
+} ) {
 	const selClass = isSelected
-		? ( selectionSize === 1 ? 'selected' : 'multi-selected' )
+		? selectionSize === 1
+			? 'selected'
+			: 'multi-selected'
 		: '';
 
 	function onDragStart( e ) {
 		// Use the current selection if file is in it, else just this file
 		const ids = isSelected ? null : [ f.id ]; // null means "use selection"
 		e.dataTransfer.effectAllowed = 'move';
-		e.dataTransfer.setData( 'text/plain', JSON.stringify( { fileIds: ids || null, singleId: f.id } ) );
+		e.dataTransfer.setData(
+			'text/plain',
+			JSON.stringify( { fileIds: ids || null, singleId: f.id } )
+		);
 
 		const ghost = document.createElement( 'div' );
-		ghost.style.cssText = 'position:fixed;top:-200px;background:var(--brand-800);color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;';
+		ghost.style.cssText =
+			'position:fixed;top:-200px;background:var(--brand-800);color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;';
 		ghost.textContent = '1 file';
 		document.body.appendChild( ghost );
 		e.dataTransfer.setDragImage( ghost, 0, 0 );
@@ -289,8 +369,15 @@ const MediaCard = memo( function MediaCard( { file: f, isSelected, selectionSize
 
 	function onContextMenu( e ) {
 		e.preventDefault();
-		if ( ! isSelected ) dispatch( { type: 'SELECT_FILE', id: f.id, mode: 'single' } );
-		dispatch( { type: 'SHOW_CONTEXT_MENU', kind: 'file', id: f.id, x: e.clientX, y: e.clientY } );
+		if ( ! isSelected )
+			dispatch( { type: 'SELECT_FILE', id: f.id, mode: 'single' } );
+		dispatch( {
+			type: 'SHOW_CONTEXT_MENU',
+			kind: 'file',
+			id: f.id,
+			x: e.clientX,
+			y: e.clientY,
+		} );
 	}
 
 	return (
@@ -300,20 +387,31 @@ const MediaCard = memo( function MediaCard( { file: f, isSelected, selectionSize
 			tabIndex={ 0 }
 			onClick={ onClick }
 			onContextMenu={ onContextMenu }
-			onKeyDown={ e => e.key === 'Enter' && dispatch( { type: 'SELECT_FILE', id: f.id, mode: 'single' } ) }
+			onKeyDown={ ( e ) =>
+				e.key === 'Enter' &&
+				dispatch( { type: 'SELECT_FILE', id: f.id, mode: 'single' } )
+			}
 			onDragStart={ onDragStart }
 		>
 			<div className="card-thumb">
 				{ f.thumb ? (
 					<img src={ f.thumb } alt={ f.title } loading="lazy" />
 				) : (
-					<i className={ `ti ${ typeToIcon( f.type ) } card-type-icon` } />
+					<i
+						className={ `ti ${ typeToIcon(
+							f.type
+						) } card-type-icon` }
+					/>
 				) }
-				<div className={ `card-check${ isSelected ? ' checked' : '' }` } />
+				<div
+					className={ `card-check${ isSelected ? ' checked' : '' }` }
+				/>
 				<span className="card-badge">{ mimeToLabel( f.mime ) }</span>
 			</div>
 			<div className="card-info">
-				<div className="card-name" title={ f.filename }>{ f.filename }</div>
+				<div className="card-name" title={ f.filename }>
+					{ f.filename }
+				</div>
 				<div className="card-meta">{ formatBytes( f.size ) }</div>
 			</div>
 		</div>
@@ -354,16 +452,32 @@ function ListView() {
 							/>
 						</th>
 						<th className="col-thumb">File</th>
-						<th className="col-name sortable" onClick={ () => onSort( 'title' ) }>
+						<th
+							className="col-name sortable"
+							onClick={ () => onSort( 'title' ) }
+						>
 							Name <i className="ti ti-chevron-down" />
 						</th>
-						<th className="col-type sortable" onClick={ () => onSort( 'type' ) }>
+						<th
+							className="col-type sortable"
+							onClick={ () => onSort( 'type' ) }
+						>
 							Type
 						</th>
 						<th className="col-size">Size</th>
 						<th className="col-dims">Dimensions</th>
-						<th className="col-date sortable" onClick={ () => onSort( 'date' ) }>
-							Date <i className={ `ti ti-chevron-${ sortBy === 'date' && sortOrder === 'ASC' ? 'up' : 'down' }${ sortBy === 'date' ? ' sort-active' : '' }` } />
+						<th
+							className="col-date sortable"
+							onClick={ () => onSort( 'date' ) }
+						>
+							Date{ ' ' }
+							<i
+								className={ `ti ti-chevron-${
+									sortBy === 'date' && sortOrder === 'ASC'
+										? 'up'
+										: 'down'
+								}${ sortBy === 'date' ? ' sort-active' : '' }` }
+							/>
 						</th>
 						<th className="col-folder">Folder</th>
 					</tr>
@@ -371,34 +485,57 @@ function ListView() {
 				<tbody>
 					{ loading && files.length === 0 ? (
 						<tr>
-							<td colSpan="8" style={ { textAlign: 'center', padding: '40px', color: 'var(--gray-400)' } }>
+							<td
+								colSpan="8"
+								style={ {
+									textAlign: 'center',
+									padding: '40px',
+									color: 'var(--gray-400)',
+								} }
+							>
 								<span className="smm-spinner" />
 							</td>
 						</tr>
 					) : files.length === 0 ? (
 						<tr>
-							<td colSpan="8" style={ { textAlign: 'center', padding: '40px', color: 'var(--gray-400)' } }>
+							<td
+								colSpan="8"
+								style={ {
+									textAlign: 'center',
+									padding: '40px',
+									color: 'var(--gray-400)',
+								} }
+							>
 								No files found.
 							</td>
 						</tr>
-					) : files.map( f => (
-						<MediaRow
-							key={ f.id }
-							file={ f }
-							isSelected={ selection.has( f.id ) }
-							folders={ folders }
-							dispatch={ dispatch }
-						/>
-					) ) }
+					) : (
+						files.map( ( f ) => (
+							<MediaRow
+								key={ f.id }
+								file={ f }
+								isSelected={ selection.has( f.id ) }
+								folders={ folders }
+								dispatch={ dispatch }
+							/>
+						) )
+					) }
 				</tbody>
 			</table>
 		</div>
 	);
 }
 
-const MediaRow = memo( function MediaRow( { file: f, isSelected, folders, dispatch } ) {
-	const dims       = f.width ? `${ f.width }×${ f.height }` : '—';
-	const folderName = f.folder_id ? getFolderName( folders, f.folder_id ) : '—';
+const MediaRow = memo( function MediaRow( {
+	file: f,
+	isSelected,
+	folders,
+	dispatch,
+} ) {
+	const dims = f.width ? `${ f.width }×${ f.height }` : '—';
+	const folderName = f.folder_id
+		? getFolderName( folders, f.folder_id )
+		: '—';
 
 	function onClick( e ) {
 		if ( e.target.matches( '.list-row-check' ) ) return; // handled by onChange
@@ -413,32 +550,60 @@ const MediaRow = memo( function MediaRow( { file: f, isSelected, folders, dispat
 
 	function onContextMenu( e ) {
 		e.preventDefault();
-		if ( ! isSelected ) dispatch( { type: 'SELECT_FILE', id: f.id, mode: 'single' } );
-		dispatch( { type: 'SHOW_CONTEXT_MENU', kind: 'file', id: f.id, x: e.clientX, y: e.clientY } );
+		if ( ! isSelected )
+			dispatch( { type: 'SELECT_FILE', id: f.id, mode: 'single' } );
+		dispatch( {
+			type: 'SHOW_CONTEXT_MENU',
+			kind: 'file',
+			id: f.id,
+			x: e.clientX,
+			y: e.clientY,
+		} );
 	}
 
 	return (
-		<tr className={ isSelected ? 'selected' : '' } onClick={ onClick } onContextMenu={ onContextMenu }>
+		<tr
+			className={ isSelected ? 'selected' : '' }
+			onClick={ onClick }
+			onContextMenu={ onContextMenu }
+		>
 			<td className="col-check">
 				<input
 					type="checkbox"
 					className="toolbar-checkbox list-row-check"
 					checked={ isSelected }
-					onChange={ () => dispatch( { type: 'SELECT_FILE', id: f.id, mode: 'toggle' } ) }
+					onChange={ () =>
+						dispatch( {
+							type: 'SELECT_FILE',
+							id: f.id,
+							mode: 'toggle',
+						} )
+					}
 				/>
 			</td>
 			<td className="col-thumb">
 				{ f.thumb ? (
-					<img className="list-thumb" src={ f.thumb } alt={ f.title } loading="lazy" />
+					<img
+						className="list-thumb"
+						src={ f.thumb }
+						alt={ f.title }
+						loading="lazy"
+					/>
 				) : (
-					<div className="list-thumb-icon"><i className={ `ti ${ typeToIcon( f.type ) }` } /></div>
+					<div className="list-thumb-icon">
+						<i className={ `ti ${ typeToIcon( f.type ) }` } />
+					</div>
 				) }
 			</td>
 			<td className="col-name">
-				<div className="list-filename" title={ f.filename }>{ f.title || f.filename }</div>
+				<div className="list-filename" title={ f.filename }>
+					{ f.title || f.filename }
+				</div>
 			</td>
 			<td className="col-type">
-				<span className={ `list-type-badge ${ typeToClass( f.type ) }` }>
+				<span
+					className={ `list-type-badge ${ typeToClass( f.type ) }` }
+				>
 					{ mimeToLabel( f.mime ) }
 				</span>
 			</td>
@@ -472,7 +637,9 @@ function Pagination() {
 			>
 				<i className="ti ti-chevron-left" />
 			</button>
-			<span className="smm-page-info">{ pagination.page } / { pagination.pages }</span>
+			<span className="smm-page-info">
+				{ pagination.page } / { pagination.pages }
+			</span>
 			<button
 				className="btn btn-sm btn-default"
 				disabled={ pagination.page >= pagination.pages }

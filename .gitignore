@@ -14,6 +14,9 @@ composer.lock
 
 # Development tools
 /.phpunit.result.cache
+/.phpunit.cache
+/test-results
+/playwright-report
 /vendor/phpunit
 /vendor/10up
 /vendor/mockery
@@ -27,3 +30,9 @@ composer.lock
 /vendor/nikic
 /vendor/phar-io
 /vendor/theseer
+/vendor/brain
+/vendor/dealerdirect
+/vendor/phpcsstandards
+/vendor/squizlabs
+/vendor/wp-coding-standards
+/vendor/yoast
