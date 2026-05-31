@@ -11,28 +11,10 @@ composer.lock
 
 # Dependencies
 /node_modules
+/vendor
 
 # Development tools
 /.phpunit.result.cache
 /.phpunit.cache
 /test-results
 /playwright-report
-/vendor/phpunit
-/vendor/10up
-/vendor/mockery
-/vendor/hamcrest
-/vendor/sebastian
-/vendor/bin
-/vendor/symfony/yaml
-/vendor/antecedent
-/vendor/doctrine
-/vendor/myclabs
-/vendor/nikic
-/vendor/phar-io
-/vendor/theseer
-/vendor/brain
-/vendor/dealerdirect
-/vendor/phpcsstandards
-/vendor/squizlabs
-/vendor/wp-coding-standards
-/vendor/yoast
