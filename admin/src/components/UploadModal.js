@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useApp } from '../context';
 import { iconForMime } from '../utils';
 
@@ -82,7 +83,10 @@ export default function UploadModal() {
 			try {
 				const data = JSON.parse( xhr.responseText );
 				if ( xhr.status >= 400 || data?.success === false ) {
-					throw new Error( data?.data?.message || 'Upload failed' );
+					throw new Error(
+						data?.data?.message ||
+							__( 'Upload failed', 'nhrrob-smart-media-manager' )
+					);
 				}
 				const attachId = data?.data?.id || data?.id;
 				if ( attachId && folderId ) {
@@ -106,7 +110,10 @@ export default function UploadModal() {
 		} );
 
 		xhr.addEventListener( 'error', () => {
-			updateItem( itemId, { status: 'fail', error: 'Network error' } );
+			updateItem( itemId, {
+				status: 'fail',
+				error: __( 'Network error', 'nhrrob-smart-media-manager' ),
+			} );
 			setResults( ( prev ) => ( { ...prev, fail: prev.fail + 1 } ) );
 		} );
 
@@ -145,7 +152,8 @@ export default function UploadModal() {
 			<div className="smm-modal" onClick={ ( e ) => e.stopPropagation() }>
 				<div className="modal-header">
 					<span className="modal-title">
-						<i className="ti ti-cloud-upload" /> Upload Files
+						<i className="ti ti-cloud-upload" />{ ' ' }
+						{ __( 'Upload Files', 'nhrrob-smart-media-manager' ) }
 					</span>
 					<button className="btn-icon" onClick={ close }>
 						<i className="ti ti-x" />
@@ -174,8 +182,18 @@ export default function UploadModal() {
 					>
 						<div className="dropzone-inner">
 							<i className="ti ti-cloud-upload dropzone-icon" />
-							<p className="dropzone-title">Drop files here</p>
-							<p className="dropzone-sub">or click to browse</p>
+							<p className="dropzone-title">
+								{ __(
+									'Drop files here',
+									'nhrrob-smart-media-manager'
+								) }
+							</p>
+							<p className="dropzone-sub">
+								{ __(
+									'or click to browse',
+									'nhrrob-smart-media-manager'
+								) }
+							</p>
 							<input
 								ref={ fileInputRef }
 								type="file"
@@ -195,7 +213,11 @@ export default function UploadModal() {
 									fileInputRef.current?.click();
 								} }
 							>
-								<i className="ti ti-upload" /> Browse Files
+								<i className="ti ti-upload" />{ ' ' }
+								{ __(
+									'Browse Files',
+									'nhrrob-smart-media-manager'
+								) }
 							</button>
 						</div>
 					</div>
@@ -205,12 +227,22 @@ export default function UploadModal() {
 						style={ { marginTop: '12px' } }
 					>
 						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
-						<label className="smm-label">Upload to folder</label>
+						<label className="smm-label">
+							{ __(
+								'Upload to folder',
+								'nhrrob-smart-media-manager'
+							) }
+						</label>
 						<select
 							className="smm-select"
 							id="smm-upload-folder-select"
 						>
-							<option value="0">Uncategorized</option>
+							<option value="0">
+								{ __(
+									'Uncategorized',
+									'nhrrob-smart-media-manager'
+								) }
+							</option>
 							{ renderFolderOptions( folders ) }
 						</select>
 					</div>
@@ -267,7 +299,10 @@ export default function UploadModal() {
 											) }
 											{ item.status === 'waiting' && (
 												<span className="upload-waiting-text">
-													Waiting…
+													{ __(
+														'Waiting…',
+														'nhrrob-smart-media-manager'
+													) }
 												</span>
 											) }
 										</span>
@@ -289,8 +324,15 @@ export default function UploadModal() {
 										borderRadius: '4px',
 									} }
 								>
-									{ results.ok } uploaded, { results.fail }{ ' ' }
-									failed
+									{ sprintf(
+										// translators: %1$d: uploaded count, %2$d: failed count
+										__(
+											'%1$d uploaded, %2$d failed',
+											'nhrrob-smart-media-manager'
+										),
+										results.ok,
+										results.fail
+									) }
 								</span>
 							) : (
 								<span
@@ -300,14 +342,21 @@ export default function UploadModal() {
 										borderRadius: '4px',
 									} }
 								>
-									{ results.ok } file
-									{ results.ok === 1 ? '' : 's' } uploaded
-									successfully
+									{ sprintf(
+										// translators: %d: number of uploaded files
+										_n(
+											'%d file uploaded successfully',
+											'%d files uploaded successfully',
+											results.ok,
+											'nhrrob-smart-media-manager'
+										),
+										results.ok
+									) }
 								</span>
 							) }
 						</span>
 						<button className="btn btn-default" onClick={ onDone }>
-							Done
+							{ __( 'Done', 'nhrrob-smart-media-manager' ) }
 						</button>
 					</div>
 				) }

@@ -9,6 +9,9 @@ module.exports = {
 		nhrsmmSettingsConfig: 'readonly',
 	},
 	rules: {
-		// Add project-specific overrides here
+		'@wordpress/i18n-text-domain': [
+			'error',
+			{ allowedTextDomain: [ 'nhrrob-smart-media-manager' ] },
+		],
 	},
 };

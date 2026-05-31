@@ -96,6 +96,9 @@ class Assets {
 			[ 'in_footer' => true ]
 		);
 
+		wp_set_script_translations( 'nhrsmm-app', 'nhrrob-smart-media-manager', NHRSMM_PLUGIN_DIR . 'languages' );
+		wp_set_script_translations( 'nhrsmm-settings', 'nhrrob-smart-media-manager', NHRSMM_PLUGIN_DIR . 'languages' );
+
 		wp_register_style(
 			'nhrsmm-icons',
 			NHRSMM_URL . '/admin/css/nhrsmm-icons.css',

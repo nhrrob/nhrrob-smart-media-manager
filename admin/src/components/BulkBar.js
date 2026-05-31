@@ -1,4 +1,5 @@
 import { useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useApp } from '../context';
 import { post } from '../api';
 
@@ -26,7 +27,16 @@ export default function BulkBar() {
 				folder_id: folderId,
 			} );
 			showToast(
-				`Moved ${ res.moved } file${ res.moved === 1 ? '' : 's' }.`,
+				sprintf(
+					// translators: %d: number of moved files
+					_n(
+						'Moved %d file.',
+						'Moved %d files.',
+						res.moved,
+						'nhrrob-smart-media-manager'
+					),
+					res.moved
+				),
 				'success'
 			);
 			dispatch( { type: 'CLEAR_SELECTION' } );
@@ -52,7 +62,16 @@ export default function BulkBar() {
 	return (
 		<div className="smm-bulk-bar" style={ { display: 'flex' } }>
 			<span className="bulk-count">
-				{ selection.size } files selected
+				{ sprintf(
+					// translators: %d: number of selected files
+					_n(
+						'%d file selected',
+						'%d files selected',
+						selection.size,
+						'nhrrob-smart-media-manager'
+					),
+					selection.size
+				) }
 			</span>
 
 			<div className="bulk-actions">
@@ -61,7 +80,12 @@ export default function BulkBar() {
 					value={ selectedFolder }
 					onChange={ ( e ) => setSelectedFolder( e.target.value ) }
 				>
-					<option value="">Move to folder…</option>
+					<option value="">
+						{ __(
+							'Move to folder…',
+							'nhrrob-smart-media-manager'
+						) }
+					</option>
 					{ renderFolderOptions( folders ) }
 				</select>
 
@@ -70,14 +94,16 @@ export default function BulkBar() {
 					disabled={ ! selectedFolder }
 					onClick={ moveSelected }
 				>
-					<i className="ti ti-arrows-move" /> Move
+					<i className="ti ti-arrows-move" />{ ' ' }
+					{ __( 'Move', 'nhrrob-smart-media-manager' ) }
 				</button>
 
 				<button
 					className="btn btn-sm btn-danger"
 					onClick={ deleteSelected }
 				>
-					<i className="ti ti-trash" /> Delete
+					<i className="ti ti-trash" />{ ' ' }
+					{ __( 'Delete', 'nhrrob-smart-media-manager' ) }
 				</button>
 			</div>
 

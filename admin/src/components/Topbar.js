@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { useApp } from '../context';
 import { setUrlParams } from '../utils';
 
@@ -24,7 +25,10 @@ export default function Topbar() {
 		e.stopPropagation();
 		if ( ! cfg.aiConfigured ) {
 			showToast(
-				'No AI provider configured. Go to Settings → Connectors.',
+				__(
+					'No AI provider configured. Go to Settings → Connectors.',
+					'nhrrob-smart-media-manager'
+				),
 				'warning'
 			);
 			return;
@@ -46,7 +50,10 @@ export default function Topbar() {
 				<input
 					ref={ searchRef }
 					type="text"
-					placeholder="Search files…"
+					placeholder={ __(
+						'Search files…',
+						'nhrrob-smart-media-manager'
+					) }
 					autoComplete="off"
 					onInput={ onSearchInput }
 				/>
@@ -60,7 +67,7 @@ export default function Topbar() {
 						onClick={ onAiClick }
 					>
 						<i className="ti ti-sparkles" />
-						AI Tools
+						{ __( 'AI Tools', 'nhrrob-smart-media-manager' ) }
 					</button>
 					{ aiOpen && (
 						<div
@@ -74,12 +81,22 @@ export default function Topbar() {
 						>
 							<div className="ai-tools-header">
 								<i className="ti ti-sparkles" />
-								{ cfg.aiProvider || 'AI' } Connected
+								{ sprintf(
+									// translators: %s: AI provider name
+									__(
+										'%s Connected',
+										'nhrrob-smart-media-manager'
+									),
+									cfg.aiProvider ||
+										__( 'AI', 'nhrrob-smart-media-manager' )
+								) }
 							</div>
 							<div className="smm-dropdown-section">
 								<p className="ai-tools-hint">
-									Select a file and use the details panel to
-									generate alt text or captions with AI.
+									{ __(
+										'Select a file and use the details panel to generate alt text or captions with AI.',
+										'nhrrob-smart-media-manager'
+									) }
 								</p>
 							</div>
 							<div className="smm-dropdown-section ai-tools-links">
@@ -88,7 +105,10 @@ export default function Topbar() {
 									className="smm-dropdown-opt"
 								>
 									<i className="ti ti-settings" />
-									AI Connector Settings
+									{ __(
+										'AI Connector Settings',
+										'nhrrob-smart-media-manager'
+									) }
 								</a>
 							</div>
 						</div>
@@ -100,12 +120,12 @@ export default function Topbar() {
 					onClick={ () => dispatch( { type: 'OPEN_UPLOAD' } ) }
 				>
 					<i className="ti ti-cloud-upload" />
-					Upload
+					{ __( 'Upload', 'nhrrob-smart-media-manager' ) }
 				</button>
 				<a
 					href={ cfg.settingsUrl }
 					className="btn-icon"
-					title="Settings"
+					title={ __( 'Settings', 'nhrrob-smart-media-manager' ) }
 				>
 					<i className="ti ti-adjustments-horizontal" />
 				</a>

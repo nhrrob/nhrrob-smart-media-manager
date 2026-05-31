@@ -1,4 +1,5 @@
 import { useReducer, useCallback, useEffect, useRef } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { AppContext, initialState, reducer } from '../context';
 import { get, del } from '../api';
 import { getUrlParam } from '../utils';
@@ -89,7 +90,9 @@ export default function App() {
 			dispatch( { type: 'SET_LOADING', loading: false } );
 			dispatch( {
 				type: 'SHOW_TOAST',
-				message: e.message || 'Failed to load media.',
+				message:
+					e.message ||
+					__( 'Failed to load media.', 'nhrrob-smart-media-manager' ),
 				kind: 'danger',
 			} );
 		}
@@ -123,17 +126,31 @@ export default function App() {
 		}
 		const count = s.selection.size;
 		showConfirm(
-			`Delete ${ count } file${
-				count === 1 ? '' : 's'
-			}? This cannot be undone.`,
+			sprintf(
+				// translators: %d: number of files to delete
+				_n(
+					'Delete %d file? This cannot be undone.',
+					'Delete %d files? This cannot be undone.',
+					count,
+					'nhrrob-smart-media-manager'
+				),
+				count
+			),
 			async () => {
 				const ids = [ ...stateRef.current.selection ];
 				try {
 					const res = await del( '/media/bulk-delete', { ids } );
 					showToast(
-						`Deleted ${ res.deleted } file${
-							res.deleted === 1 ? '' : 's'
-						}.`,
+						sprintf(
+							// translators: %d: number of deleted files
+							_n(
+								'Deleted %d file.',
+								'Deleted %d files.',
+								res.deleted,
+								'nhrrob-smart-media-manager'
+							),
+							res.deleted
+						),
 						'success'
 					);
 					dispatch( { type: 'CLEAR_SELECTION' } );

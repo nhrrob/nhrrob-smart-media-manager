@@ -1,4 +1,5 @@
 import { useState, memo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { useApp } from '../context';
 import {
 	setUrlParams,
@@ -84,13 +85,13 @@ function Toolbar() {
 
 	function getBreadcrumb() {
 		if ( recentView ) {
-			return 'Recent';
+			return __( 'Recent', 'nhrrob-smart-media-manager' );
 		}
 		if ( currentFolder === null ) {
-			return 'All Files';
+			return __( 'All Files', 'nhrrob-smart-media-manager' );
 		}
 		if ( currentFolder === 0 ) {
-			return 'Uncategorized';
+			return __( 'Uncategorized', 'nhrrob-smart-media-manager' );
 		}
 		const f = findFolder( folders, currentFolder );
 		return f ? f.name : '…';
@@ -114,13 +115,32 @@ function Toolbar() {
 		loadMedia( { search: '' } );
 	}
 
+	const sortOptions = [
+		[ 'date', __( 'Date Added', 'nhrrob-smart-media-manager' ) ],
+		[ 'title', __( 'Name', 'nhrrob-smart-media-manager' ) ],
+		[ 'size', __( 'Size', 'nhrrob-smart-media-manager' ) ],
+	];
+
+	const filterOptions = [
+		[ '', __( 'All Types', 'nhrrob-smart-media-manager' ) ],
+		[ 'image', __( 'Images', 'nhrrob-smart-media-manager' ) ],
+		[ 'video', __( 'Video', 'nhrrob-smart-media-manager' ) ],
+		[ 'audio', __( 'Audio', 'nhrrob-smart-media-manager' ) ],
+		[ 'document', __( 'Documents', 'nhrrob-smart-media-manager' ) ],
+		[
+			'spreadsheet',
+			__( 'Spreadsheets & CSV', 'nhrrob-smart-media-manager' ),
+		],
+		[ 'other', __( 'Other', 'nhrrob-smart-media-manager' ) ],
+	];
+
 	return (
 		<div className="smm-toolbar">
 			<SmmCheckbox
 				checked={ allChecked }
 				indeterminate={ indeterminate }
 				onChange={ onSelectAll }
-				title="Select all"
+				title={ __( 'Select all', 'nhrrob-smart-media-manager' ) }
 			/>
 
 			<div className="breadcrumb">
@@ -177,7 +197,8 @@ function Toolbar() {
 						setFilterOpen( false );
 					} }
 				>
-					<i className="ti ti-arrows-sort" /> Sort
+					<i className="ti ti-arrows-sort" />{ ' ' }
+					{ __( 'Sort', 'nhrrob-smart-media-manager' ) }
 				</button>
 				{ sortOpen && (
 					<div
@@ -186,11 +207,7 @@ function Toolbar() {
 						style={ { display: 'block' } }
 					>
 						<div className="smm-dropdown-section">
-							{ [
-								[ 'date', 'Date Added' ],
-								[ 'title', 'Name' ],
-								[ 'size', 'Size' ],
-							].map( ( [ col, label ] ) => {
+							{ sortOptions.map( ( [ col, label ] ) => {
 								const active = sortBy === col;
 								let dirIcon = 'minus';
 								if ( active ) {
@@ -238,7 +255,8 @@ function Toolbar() {
 						setFilterOpen( ( v ) => ! v );
 					} }
 				>
-					<i className="ti ti-filter" /> Filter
+					<i className="ti ti-filter" />{ ' ' }
+					{ __( 'Filter', 'nhrrob-smart-media-manager' ) }
 				</button>
 				{ filterOpen && (
 					<div
@@ -247,16 +265,13 @@ function Toolbar() {
 						style={ { display: 'block' } }
 					>
 						<div className="smm-dropdown-section">
-							<div className="smm-dropdown-label">File Type</div>
-							{ [
-								[ '', 'All Types' ],
-								[ 'image', 'Images' ],
-								[ 'video', 'Video' ],
-								[ 'audio', 'Audio' ],
-								[ 'document', 'Documents' ],
-								[ 'spreadsheet', 'Spreadsheets & CSV' ],
-								[ 'other', 'Other' ],
-							].map( ( [ val, label ] ) => (
+							<div className="smm-dropdown-label">
+								{ __(
+									'File Type',
+									'nhrrob-smart-media-manager'
+								) }
+							</div>
+							{ filterOptions.map( ( [ val, label ] ) => (
 								// eslint-disable-next-line jsx-a11y/label-has-associated-control
 								<label key={ val } className="smm-dropdown-opt">
 									<input
@@ -279,7 +294,7 @@ function Toolbar() {
 					className={ `btn btn-sm btn-default${
 						view === 'grid' ? ' is-active' : ''
 					}` }
-					title="Grid view"
+					title={ __( 'Grid view', 'nhrrob-smart-media-manager' ) }
 					onClick={ () => switchView( 'grid' ) }
 				>
 					<i className="ti ti-layout-grid" />
@@ -288,7 +303,7 @@ function Toolbar() {
 					className={ `btn btn-sm btn-default${
 						view === 'list' ? ' is-active' : ''
 					}` }
-					title="List view"
+					title={ __( 'List view', 'nhrrob-smart-media-manager' ) }
 					onClick={ () => switchView( 'list' ) }
 				>
 					<i className="ti ti-list" />
@@ -307,7 +322,10 @@ function Toolbar() {
 						max="200"
 						step="20"
 						value={ thumbSize }
-						title="Thumbnail size"
+						title={ __(
+							'Thumbnail size',
+							'nhrrob-smart-media-manager'
+						) }
 						onChange={ ( e ) =>
 							dispatch( {
 								type: 'SET_THUMB_SIZE',
@@ -355,7 +373,12 @@ function GridView() {
 					<div className="smm-grid-loading">
 						<div className="smm-loading-state">
 							<span className="smm-spinner" />
-							<p>Loading media…</p>
+							<p>
+								{ __(
+									'Loading media…',
+									'nhrrob-smart-media-manager'
+								) }
+							</p>
 						</div>
 					</div>
 				</div>
@@ -373,10 +396,16 @@ function GridView() {
 					>
 						<i className="ti ti-clock-off" />
 						<p className="smm-empty-title">
-							No recently accessed files
+							{ __(
+								'No recently accessed files',
+								'nhrrob-smart-media-manager'
+							) }
 						</p>
 						<p className="smm-empty-sub">
-							Click any file to add it to Recent.
+							{ __(
+								'Click any file to add it to Recent.',
+								'nhrrob-smart-media-manager'
+							) }
 						</p>
 						<button
 							className="btn btn-default"
@@ -391,7 +420,10 @@ function GridView() {
 								} );
 							} }
 						>
-							Browse All Files
+							{ __(
+								'Browse All Files',
+								'nhrrob-smart-media-manager'
+							) }
 						</button>
 					</div>
 				</div>
@@ -401,15 +433,21 @@ function GridView() {
 			<div className="smm-grid-view" id="smm-grid-view">
 				<div className="smm-empty-state" style={ { display: 'flex' } }>
 					<i className="ti ti-folder-off" />
-					<p className="smm-empty-title">No files here</p>
+					<p className="smm-empty-title">
+						{ __( 'No files here', 'nhrrob-smart-media-manager' ) }
+					</p>
 					<p className="smm-empty-sub">
-						Upload files or move some here from another folder.
+						{ __(
+							'Upload files or move some here from another folder.',
+							'nhrrob-smart-media-manager'
+						) }
 					</p>
 					<button
 						className="btn btn-default"
 						onClick={ () => dispatch( { type: 'OPEN_UPLOAD' } ) }
 					>
-						<i className="ti ti-upload" /> Upload Files
+						<i className="ti ti-upload" />{ ' ' }
+						{ __( 'Upload Files', 'nhrrob-smart-media-manager' ) }
 					</button>
 				</div>
 			</div>
@@ -466,7 +504,7 @@ const MediaCard = memo( function MediaCard( {
 		const ghost = document.createElement( 'div' );
 		ghost.style.cssText =
 			'position:fixed;top:-200px;background:var(--brand-800);color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;';
-		ghost.textContent = '1 file';
+		ghost.textContent = __( '1 file', 'nhrrob-smart-media-manager' );
 		document.body.appendChild( ghost );
 		e.dataTransfer.setDragImage( ghost, 0, 0 );
 		setTimeout( () => ghost.remove(), 0 );
@@ -533,7 +571,11 @@ const MediaCard = memo( function MediaCard( {
 					className={ `card-star${ isStarred ? ' starred' : '' }` }
 					role="button"
 					tabIndex={ -1 }
-					title={ isStarred ? 'Unstar' : 'Star' }
+					title={
+						isStarred
+							? __( 'Unstar', 'nhrrob-smart-media-manager' )
+							: __( 'Star', 'nhrrob-smart-media-manager' )
+					}
 					onClick={ onStarClick }
 				>
 					<i
@@ -612,29 +654,42 @@ function ListView() {
 							/>
 						</th>
 						<th className="col-star" />
-						<th className="col-thumb">File</th>
+						<th className="col-thumb">
+							{ __( 'File', 'nhrrob-smart-media-manager' ) }
+						</th>
 						<th
 							className="col-name sortable"
 							onClick={ () => onSort( 'title' ) }
 						>
-							Name { sortIcon( 'title' ) }
+							{ __( 'Name', 'nhrrob-smart-media-manager' ) }{ ' ' }
+							{ sortIcon( 'title' ) }
 						</th>
-						<th className="col-type">Type</th>
+						<th className="col-type">
+							{ __( 'Type', 'nhrrob-smart-media-manager' ) }
+						</th>
 						<th
 							className="col-size sortable"
 							onClick={ () => onSort( 'size' ) }
 						>
-							Size { sortIcon( 'size' ) }
+							{ __( 'Size', 'nhrrob-smart-media-manager' ) }{ ' ' }
+							{ sortIcon( 'size' ) }
 						</th>
-						<th className="col-dims">Dimensions</th>
+						<th className="col-dims">
+							{ __( 'Dimensions', 'nhrrob-smart-media-manager' ) }
+						</th>
 						<th
 							className="col-date sortable"
 							onClick={ () => onSort( 'date' ) }
 						>
-							Date { sortIcon( 'date' ) }
+							{ __( 'Date', 'nhrrob-smart-media-manager' ) }{ ' ' }
+							{ sortIcon( 'date' ) }
 						</th>
-						<th className="col-alt">Alt</th>
-						<th className="col-folder">Folder</th>
+						<th className="col-alt">
+							{ __( 'Alt', 'nhrrob-smart-media-manager' ) }
+						</th>
+						<th className="col-folder">
+							{ __( 'Folder', 'nhrrob-smart-media-manager' ) }
+						</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -666,7 +721,10 @@ function ListView() {
 											color: 'var(--gray-400)',
 										} }
 									>
-										No files found.
+										{ __(
+											'No files found.',
+											'nhrrob-smart-media-manager'
+										) }
 									</td>
 								</tr>
 							);
@@ -750,7 +808,11 @@ const MediaRow = memo( function MediaRow( {
 				{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 				<div
 					className={ `row-star${ isStarred ? ' starred' : '' }` }
-					title={ isStarred ? 'Unstar' : 'Star' }
+					title={
+						isStarred
+							? __( 'Unstar', 'nhrrob-smart-media-manager' )
+							: __( 'Star', 'nhrrob-smart-media-manager' )
+					}
 					onClick={ ( e ) => {
 						e.stopPropagation();
 						dispatch( { type: 'TOGGLE_STAR', id: f.id } );

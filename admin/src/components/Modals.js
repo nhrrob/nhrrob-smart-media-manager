@@ -1,6 +1,7 @@
 import { useEffect, useRef, createPortal } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useApp } from '../context';
-import { del, post } from '../api';
+import { del } from '../api';
 import { copyToClipboard } from '../utils';
 
 export function ConfirmModal() {
@@ -36,7 +37,11 @@ export function ConfirmModal() {
 							className="modal-title"
 							style={ { color: 'var(--color-danger)' } }
 						>
-							<i className="ti ti-alert-circle" /> Confirm Delete
+							<i className="ti ti-alert-circle" />{ ' ' }
+							{ __(
+								'Confirm Delete',
+								'nhrrob-smart-media-manager'
+							) }
 						</span>
 					</div>
 					<div className="modal-body">
@@ -44,13 +49,13 @@ export function ConfirmModal() {
 					</div>
 					<div className="modal-footer">
 						<button className="btn btn-default" onClick={ cancel }>
-							Cancel
+							{ __( 'Cancel', 'nhrrob-smart-media-manager' ) }
 						</button>
 						<button
 							className="btn btn-danger-solid"
 							onClick={ confirm }
 						>
-							Delete
+							{ __( 'Delete', 'nhrrob-smart-media-manager' ) }
 						</button>
 					</div>
 				</div>
@@ -110,7 +115,10 @@ function FolderCtxMenu( { id, style } ) {
 			);
 		} else if ( action === 'delete' ) {
 			showConfirm(
-				'Delete this folder? Files inside will become Uncategorized.',
+				__(
+					'Delete this folder? Files inside will become Uncategorized.',
+					'nhrrob-smart-media-manager'
+				),
 				async () => {
 					try {
 						await del( `/folders/${ id }` );
@@ -138,20 +146,23 @@ function FolderCtxMenu( { id, style } ) {
 				className="ctx-item"
 				onClick={ () => handleAction( 'rename' ) }
 			>
-				<i className="ti ti-edit" /> Rename
+				<i className="ti ti-edit" />{ ' ' }
+				{ __( 'Rename', 'nhrrob-smart-media-manager' ) }
 			</button>
 			<button
 				className="ctx-item"
 				onClick={ () => handleAction( 'subfolder' ) }
 			>
-				<i className="ti ti-folder-plus" /> New Subfolder
+				<i className="ti ti-folder-plus" />{ ' ' }
+				{ __( 'New Subfolder', 'nhrrob-smart-media-manager' ) }
 			</button>
 			<div className="ctx-sep" />
 			<button
 				className="ctx-item ctx-danger"
 				onClick={ () => handleAction( 'delete' ) }
 			>
-				<i className="ti ti-trash" /> Delete
+				<i className="ti ti-trash" />{ ' ' }
+				{ __( 'Delete', 'nhrrob-smart-media-manager' ) }
 			</button>
 		</div>
 	);
@@ -171,15 +182,24 @@ function FileCtxMenu( { id, style } ) {
 			const file = state.files.find( ( f ) => f.id === id );
 			if ( file ) {
 				await copyToClipboard( file.url );
-				showToast( 'URL copied!', 'success' );
+				showToast(
+					__( 'URL copied!', 'nhrrob-smart-media-manager' ),
+					'success'
+				);
 			}
 		} else if ( action === 'delete' ) {
 			showConfirm(
-				'Delete this file? This cannot be undone.',
+				__(
+					'Delete this file? This cannot be undone.',
+					'nhrrob-smart-media-manager'
+				),
 				async () => {
 					try {
 						await del( '/media/bulk-delete', { ids: [ id ] } );
-						showToast( 'File deleted.', 'success' );
+						showToast(
+							__( 'File deleted.', 'nhrrob-smart-media-manager' ),
+							'success'
+						);
 						dispatch( { type: 'CLEAR_SELECTION' } );
 						await loadFolders();
 						loadMedia();
@@ -216,20 +236,23 @@ function FileCtxMenu( { id, style } ) {
 				className="ctx-item"
 				onClick={ () => handleAction( 'copy-url' ) }
 			>
-				<i className="ti ti-copy" /> Copy URL
+				<i className="ti ti-copy" />{ ' ' }
+				{ __( 'Copy URL', 'nhrrob-smart-media-manager' ) }
 			</button>
 			<button
 				className="ctx-item"
 				onClick={ () => handleAction( 'move' ) }
 			>
-				<i className="ti ti-arrows-move" /> Move to Folder
+				<i className="ti ti-arrows-move" />{ ' ' }
+				{ __( 'Move to Folder', 'nhrrob-smart-media-manager' ) }
 			</button>
 			<div className="ctx-sep" />
 			<button
 				className="ctx-item ctx-danger"
 				onClick={ () => handleAction( 'delete' ) }
 			>
-				<i className="ti ti-trash" /> Delete
+				<i className="ti ti-trash" />{ ' ' }
+				{ __( 'Delete', 'nhrrob-smart-media-manager' ) }
 			</button>
 		</div>
 	);
@@ -301,21 +324,41 @@ export function StatusBar() {
 
 	return (
 		<div className="smm-statusbar" id="smm-statusbar">
-			<span>
+			<span className="status-count">
 				{ state.loading
-					? 'Loading…'
-					: `${ total } file${ total === 1 ? '' : 's' }` }
+					? __( 'Loading…', 'nhrrob-smart-media-manager' )
+					: sprintf(
+							// translators: %d: total number of files
+							_n(
+								'%d file',
+								'%d files',
+								total,
+								'nhrrob-smart-media-manager'
+							),
+							total
+					  ) }
 			</span>
 			{ sel > 0 && (
 				<>
 					<span className="status-sep">·</span>
-					<span>{ sel } selected</span>
+					<span>
+						{ sprintf(
+							// translators: %d: number of selected files
+							__( '%d selected', 'nhrrob-smart-media-manager' ),
+							sel
+						) }
+					</span>
 				</>
 			) }
 			<div className="status-right">
 				{ cfg.aiConfigured && (
 					<span className="ai-dot">
-						{ cfg.aiProvider || 'AI' } Connected
+						{ sprintf(
+							// translators: %s: AI provider name
+							__( '%s Connected', 'nhrrob-smart-media-manager' ),
+							cfg.aiProvider ||
+								__( 'AI', 'nhrrob-smart-media-manager' )
+						) }
 					</span>
 				) }
 				<span className="status-sep">·</span>

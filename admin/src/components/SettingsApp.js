@@ -1,10 +1,19 @@
 import { useState, useCallback } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 
 const cfg = window.nhrsmmSettingsConfig || {};
 
 const TABS = [
-	{ slug: 'general', label: 'General', icon: 'ti-adjustments-horizontal' },
-	{ slug: 'ai', label: 'AI', icon: 'ti-sparkles' },
+	{
+		slug: 'general',
+		label: __( 'General', 'nhrrob-smart-media-manager' ),
+		icon: 'ti-adjustments-horizontal',
+	},
+	{
+		slug: 'ai',
+		label: __( 'AI', 'nhrrob-smart-media-manager' ),
+		icon: 'ti-sparkles',
+	},
 ];
 
 export default function SettingsApp() {
@@ -92,21 +101,28 @@ export default function SettingsApp() {
 						href={ cfg.mediaLibraryUrl }
 						className="btn btn-sm btn-default"
 					>
-						<i className="ti ti-photo" /> Media Library
+						<i className="ti ti-photo" />{ ' ' }
+						{ __( 'Media Library', 'nhrrob-smart-media-manager' ) }
 					</a>
 				</div>
 
 				<div className="settings-content">
 					{ saveStatus === 'saved' && (
 						<div className="smm-notice smm-notice-success settings-notice-top">
-							<i className="ti ti-circle-check" /> Settings saved
-							successfully.
+							<i className="ti ti-circle-check" />{ ' ' }
+							{ __(
+								'Settings saved successfully.',
+								'nhrrob-smart-media-manager'
+							) }
 						</div>
 					) }
 					{ saveStatus === 'error' && (
 						<div className="smm-notice smm-notice-danger settings-notice-top">
-							<i className="ti ti-alert-circle" /> Could not save
-							settings. Please try again.
+							<i className="ti ti-alert-circle" />{ ' ' }
+							{ __(
+								'Could not save settings. Please try again.',
+								'nhrrob-smart-media-manager'
+							) }
 						</div>
 					) }
 
@@ -139,17 +155,21 @@ function QuickLinksWidget() {
 	return (
 		<div className="widget-card">
 			<div className="widget-card-head">
-				<i className="ti ti-bolt" /> Quick Links
+				<i className="ti ti-bolt" />{ ' ' }
+				{ __( 'Quick Links', 'nhrrob-smart-media-manager' ) }
 			</div>
 			<div className="widget-links">
 				<a href={ cfg.mediaLibraryUrl } className="widget-link">
-					<i className="ti ti-photo" /> Media Library
+					<i className="ti ti-photo" />{ ' ' }
+					{ __( 'Media Library', 'nhrrob-smart-media-manager' ) }
 				</a>
 				<a href={ cfg.wpMediaUrl } className="widget-link">
-					<i className="ti ti-layout-grid" /> WP Media
+					<i className="ti ti-layout-grid" />{ ' ' }
+					{ __( 'WP Media', 'nhrrob-smart-media-manager' ) }
 				</a>
 				<a href={ cfg.connectorsUrl } className="widget-link">
-					<i className="ti ti-plug" /> AI Connectors
+					<i className="ti ti-plug" />{ ' ' }
+					{ __( 'AI Connectors', 'nhrrob-smart-media-manager' ) }
 				</a>
 				<a
 					href="https://wordpress.org/plugins/nhrrob-smart-media-manager/"
@@ -157,7 +177,8 @@ function QuickLinksWidget() {
 					rel="noopener noreferrer"
 					className="widget-link"
 				>
-					<i className="ti ti-star" /> Rate Plugin
+					<i className="ti ti-star" />{ ' ' }
+					{ __( 'Rate Plugin', 'nhrrob-smart-media-manager' ) }
 				</a>
 			</div>
 		</div>
@@ -168,14 +189,18 @@ function AboutWidget() {
 	return (
 		<div className="widget-card">
 			<div className="widget-card-head">
-				<i className="ti ti-info-circle" /> About
+				<i className="ti ti-info-circle" />{ ' ' }
+				{ __( 'About', 'nhrrob-smart-media-manager' ) }
 			</div>
 			<div className="widget-body">
 				<div className="widget-version-badge">
 					<i className="ti ti-tag" /> v{ cfg.version || '1.0.0' }
 				</div>
 				<div className="widget-meta-line">
-					Smart Media Manager by{ ' ' }
+					{ __(
+						'Smart Media Manager by',
+						'nhrrob-smart-media-manager'
+					) }{ ' ' }
 					<a
 						href="https://profiles.wordpress.org/nhrrob/"
 						target="_blank"
@@ -184,7 +209,10 @@ function AboutWidget() {
 						Nazmul Hasan Robin
 					</a>
 					.<br />
-					Available on{ ' ' }
+					{ __(
+						'Available on',
+						'nhrrob-smart-media-manager'
+					) }{ ' ' }
 					<a
 						href="https://wordpress.org/plugins/nhrrob-smart-media-manager/"
 						target="_blank"
@@ -204,7 +232,8 @@ function AiStatusWidget() {
 	return (
 		<div className="widget-card">
 			<div className="widget-card-head">
-				<i className="ti ti-sparkles" /> AI Status
+				<i className="ti ti-sparkles" />{ ' ' }
+				{ __( 'AI Status', 'nhrrob-smart-media-manager' ) }
 			</div>
 			<div className="widget-ai-status">
 				<span
@@ -221,7 +250,9 @@ function AiStatusWidget() {
 						fontSize: 'var(--text-xs)',
 					} }
 				>
-					{ ready ? 'Provider ready' : 'Not configured' }
+					{ ready
+						? __( 'Provider ready', 'nhrrob-smart-media-manager' )
+						: __( 'Not configured', 'nhrrob-smart-media-manager' ) }
 				</span>
 			</div>
 			{ ! ready && (
@@ -233,12 +264,18 @@ function AiStatusWidget() {
 						lineHeight: 1.5,
 					} }
 				>
-					Configure an AI provider in{ ' ' }
+					{ __(
+						'Configure an AI provider in',
+						'nhrrob-smart-media-manager'
+					) }{ ' ' }
 					<a
 						href={ cfg.connectorsUrl }
 						style={ { color: 'var(--ai-from)' } }
 					>
-						Settings → Connectors
+						{ __(
+							'Settings → Connectors',
+							'nhrrob-smart-media-manager'
+						) }
 					</a>
 					.
 				</div>
@@ -252,30 +289,48 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 		onChange( ( prev ) => ( { ...prev, [ key ]: value } ) );
 	}
 
+	const viewOptions = [
+		[
+			'grid',
+			'ti-layout-grid',
+			__( 'Grid', 'nhrrob-smart-media-manager' ),
+		],
+		[ 'list', 'ti-list', __( 'List', 'nhrrob-smart-media-manager' ) ],
+	];
+
+	const sizeOptions = [
+		[ 'small', __( 'Small', 'nhrrob-smart-media-manager' ) ],
+		[ 'medium', __( 'Medium', 'nhrrob-smart-media-manager' ) ],
+		[ 'large', __( 'Large', 'nhrrob-smart-media-manager' ) ],
+	];
+
 	return (
 		<>
 			<div className="settings-card">
 				<div className="settings-card-head">
-					<i className="ti ti-photo" /> Media Library
+					<i className="ti ti-photo" />{ ' ' }
+					{ __( 'Media Library', 'nhrrob-smart-media-manager' ) }
 				</div>
 
 				<div className="settings-row">
 					<div className="settings-row-info">
 						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
 						<label className="settings-row-label">
-							Default View
+							{ __(
+								'Default View',
+								'nhrrob-smart-media-manager'
+							) }
 						</label>
 						<p className="settings-row-desc">
-							How files are displayed when you open the media
-							library.
+							{ __(
+								'How files are displayed when you open the media library.',
+								'nhrrob-smart-media-manager'
+							) }
 						</p>
 					</div>
 					<div className="settings-row-control">
 						<div className="smm-radio-group">
-							{ [
-								[ 'grid', 'ti-layout-grid', 'Grid' ],
-								[ 'list', 'ti-list', 'List' ],
-							].map( ( [ val, icon, lbl ] ) => (
+							{ viewOptions.map( ( [ val, icon, lbl ] ) => (
 								// eslint-disable-next-line jsx-a11y/label-has-associated-control
 								<label key={ val } className="smm-radio-label">
 									<input
@@ -301,19 +356,21 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 					<div className="settings-row-info">
 						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
 						<label className="settings-row-label">
-							Thumbnail Size
+							{ __(
+								'Thumbnail Size',
+								'nhrrob-smart-media-manager'
+							) }
 						</label>
 						<p className="settings-row-desc">
-							Default thumbnail size in grid view.
+							{ __(
+								'Default thumbnail size in grid view.',
+								'nhrrob-smart-media-manager'
+							) }
 						</p>
 					</div>
 					<div className="settings-row-control">
 						<div className="smm-radio-group">
-							{ [
-								[ 'small', 'Small' ],
-								[ 'medium', 'Medium' ],
-								[ 'large', 'Large' ],
-							].map( ( [ val, lbl ] ) => (
+							{ sizeOptions.map( ( [ val, lbl ] ) => (
 								// eslint-disable-next-line jsx-a11y/label-has-associated-control
 								<label key={ val } className="smm-radio-label">
 									<input
@@ -338,10 +395,16 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 					<div className="settings-row-info">
 						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
 						<label className="settings-row-label">
-							Items Per Page
+							{ __(
+								'Items Per Page',
+								'nhrrob-smart-media-manager'
+							) }
 						</label>
 						<p className="settings-row-desc">
-							Number of files loaded per page.
+							{ __(
+								'Number of files loaded per page.',
+								'nhrrob-smart-media-manager'
+							) }
 						</p>
 					</div>
 					<div className="settings-row-control">
@@ -357,7 +420,14 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 						>
 							{ [ 20, 40, 60, 100 ].map( ( n ) => (
 								<option key={ n } value={ n }>
-									{ n } items
+									{ sprintf(
+										// translators: %d: number of items per page
+										__(
+											'%d items',
+											'nhrrob-smart-media-manager'
+										),
+										n
+									) }
 								</option>
 							) ) }
 						</select>
@@ -373,11 +443,16 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 				>
 					{ saving ? (
 						<>
-							<span className="smm-spinner-sm" /> Saving…
+							<span className="smm-spinner-sm" />{ ' ' }
+							{ __( 'Saving…', 'nhrrob-smart-media-manager' ) }
 						</>
 					) : (
 						<>
-							<i className="ti ti-device-floppy" /> Save Settings
+							<i className="ti ti-device-floppy" />{ ' ' }
+							{ __(
+								'Save Settings',
+								'nhrrob-smart-media-manager'
+							) }
 						</>
 					) }
 				</button>
@@ -394,32 +469,57 @@ function AiTab() {
 		<>
 			<div className="settings-card">
 				<div className="settings-card-head">
-					<i className="ti ti-sparkles" /> AI Configuration
+					<i className="ti ti-sparkles" />{ ' ' }
+					{ __( 'AI Configuration', 'nhrrob-smart-media-manager' ) }
 				</div>
 
 				<div className="settings-row">
 					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
 						<label className="settings-row-label">
-							WordPress Core AI
+							{ __(
+								'WordPress Core AI',
+								'nhrrob-smart-media-manager'
+							) }
 						</label>
 						<p className="settings-row-desc">
-							Alt text generation uses the WordPress AI Client (WP
-							7.0+). Configure your provider once in{ ' ' }
-							<a href={ connectorsUrl }>Settings → Connectors</a>{ ' ' }
-							and it is available to all compatible plugins.
+							{ __(
+								'Alt text generation uses the WordPress AI Client (WP 7.0+). Configure your provider once in',
+								'nhrrob-smart-media-manager'
+							) }{ ' ' }
+							<a href={ connectorsUrl }>
+								{ __(
+									'Settings → Connectors',
+									'nhrrob-smart-media-manager'
+								) }
+							</a>{ ' ' }
+							{ __(
+								'and it is available to all compatible plugins.',
+								'nhrrob-smart-media-manager'
+							) }
 						</p>
 					</div>
 				</div>
 
 				<div className="settings-row">
 					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
 						<label className="settings-row-label">
-							Provider Status
+							{ __(
+								'Provider Status',
+								'nhrrob-smart-media-manager'
+							) }
 						</label>
 						<p className="settings-row-desc">
 							{ aiConfigured
-								? 'Your AI provider is connected and ready.'
-								: 'No AI provider configured yet.' }
+								? __(
+										'Your AI provider is connected and ready.',
+										'nhrrob-smart-media-manager'
+								  )
+								: __(
+										'No AI provider configured yet.',
+										'nhrrob-smart-media-manager'
+								  ) }
 						</p>
 					</div>
 					<div className="settings-row-control">
@@ -428,14 +528,19 @@ function AiTab() {
 								className="smm-notice smm-notice-success"
 								style={ { padding: '4px 12px' } }
 							>
-								<i className="ti ti-circle-check" /> Ready
+								<i className="ti ti-circle-check" />{ ' ' }
+								{ __( 'Ready', 'nhrrob-smart-media-manager' ) }
 							</span>
 						) : (
 							<a
 								href={ connectorsUrl }
 								className="btn btn-sm btn-default"
 							>
-								<i className="ti ti-plug" /> Configure
+								<i className="ti ti-plug" />{ ' ' }
+								{ __(
+									'Configure',
+									'nhrrob-smart-media-manager'
+								) }
 							</a>
 						) }
 					</div>

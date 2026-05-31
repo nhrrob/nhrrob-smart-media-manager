@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useApp } from '../context';
 import { post, put } from '../api';
 import { setUrlParams } from '../utils';
@@ -158,7 +159,7 @@ export default function Sidebar() {
 			<div className="sidebar-section">
 				<div className="sidebar-section-label">
 					<i className="ti ti-layout-grid" />
-					Library
+					{ __( 'Library', 'nhrrob-smart-media-manager' ) }
 				</div>
 
 				{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
@@ -171,7 +172,9 @@ export default function Sidebar() {
 					onClick={ () => navigateTo( null ) }
 				>
 					<i className="ti ti-photo" />
-					<span>All Files</span>
+					<span>
+						{ __( 'All Files', 'nhrrob-smart-media-manager' ) }
+					</span>
 					<span className="nav-count">{ totalCount || '–' }</span>
 				</div>
 
@@ -181,11 +184,16 @@ export default function Sidebar() {
 					onClick={ navigateRecent }
 				>
 					<i className="ti ti-clock" />
-					<span>Recent</span>
+					<span>
+						{ __( 'Recent', 'nhrrob-smart-media-manager' ) }
+					</span>
 					{ recentView && (
 						<button
 							className="btn-icon-inline nav-clear-btn"
-							title="Clear recent"
+							title={ __(
+								'Clear recent',
+								'nhrrob-smart-media-manager'
+							) }
 							onClick={ clearRecent }
 						>
 							<i className="ti ti-x" />
@@ -199,11 +207,16 @@ export default function Sidebar() {
 					onClick={ navigateStarred }
 				>
 					<i className="ti ti-star" />
-					<span>Starred</span>
+					<span>
+						{ __( 'Starred', 'nhrrob-smart-media-manager' ) }
+					</span>
 					{ starredView && (
 						<button
 							className="btn-icon-inline nav-clear-btn"
-							title="Clear starred"
+							title={ __(
+								'Clear starred',
+								'nhrrob-smart-media-manager'
+							) }
 							onClick={ clearStarred }
 						>
 							<i className="ti ti-x" />
@@ -232,11 +245,14 @@ export default function Sidebar() {
 						} }
 					>
 						<i className="ti ti-folder" />
-						Folders
+						{ __( 'Folders', 'nhrrob-smart-media-manager' ) }
 					</span>
 					<button
 						className="btn-icon-inline"
-						title="New folder"
+						title={ __(
+							'New folder',
+							'nhrrob-smart-media-manager'
+						) }
 						onClick={ () => setCreatingFolder( true ) }
 					>
 						<i
@@ -266,7 +282,10 @@ export default function Sidebar() {
 								fontStyle: 'italic',
 							} }
 						>
-							No folders yet
+							{ __(
+								'No folders yet',
+								'nhrrob-smart-media-manager'
+							) }
 						</div>
 					) : (
 						<FolderList
@@ -302,7 +321,9 @@ export default function Sidebar() {
 					style={ { marginTop: 'var(--sp-4)' } }
 				>
 					<i className="ti ti-folder-off" />
-					<span>Uncategorized</span>
+					<span>
+						{ __( 'Uncategorized', 'nhrrob-smart-media-manager' ) }
+					</span>
 					<span className="nav-count">
 						{ uncategorizedCount || '–' }
 					</span>
@@ -326,7 +347,10 @@ function NewFolderInput( { onCommit, onCancel } ) {
 			<input
 				ref={ inputRef }
 				className="folder-rename-input"
-				placeholder="Folder name"
+				placeholder={ __(
+					'Folder name',
+					'nhrrob-smart-media-manager'
+				) }
 				onKeyDown={ ( e ) => {
 					if ( e.key === 'Enter' ) {
 						const val = e.target.value.trim();
@@ -448,9 +472,16 @@ function FolderItem( {
 					folder_id: f.id,
 				} );
 				showToast(
-					`Moved ${ data.fileIds.length } file${
-						data.fileIds.length === 1 ? '' : 's'
-					} to folder.`,
+					sprintf(
+						// translators: %d: number of moved files
+						_n(
+							'Moved %d file to folder.',
+							'Moved %d files to folder.',
+							data.fileIds.length,
+							'nhrrob-smart-media-manager'
+						),
+						data.fileIds.length
+					),
 					'success'
 				);
 				await loadFolders();

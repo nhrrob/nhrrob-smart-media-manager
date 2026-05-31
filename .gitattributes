@@ -46,7 +46,7 @@ vendor/squizlabs/       export-ignore
 vendor/wp-coding-standards/ export-ignore
 vendor/yoast/           export-ignore
 
-# WordPress.org exclusions
+# Other exclusions
 .babelrc                export-ignore
 .deployignore           export-ignore
 .distignore             export-ignore

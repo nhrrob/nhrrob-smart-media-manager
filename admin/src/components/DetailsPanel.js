@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { useApp } from '../context';
 import { get, put, post, del } from '../api';
 import {
@@ -76,7 +77,14 @@ export default function DetailsPanel( { fileId } ) {
 				}
 				dispatch( { type: 'PATCH_FILE', id: fileId, patch } );
 			} catch ( e ) {
-				showToast( 'Save failed: ' + e.message, 'danger' );
+				showToast(
+					sprintf(
+						// translators: %s: error message
+						__( 'Save failed: %s', 'nhrrob-smart-media-manager' ),
+						e.message
+					),
+					'danger'
+				);
 			}
 		}, 800 );
 	}, [ fileId, title, alt, caption, desc, file?.type, showToast, dispatch ] );
@@ -88,30 +96,45 @@ export default function DetailsPanel( { fileId } ) {
 			await post( `/media/${ fileId }/move`, { folder_id: folderId } );
 			await loadFolders();
 			loadMedia();
-			showToast( 'Moved to folder.', 'success' );
+			showToast(
+				__( 'Moved to folder.', 'nhrrob-smart-media-manager' ),
+				'success'
+			);
 		} catch ( e ) {
 			showToast( e.message, 'danger' );
 		}
 	}
 
 	function deleteFile() {
-		showConfirm( 'Delete this file? This cannot be undone.', async () => {
-			try {
-				await del( '/media/bulk-delete', { ids: [ fileId ] } );
-				dispatch( { type: 'CLEAR_SELECTION' } );
-				await loadFolders();
-				loadMedia();
-				showToast( 'File deleted.', 'success' );
-			} catch ( e ) {
-				showToast( e.message, 'danger' );
+		showConfirm(
+			__(
+				'Delete this file? This cannot be undone.',
+				'nhrrob-smart-media-manager'
+			),
+			async () => {
+				try {
+					await del( '/media/bulk-delete', { ids: [ fileId ] } );
+					dispatch( { type: 'CLEAR_SELECTION' } );
+					await loadFolders();
+					loadMedia();
+					showToast(
+						__( 'File deleted.', 'nhrrob-smart-media-manager' ),
+						'success'
+					);
+				} catch ( e ) {
+					showToast( e.message, 'danger' );
+				}
 			}
-		} );
+		);
 	}
 
 	async function generateAlt() {
 		if ( ! cfg.aiConfigured ) {
 			showToast(
-				'No AI provider configured. Go to Settings → Connectors.',
+				__(
+					'No AI provider configured. Go to Settings → Connectors.',
+					'nhrrob-smart-media-manager'
+				),
 				'warning'
 			);
 			return;
@@ -137,7 +160,13 @@ export default function DetailsPanel( { fileId } ) {
 		if ( aiState?.altText ) {
 			setAlt( aiState.altText );
 			setTimeout( scheduleSave, 0 );
-			showToast( 'Alt text accepted and saved.', 'success' );
+			showToast(
+				__(
+					'Alt text accepted and saved.',
+					'nhrrob-smart-media-manager'
+				),
+				'success'
+			);
 		}
 		setAiState( null );
 	}
@@ -152,7 +181,10 @@ export default function DetailsPanel( { fileId } ) {
 	async function generateCaption() {
 		if ( ! cfg.aiConfigured ) {
 			showToast(
-				'No AI provider configured. Go to Settings → Connectors.',
+				__(
+					'No AI provider configured. Go to Settings → Connectors.',
+					'nhrrob-smart-media-manager'
+				),
 				'warning'
 			);
 			return;
@@ -178,7 +210,13 @@ export default function DetailsPanel( { fileId } ) {
 		if ( captionAiState?.captionText ) {
 			setCaption( captionAiState.captionText );
 			setTimeout( scheduleSave, 0 );
-			showToast( 'Caption accepted and saved.', 'success' );
+			showToast(
+				__(
+					'Caption accepted and saved.',
+					'nhrrob-smart-media-manager'
+				),
+				'success'
+			);
 		}
 		setCaptionAiState( null );
 	}
@@ -238,6 +276,34 @@ export default function DetailsPanel( { fileId } ) {
 	}
 
 	const hasAiSuggestion = aiState && aiState !== 'loading' && ! aiState.error;
+
+	let altBtnLabel;
+	if ( aiState === 'loading' ) {
+		altBtnLabel = __( 'Generating…', 'nhrrob-smart-media-manager' );
+	} else if ( aiState ) {
+		altBtnLabel = __(
+			'Re-generate Alt Text',
+			'nhrrob-smart-media-manager'
+		);
+	} else {
+		altBtnLabel = __( 'Generate Alt Text', 'nhrrob-smart-media-manager' );
+	}
+
+	let captionBtnLabel;
+	if ( captionAiState === 'loading' ) {
+		captionBtnLabel = __( 'Generating…', 'nhrrob-smart-media-manager' );
+	} else if ( captionAiState && ! captionAiState.error ) {
+		captionBtnLabel = __(
+			'Re-generate Caption',
+			'nhrrob-smart-media-manager'
+		);
+	} else {
+		captionBtnLabel = __(
+			'Generate Caption',
+			'nhrrob-smart-media-manager'
+		);
+	}
+
 	let urlPath = file.url || '';
 	try {
 		urlPath = new URL( file.url ).pathname;
@@ -251,7 +317,7 @@ export default function DetailsPanel( { fileId } ) {
 				<button
 					className="details-close-btn"
 					onClick={ close }
-					title="Close"
+					title={ __( 'Close', 'nhrrob-smart-media-manager' ) }
 				>
 					<i className="ti ti-x" />
 				</button>
@@ -292,12 +358,18 @@ export default function DetailsPanel( { fileId } ) {
 
 				{ file.type === 'image' && (
 					<div className="details-section">
-						<div className="details-section-label">Alt Text</div>
+						<div className="details-section-label">
+							{ __( 'Alt Text', 'nhrrob-smart-media-manager' ) }
+						</div>
 
 						{ aiState === 'loading' && (
 							<div className="ai-suggestion-card is-loading">
 								<div className="ai-card-header">
-									<i className="ti ti-sparkles" /> Generating…
+									<i className="ti ti-sparkles" />{ ' ' }
+									{ __(
+										'Generating…',
+										'nhrrob-smart-media-manager'
+									) }
 								</div>
 								<div className="ai-card-body">
 									<div
@@ -319,8 +391,11 @@ export default function DetailsPanel( { fileId } ) {
 						{ hasAiSuggestion && (
 							<div className="ai-suggestion-card">
 								<div className="ai-card-header">
-									<i className="ti ti-sparkles" /> AI
-									Suggestion
+									<i className="ti ti-sparkles" />{ ' ' }
+									{ __(
+										'AI Suggestion',
+										'nhrrob-smart-media-manager'
+									) }
 									{ aiState.latency && (
 										<span className="ai-latency">
 											{ (
@@ -335,7 +410,16 @@ export default function DetailsPanel( { fileId } ) {
 										{ aiState.altText }
 									</p>
 									<p className="ai-result-meta">
-										<span>{ aiState.chars } chars</span>
+										<span>
+											{ sprintf(
+												// translators: %d: character count
+												__(
+													'%d chars',
+													'nhrrob-smart-media-manager'
+												),
+												aiState.chars
+											) }
+										</span>
 										{ aiState.model && (
 											<span>{ aiState.model }</span>
 										) }
@@ -346,19 +430,31 @@ export default function DetailsPanel( { fileId } ) {
 										className="btn btn-sm btn-primary"
 										onClick={ acceptAlt }
 									>
-										<i className="ti ti-check" /> Accept
+										<i className="ti ti-check" />{ ' ' }
+										{ __(
+											'Accept',
+											'nhrrob-smart-media-manager'
+										) }
 									</button>
 									<button
 										className="btn btn-sm btn-default"
 										onClick={ editAlt }
 									>
-										<i className="ti ti-edit" /> Edit
+										<i className="ti ti-edit" />{ ' ' }
+										{ __(
+											'Edit',
+											'nhrrob-smart-media-manager'
+										) }
 									</button>
 									<button
 										className="btn btn-sm btn-default"
 										onClick={ () => setAiState( null ) }
 									>
-										<i className="ti ti-x" /> Reject
+										<i className="ti ti-x" />{ ' ' }
+										{ __(
+											'Reject',
+											'nhrrob-smart-media-manager'
+										) }
 									</button>
 								</div>
 							</div>
@@ -387,7 +483,9 @@ export default function DetailsPanel( { fileId } ) {
 				) }
 
 				<div className="details-section">
-					<div className="details-section-label">Title</div>
+					<div className="details-section-label">
+						{ __( 'Title', 'nhrrob-smart-media-manager' ) }
+					</div>
 					<input
 						className="details-input"
 						type="text"
@@ -400,12 +498,18 @@ export default function DetailsPanel( { fileId } ) {
 				</div>
 
 				<div className="details-section">
-					<div className="details-section-label">Caption</div>
+					<div className="details-section-label">
+						{ __( 'Caption', 'nhrrob-smart-media-manager' ) }
+					</div>
 
 					{ captionAiState === 'loading' && (
 						<div className="ai-suggestion-card is-loading">
 							<div className="ai-card-header">
-								<i className="ti ti-sparkles" /> Generating…
+								<i className="ti ti-sparkles" />{ ' ' }
+								{ __(
+									'Generating…',
+									'nhrrob-smart-media-manager'
+								) }
 							</div>
 							<div className="ai-card-body">
 								<div
@@ -425,8 +529,11 @@ export default function DetailsPanel( { fileId } ) {
 						! captionAiState.error && (
 							<div className="ai-suggestion-card">
 								<div className="ai-card-header">
-									<i className="ti ti-sparkles" /> AI
-									Suggestion
+									<i className="ti ti-sparkles" />{ ' ' }
+									{ __(
+										'AI Suggestion',
+										'nhrrob-smart-media-manager'
+									) }
 									{ captionAiState.latency && (
 										<span className="ai-latency">
 											{ (
@@ -442,7 +549,14 @@ export default function DetailsPanel( { fileId } ) {
 									</p>
 									<p className="ai-result-meta">
 										<span>
-											{ captionAiState.chars } chars
+											{ sprintf(
+												// translators: %d: character count
+												__(
+													'%d chars',
+													'nhrrob-smart-media-manager'
+												),
+												captionAiState.chars
+											) }
 										</span>
 										{ captionAiState.model && (
 											<span>
@@ -456,13 +570,21 @@ export default function DetailsPanel( { fileId } ) {
 										className="btn btn-sm btn-primary"
 										onClick={ acceptCaption }
 									>
-										<i className="ti ti-check" /> Accept
+										<i className="ti ti-check" />{ ' ' }
+										{ __(
+											'Accept',
+											'nhrrob-smart-media-manager'
+										) }
 									</button>
 									<button
 										className="btn btn-sm btn-default"
 										onClick={ editCaption }
 									>
-										<i className="ti ti-edit" /> Edit
+										<i className="ti ti-edit" />{ ' ' }
+										{ __(
+											'Edit',
+											'nhrrob-smart-media-manager'
+										) }
 									</button>
 									<button
 										className="btn btn-sm btn-default"
@@ -470,7 +592,11 @@ export default function DetailsPanel( { fileId } ) {
 											setCaptionAiState( null )
 										}
 									>
-										<i className="ti ti-x" /> Reject
+										<i className="ti ti-x" />{ ' ' }
+										{ __(
+											'Reject',
+											'nhrrob-smart-media-manager'
+										) }
 									</button>
 								</div>
 							</div>
@@ -490,7 +616,10 @@ export default function DetailsPanel( { fileId } ) {
 						className="details-input"
 						rows="2"
 						value={ caption }
-						placeholder="Optional caption…"
+						placeholder={ __(
+							'Optional caption…',
+							'nhrrob-smart-media-manager'
+						) }
 						onChange={ ( e ) => {
 							setCaption( e.target.value );
 							scheduleSave();
@@ -499,7 +628,9 @@ export default function DetailsPanel( { fileId } ) {
 				</div>
 
 				<div className="details-section">
-					<div className="details-section-label">Folder</div>
+					<div className="details-section-label">
+						{ __( 'Folder', 'nhrrob-smart-media-manager' ) }
+					</div>
 					<select
 						ref={ folderSelectRef }
 						id="smm-details-folder-select"
@@ -507,14 +638,19 @@ export default function DetailsPanel( { fileId } ) {
 						value={ folder }
 						onChange={ ( e ) => onFolderChange( e.target.value ) }
 					>
-						<option value="0">Uncategorized</option>
+						<option value="0">
+							{ __(
+								'Uncategorized',
+								'nhrrob-smart-media-manager'
+							) }
+						</option>
 						{ renderFolderOptions( folders ) }
 					</select>
 				</div>
 
 				<div className="details-section">
 					<div className="details-section-label">
-						Used In
+						{ __( 'Used In', 'nhrrob-smart-media-manager' ) }
 						{ usage !== null && usage.length > 0 && (
 							<span className="section-badge">
 								{ usage.length }
@@ -523,12 +659,16 @@ export default function DetailsPanel( { fileId } ) {
 					</div>
 					{ usage === null && (
 						<div className="details-section-loading">
-							<span className="smm-spinner-sm" /> Loading…
+							<span className="smm-spinner-sm" />{ ' ' }
+							{ __( 'Loading…', 'nhrrob-smart-media-manager' ) }
 						</div>
 					) }
 					{ usage !== null && usage.length === 0 && (
 						<p className="details-section-empty">
-							Not used anywhere.
+							{ __(
+								'Not used anywhere.',
+								'nhrrob-smart-media-manager'
+							) }
 						</p>
 					) }
 					{ usage !== null && usage.length > 0 && (
@@ -550,14 +690,18 @@ export default function DetailsPanel( { fileId } ) {
 				</div>
 
 				<div className="details-section">
-					<div className="details-section-label">Uploaded</div>
+					<div className="details-section-label">
+						{ __( 'Uploaded', 'nhrrob-smart-media-manager' ) }
+					</div>
 					<p className="details-section-value">
 						{ formatDate( file.date ) } · { file.author }
 					</p>
 				</div>
 
 				<div className="details-section">
-					<div className="details-section-label">File URL</div>
+					<div className="details-section-label">
+						{ __( 'File URL', 'nhrrob-smart-media-manager' ) }
+					</div>
 					<p className="details-file-url">{ urlPath }</p>
 				</div>
 
@@ -569,11 +713,7 @@ export default function DetailsPanel( { fileId } ) {
 							onClick={ generateAlt }
 						>
 							<i className="ti ti-sparkles" />
-							{ aiState === 'loading'
-								? 'Generating…'
-								: aiState
-								? 'Re-generate Alt Text'
-								: 'Generate Alt Text' }
+							{ altBtnLabel }
 						</button>
 					) }
 					<button
@@ -582,20 +722,23 @@ export default function DetailsPanel( { fileId } ) {
 						onClick={ generateCaption }
 					>
 						<i className="ti ti-sparkles" />
-						{ captionAiState === 'loading'
-							? 'Generating…'
-							: captionAiState && ! captionAiState.error
-							? 'Re-generate Caption'
-							: 'Generate Caption' }
+						{ captionBtnLabel }
 					</button>
 					<button
 						className="btn btn-full btn-outline-action"
 						onClick={ async () => {
 							await copyToClipboard( file.url );
-							showToast( 'URL copied!', 'success' );
+							showToast(
+								__(
+									'URL copied!',
+									'nhrrob-smart-media-manager'
+								),
+								'success'
+							);
 						} }
 					>
-						<i className="ti ti-copy" /> Copy URL
+						<i className="ti ti-copy" />{ ' ' }
+						{ __( 'Copy URL', 'nhrrob-smart-media-manager' ) }
 					</button>
 					{ file.type === 'image' ? (
 						<button
@@ -607,7 +750,8 @@ export default function DetailsPanel( { fileId } ) {
 								)
 							}
 						>
-							<i className="ti ti-external-link" /> Edit Media
+							<i className="ti ti-external-link" />{ ' ' }
+							{ __( 'Edit Media', 'nhrrob-smart-media-manager' ) }
 						</button>
 					) : (
 						<>
@@ -616,7 +760,11 @@ export default function DetailsPanel( { fileId } ) {
 								href={ file.url }
 								download
 							>
-								<i className="ti ti-download" /> Download
+								<i className="ti ti-download" />{ ' ' }
+								{ __(
+									'Download',
+									'nhrrob-smart-media-manager'
+								) }
 							</a>
 							<button
 								className="btn btn-full btn-outline-action"
@@ -627,7 +775,11 @@ export default function DetailsPanel( { fileId } ) {
 									)
 								}
 							>
-								<i className="ti ti-external-link" /> Edit Media
+								<i className="ti ti-external-link" />{ ' ' }
+								{ __(
+									'Edit Media',
+									'nhrrob-smart-media-manager'
+								) }
 							</button>
 						</>
 					) }
@@ -635,7 +787,8 @@ export default function DetailsPanel( { fileId } ) {
 						className="btn btn-full btn-danger-outline"
 						onClick={ deleteFile }
 					>
-						<i className="ti ti-trash" /> Delete File
+						<i className="ti ti-trash" />{ ' ' }
+						{ __( 'Delete File', 'nhrrob-smart-media-manager' ) }
 					</button>
 				</div>
 			</div>
