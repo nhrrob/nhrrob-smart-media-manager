@@ -592,8 +592,24 @@ body.nhrsmm-media-page .wrap {
     color: rgba(255, 255, 255, 0.7);
 }
 
+.nhrsmm .folder-count {
+    font-size: var(--text-xs);
+    color: var(--gray-400);
+    margin-left: auto;
+    white-space: nowrap;
+}
+
 .nhrsmm .folder-item.active .folder-count {
     color: rgba(255, 255, 255, 0.55);
+}
+
+/* Folder color dot — root folders only */
+.nhrsmm .folder-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: box-shadow 0.1s;
 }
 
 .nhrsmm .folder-item.active .folder-dot {
@@ -620,24 +636,8 @@ body.nhrsmm-media-page .wrap {
     white-space: nowrap;
 }
 
-.nhrsmm .folder-count {
-    font-size: var(--text-xs);
-    color: var(--gray-400);
-    margin-left: auto;
-    white-space: nowrap;
-}
-
 .nhrsmm .folder-children {
     padding-left: var(--sp-20);
-}
-
-/* Folder color dot — root folders only */
-.nhrsmm .folder-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    transition: box-shadow 0.1s;
 }
 
 .nhrsmm .folder-dot-0 { background: #5b8def; }
@@ -958,6 +958,10 @@ body.nhrsmm-media-page .wrap {
     z-index: var(--z-card-overlay);
 }
 
+.nhrsmm .card-star:hover {
+    background: rgba(0, 0, 0, 0.55);
+}
+
 .nhrsmm .smm-media-card:hover .card-star,
 .nhrsmm .card-star.starred {
     opacity: 1;
@@ -968,8 +972,8 @@ body.nhrsmm-media-page .wrap {
     color: #f5c518;
 }
 
-.nhrsmm .card-star:hover {
-    background: rgba(0, 0, 0, 0.55) !important;
+.nhrsmm .card-star.starred:hover {
+    background: rgba(0, 0, 0, 0.55);
 }
 
 /* Folder color dot on card / list row */
@@ -1257,6 +1261,7 @@ body.nhrsmm-media-page .wrap {
 }
 
 /* ── DETAILS PANEL ──────────────────────────────────────────── */
+
 /* ── DETAILS PANEL ──────────────────────────────────────────── */
 .nhrsmm .smm-details {
     width: var(--details-width);
@@ -2189,7 +2194,7 @@ body.nhrsmm-media-page .wrap {
     gap: var(--sp-8);
     padding: var(--sp-10) var(--sp-12);
     border-radius: var(--radius-md);
-    border-left: 3px solid currentColor;
+    border-left: 3px solid currentcolor;
     font-size: var(--text-sm);
     line-height: 1.5;
     font-weight: 500;
@@ -2357,6 +2362,7 @@ body.nhrsmm-media-page .wrap {
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.35);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .settings-brand-icon i {
     font-size: 0.9375rem;
     color: var(--white);
@@ -2419,6 +2425,7 @@ body.nhrsmm-media-page .wrap {
     outline-offset: -2px;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .settings-tab i {
     font-size: 0.875rem;
 }
@@ -2480,6 +2487,7 @@ body.nhrsmm-media-page .wrap {
     color: var(--gray-500);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .settings-card-head i {
     font-size: 0.875rem;
     color: var(--ai-from);
@@ -2583,6 +2591,7 @@ body.nhrsmm-media-page .wrap {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .smm-radio-label i {
     font-size: 0.8125rem;
 }
@@ -2619,6 +2628,7 @@ body.nhrsmm-media-page .wrap {
     background: var(--gray-50);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .widget-card-head i {
     font-size: 0.8125rem;
     color: var(--ai-from);
@@ -2650,6 +2660,7 @@ body.nhrsmm-media-page .wrap {
     color: var(--brand-700);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .widget-link i {
     font-size: 0.875rem;
     color: var(--gray-300);

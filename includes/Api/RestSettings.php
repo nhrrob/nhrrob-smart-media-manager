@@ -88,7 +88,7 @@ class RestSettings {
 				? absint( $params['items_per_page'] ) : 40;
 		}
 
-		update_option( 'nhrsmm_settings', $current );
+		update_option( 'nhrsmm_settings', $current, false );
 
 		return rest_ensure_response( $this->defaults() );
 	}

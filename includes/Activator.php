@@ -29,7 +29,8 @@ class Activator {
 					'default_view'   => 'grid',
 					'thumbnail_size' => 'medium',
 					'items_per_page' => 40,
-				]
+				],
+				false
 			);
 		}
 

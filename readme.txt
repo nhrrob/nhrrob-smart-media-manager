@@ -21,21 +21,15 @@ NHR Smart Media Manager adds a powerful Smart Library page to your WordPress adm
 * **File Details Panel** — Slide-in panel with editable title, alt text, caption, and description. See exactly where each file is used.
 * **Bulk Operations** — Select multiple files and move or delete them at once.
 * **Smart Search & Filters** — Search by filename, alt text, caption. Filter by file type. Shareable URL state.
-* **AI Alt Text Generation** — Generate accurate, screen-reader-friendly alt text for images using OpenAI gpt-4o-mini with one click.
+* **AI Alt Text & Caption Generation** — Generate screen-reader-friendly alt text and captions for images with one click, using the WordPress AI connector you configure at Settings → Connectors.
 * **Upload Enhancements** — Assign files to folders on upload, drag-and-drop from desktop, per-file progress bars.
 * **Keyboard Shortcuts** — Full keyboard navigation (Escape, Delete, Ctrl+A, Shift+click range select, Arrow keys).
 
 == External Services ==
 
-This plugin connects to the OpenAI API (https://api.openai.com) when the AI Alt Text feature is used.
+This plugin does **not** connect to any external service directly. AI features (alt text and caption generation) use the WordPress core AI Client (`wp_ai_client_prompt()`), which routes requests through whichever AI provider connector you install and configure at **Settings → Connectors** in your WordPress admin.
 
-* **Data sent:** The URL of the image you choose to generate alt text for.
-* **When sent:** Only when you explicitly click "Generate Alt Text" on a specific image.
-* **Who:** OpenAI, LLC (https://openai.com)
-* **OpenAI Terms of Service:** https://openai.com/terms
-* **OpenAI Privacy Policy:** https://openai.com/privacy
-
-You must provide your own OpenAI API key. The API key is stored encrypted in your WordPress database and is never exposed to the browser.
+The external service used — and any data sent to it — depends entirely on which AI connector plugin you activate. Please refer to that connector plugin's documentation for its privacy policy, terms of service, and data handling details.
 
 No image data is stored by NHR Smart Media Manager beyond what is already in your WordPress media library.
 
@@ -44,7 +38,7 @@ No image data is stored by NHR Smart Media Manager beyond what is already in you
 1. Upload the `nhrrob-smart-media-manager` folder to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 3. Go to **Media → Smart Library** to access the new media manager.
-4. Optionally, go to **Settings → NHR Smart Media** to configure AI features and display defaults.
+4. Optionally, go to **Settings → NHR Smart Media** to configure display defaults and view AI connector status.
 
 == Frequently Asked Questions ==
 
@@ -52,17 +46,13 @@ No image data is stored by NHR Smart Media Manager beyond what is already in you
 
 The plugin adds a new "Smart Library" submenu item under the Media menu. Your existing WordPress media library and the native media modal remain completely unchanged.
 
-= Do I need an OpenAI API key? =
+= Do I need an AI provider to use this plugin? =
 
-Only for the AI Alt Text feature. All other features (folders, grid view, bulk operations, search) work without any API key.
+No. All features (folders, grid view, bulk operations, search) work without any AI provider. AI features (alt text and caption generation) require a compatible AI connector plugin installed and configured at Settings → Connectors.
 
 = Where are my folders stored? =
 
-Folders are stored as WordPress taxonomy terms (custom taxonomy `nhrsmm_media_folder`). Files are not physically moved on disk — it's a virtual organization layer.
-
-= Is my API key secure? =
-
-Yes. The API key is encrypted using AES-256-CBC with your WordPress `SECURE_AUTH_KEY` before being stored in the database. It is never output to any HTML page or JavaScript variable.
+Folders are stored as WordPress taxonomy terms (custom taxonomy `nhrsmm_media_folder`). Files are not physically moved on disk — it is a virtual organization layer.
 
 = Does this work with popular plugins? =
 
@@ -74,7 +64,7 @@ Yes. The plugin only modifies the admin media library page. The native WordPress
 2. File details panel with AI alt text generation
 3. List view with sortable columns
 4. Upload modal with folder assignment
-5. Settings page — AI configuration
+5. Settings page — display preferences and AI connector status
 
 == Changelog ==
 

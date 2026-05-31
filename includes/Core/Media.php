@@ -35,11 +35,13 @@ class Media {
 
 		if ( ! empty( $ids ) ) {
 			$args  = [
-				'post_type'      => 'attachment',
-				'post_status'    => 'inherit',
-				'posts_per_page' => count( $ids ),
-				'post__in'       => $ids,
-				'orderby'        => 'post__in',
+				'post_type'              => 'attachment',
+				'post_status'            => 'inherit',
+				'posts_per_page'         => count( $ids ),
+				'post__in'               => $ids,
+				'orderby'                => 'post__in',
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
 			];
 			$query = new \WP_Query( $args );
 			$items = [];
@@ -331,10 +333,11 @@ class Media {
 		$mime      = $post->post_mime_type;
 		$url       = wp_get_attachment_url( $post->ID );
 		$file_path = get_attached_file( $post->ID );
-		$file_size = $file_path && file_exists( $file_path ) ? filesize( $file_path ) : 0;
 
-		// Lazy-populate filesize meta so it is available for sort-by-size queries.
-		if ( $file_size > 0 && ! metadata_exists( 'post', $post->ID, '_nhrsmm_filesize' ) ) {
+		// Read from cached meta first; only hit the filesystem on first access.
+		$file_size = (int) get_post_meta( $post->ID, '_nhrsmm_filesize', true );
+		if ( ! $file_size && $file_path && file_exists( $file_path ) ) {
+			$file_size = (int) filesize( $file_path );
 			update_post_meta( $post->ID, '_nhrsmm_filesize', $file_size );
 		}
 
