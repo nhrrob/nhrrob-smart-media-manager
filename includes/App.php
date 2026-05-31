@@ -46,9 +46,24 @@ class App {
 		( new Admin\MediaPage() )->register_hooks();
 		( new Admin\Settings() )->register_hooks();
 
+		add_filter( 'plugin_action_links_' . plugin_basename( NHRSMM_FILE ), [ $this, 'action_links' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 		add_action( 'add_attachment', [ $this, 'on_attachment_add' ] );
 		add_action( 'delete_attachment', [ $this, 'on_attachment_delete' ] );
+	}
+
+	/**
+	 * Adds Settings and Smart Library links to the plugins list.
+	 *
+	 * @param array $links Existing action links.
+	 * @return array
+	 */
+	public function action_links( array $links ): array {
+		$plugin_links = [
+			'<a href="' . esc_url( admin_url( 'options-general.php?page=nhrsmm-settings' ) ) . '">' . esc_html__( 'Settings', 'nhrrob-smart-media-manager' ) . '</a>',
+			'<a href="' . esc_url( admin_url( 'upload.php?page=nhrsmm-media-library' ) ) . '">' . esc_html__( 'Smart Library', 'nhrrob-smart-media-manager' ) . '</a>',
+		];
+		return array_merge( $plugin_links, $links );
 	}
 
 	/**
