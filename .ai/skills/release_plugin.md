@@ -18,8 +18,23 @@ git checkout dev
 ## Prerequisites
 
 - On `dev` branch
-- Build is clean: `npm run build`
 - No uncommitted changes
+
+## Step 0.5: Generate release zip
+
+Run the full release script — it lints, tests, builds, runs PCP, and produces the zip:
+
+```bash
+npm run release
+```
+
+For a quick zip without tests (e.g. hotfix iteration):
+
+```bash
+npm run build:zip
+```
+
+Both run `composer dump-autoload --no-dev` before zipping — regenerates the autoloader without dev package references (fixes the myclabs autoloader bug) without removing any vendor packages. Dev autoloads are restored at the end with `composer dump-autoload`.
 
 ## Step 1: Version bump
 

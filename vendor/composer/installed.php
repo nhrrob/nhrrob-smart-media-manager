@@ -3,7 +3,7 @@
         'name' => 'nhrsmm/smart-media-manager',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '418be2e55f4995746bb419006dec4b173243134e',
+        'reference' => 'c2a9beba08be581a58bad2826ef1b24bd8da976e',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -85,7 +85,7 @@
         'nhrsmm/smart-media-manager' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '418be2e55f4995746bb419006dec4b173243134e',
+            'reference' => 'c2a9beba08be581a58bad2826ef1b24bd8da976e',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -23,7 +23,9 @@
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
 		"test": "npm run test:unit && npm run test:e2e",
-		"check:pcp": "cd ../../.. && wp plugin check nhrrob-smart-media-manager --exclude-directories=tests,test-results --exclude-files=phpcs.xml,phpunit.xml"
+		"check:pcp": "cd ../../.. && wp plugin check nhrrob-smart-media-manager --exclude-directories=tests,test-results --exclude-files=phpcs.xml,phpunit.xml",
+		"release": "npm run lint && npm run test:unit && npm run env:start && npm run test:e2e && npm run build && npm run check:pcp && composer install --no-dev && wp dist-archive . && composer install",
+		"build:zip": "npm run build && composer install --no-dev && wp dist-archive . && composer install"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.50.0",

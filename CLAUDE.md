@@ -3,6 +3,10 @@
 ## Commands
 
 ```bash
+# Release / zip
+npm run release      # lint → unit tests → e2e → build → dump-autoload --no-dev → pcp → zip → restore autoload
+npm run build:zip    # build → dump-autoload --no-dev → zip → restore autoload
+
 # JS
 npm run build        # production build → admin/build/ + regenerates POT file
 npm run start        # watch mode
