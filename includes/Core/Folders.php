@@ -26,27 +26,98 @@ class Folders {
 			[
 				'taxonomy'   => 'nhrsmm_media_folder',
 				'hide_empty' => false,
-				'orderby'    => 'meta_value_num',
-				'meta_key'   => 'nhrsmm_order', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'orderby'    => 'name',
 				'order'      => 'ASC',
 			]
 		);
 
-		if ( is_wp_error( $terms ) ) {
-			return [];
+		$tree = [];
+		if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
+			$counts = $this->get_counts( $terms );
+			$tree   = $this->build_tree( $terms, 0, $counts );
 		}
 
-		return $this->build_tree( $terms, 0 ); // folder_parent = 0 = top-level.
+		return [
+			'tree'          => $tree,
+			'uncategorized' => $this->get_uncategorized_count(),
+		];
+	}
+
+	/**
+	 * Returns the count of attachments not assigned to any folder.
+	 *
+	 * @return int
+	 */
+	private function get_uncategorized_count(): int {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = $wpdb->get_var(
+			'SELECT COUNT(p.ID)
+			 FROM ' . $wpdb->posts . ' p
+			 LEFT JOIN ' . $wpdb->term_relationships . ' tr ON p.ID = tr.object_id
+			 LEFT JOIN ' . $wpdb->term_taxonomy . ' tt
+			     ON tr.term_taxonomy_id = tt.term_taxonomy_id
+			     AND tt.taxonomy = \'nhrsmm_media_folder\'
+			 WHERE p.post_type = \'attachment\'
+			 AND p.post_status = \'inherit\'
+			 AND tt.term_taxonomy_id IS NULL'
+		);
+
+		return (int) $count;
+	}
+
+	/**
+	 * Returns a map of term_id => attachment count via a single DB query.
+	 * Bypasses wp_term_taxonomy.count which only reflects published posts.
+	 *
+	 * @param array $terms Array of WP_Term objects.
+	 * @return array<int,int>
+	 */
+	private function get_counts( array $terms ): array {
+		global $wpdb;
+
+		$ids    = array_map( fn( $t ) => (int) $t->term_id, $terms );
+		$counts = array_fill_keys( $ids, 0 );
+
+		if ( empty( $ids ) ) {
+			return $counts;
+		}
+
+		$placeholders = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
+		$tr           = $wpdb->term_relationships;
+		$tt           = $wpdb->term_taxonomy;
+		// Table names and $placeholders ('%d, %d, …') cannot be parameterised — safe because
+		// $tr/$tt are WP globals and $ids is a cast-integer array with no user input.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT tt.term_id, COUNT(tr.object_id) AS c
+				 FROM $tr tr
+				 INNER JOIN $tt tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+				 WHERE tt.term_id IN ($placeholders)
+				 GROUP BY tt.term_id",
+				...$ids
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+
+		foreach ( $rows as $row ) {
+			$counts[ (int) $row->term_id ] = (int) $row->c;
+		}
+
+		return $counts;
 	}
 
 	/**
 	 * Recursively builds a nested folder array from a flat term list.
 	 *
-	 * @param array $terms         Flat array of WP_Term objects.
-	 * @param int   $folder_parent Parent term ID to start from.
+	 * @param array          $terms         Flat array of WP_Term objects.
+	 * @param int            $folder_parent Parent term ID to start from.
+	 * @param array<int,int> $counts      Map of term_id => attachment count.
 	 * @return array
 	 */
-	private function build_tree( array $terms, int $folder_parent ): array {
+	private function build_tree( array $terms, int $folder_parent, array $counts = [] ): array {
 		$tree = [];
 		foreach ( $terms as $term ) {
 			if ( (int) $term->parent !== $folder_parent ) {
@@ -57,8 +128,8 @@ class Folders {
 				'name'     => $term->name,
 				'slug'     => $term->slug,
 				'parent'   => $term->parent,
-				'count'    => (int) $term->count,
-				'children' => $this->build_tree( $terms, $term->term_id ),
+				'count'    => $counts[ (int) $term->term_id ] ?? (int) $term->count,
+				'children' => $this->build_tree( $terms, $term->term_id, $counts ),
 			];
 		}
 		return $tree;
@@ -85,6 +156,9 @@ class Folders {
 		}
 
 		$term = get_term( $result['term_id'], 'nhrsmm_media_folder' );
+		if ( ! $term || is_wp_error( $term ) ) {
+			return new \WP_Error( 'term_error', __( 'Could not retrieve created folder.', 'nhrrob-smart-media-manager' ) );
+		}
 		return [
 			'id'       => $term->term_id,
 			'name'     => $term->name,
@@ -114,6 +188,9 @@ class Folders {
 		}
 
 		$term = get_term( $result['term_id'], 'nhrsmm_media_folder' );
+		if ( ! $term || is_wp_error( $term ) ) {
+			return new \WP_Error( 'term_error', __( 'Could not retrieve renamed folder.', 'nhrrob-smart-media-manager' ) );
+		}
 		return [
 			'id'     => $term->term_id,
 			'name'   => $term->name,
@@ -132,14 +209,17 @@ class Folders {
 	public function delete( int $term_id ) {
 		// Move files to Uncategorized (remove from this folder, not delete them).
 		$attachments = get_objects_in_term( $term_id, 'nhrsmm_media_folder' );
-		foreach ( $attachments as $att_id ) {
-			wp_remove_object_terms( $att_id, $term_id, 'nhrsmm_media_folder' );
+		if ( ! is_wp_error( $attachments ) ) {
+			foreach ( $attachments as $att_id ) {
+				wp_remove_object_terms( $att_id, $term_id, 'nhrsmm_media_folder' );
+			}
 		}
 
-		// Also delete children recursively.
 		$children = get_term_children( $term_id, 'nhrsmm_media_folder' );
-		foreach ( $children as $child_id ) {
-			$this->delete( $child_id );
+		if ( ! is_wp_error( $children ) ) {
+			foreach ( $children as $child_id ) {
+				$this->delete( $child_id );
+			}
 		}
 
 		$result = wp_delete_term( $term_id, 'nhrsmm_media_folder' );
@@ -154,11 +234,21 @@ class Folders {
 	 * @return array|\WP_Error
 	 */
 	public function move( int $term_id, int $new_parent ) {
+		if ( 0 !== $new_parent ) {
+			$descendants = get_term_children( $term_id, 'nhrsmm_media_folder' );
+			if ( is_array( $descendants ) && in_array( $new_parent, $descendants, true ) ) {
+				return new \WP_Error( 'circular_parent', __( 'Cannot move a folder into its own descendant.', 'nhrrob-smart-media-manager' ), [ 'status' => 400 ] );
+			}
+		}
+
 		$result = wp_update_term( $term_id, 'nhrsmm_media_folder', [ 'parent' => $new_parent ] );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 		$term = get_term( $result['term_id'], 'nhrsmm_media_folder' );
+		if ( ! $term || is_wp_error( $term ) ) {
+			return new \WP_Error( 'term_error', __( 'Could not retrieve moved folder.', 'nhrrob-smart-media-manager' ) );
+		}
 		return [
 			'id'     => $term->term_id,
 			'name'   => $term->name,

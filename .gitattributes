@@ -7,6 +7,7 @@ admin/src/              export-ignore
 # Claude / AI context (dev-only)
 CLAUDE.md               export-ignore
 .ai/                    export-ignore
+.claude/                export-ignore
 .sass-cache             export-ignore
 .DS_Store               export-ignore
 .phpintel               export-ignore
@@ -17,32 +18,22 @@ package-lock.json       export-ignore
 pnpm-lock.yaml          export-ignore
 composer.lock           export-ignore
 
+# Development tools
+.husky/                 export-ignore
+
 # Dependencies
 node_modules/           export-ignore
 
 # Development tools
+.phpunit.cache/         export-ignore
 .phpunit.result.cache   export-ignore
-vendor/phpunit/         export-ignore
-vendor/10up/            export-ignore
-vendor/mockery/         export-ignore
-vendor/hamcrest/        export-ignore
-vendor/sebastian/       export-ignore
-vendor/bin/             export-ignore
-vendor/symfony/yaml/    export-ignore
-vendor/antecedent/      export-ignore
-vendor/doctrine/        export-ignore
-vendor/myclabs/         export-ignore
-vendor/nikic/           export-ignore
-vendor/phar-io/         export-ignore
-vendor/theseer/         export-ignore
-vendor/brain/           export-ignore
-vendor/dealerdirect/    export-ignore
-vendor/phpcsstandards/  export-ignore
-vendor/squizlabs/       export-ignore
-vendor/wp-coding-standards/ export-ignore
-vendor/yoast/           export-ignore
+test-results/           export-ignore
+playwright-report/      export-ignore
 
-# WordPress.org exclusions
+# Dependencies — vendor is dev-only (gitignored); plugin self-autoloads, no prod deps
+vendor/                 export-ignore
+
+# Other exclusions
 .babelrc                export-ignore
 .deployignore           export-ignore
 .distignore             export-ignore

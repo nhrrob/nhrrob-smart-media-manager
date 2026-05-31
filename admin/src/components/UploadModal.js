@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useApp } from '../context';
 import { iconForMime } from '../utils';
 
@@ -11,12 +12,11 @@ export default function UploadModal() {
 		loadFolders,
 		state: { uploadInitialFiles, folders },
 	} = useApp();
-	const [ queue, setQueue ] = useState( [] ); // [{ id, name, icon, progress, status }]
+	const [ queue, setQueue ] = useState( [] );
 	const [ results, setResults ] = useState( { ok: 0, fail: 0 } );
 	const [ done, setDone ] = useState( false );
 	const fileInputRef = useRef( null );
 
-	// If modal opened with dragged files, start uploading immediately
 	useEffect( () => {
 		if ( uploadInitialFiles ) {
 			addFiles( uploadInitialFiles );
@@ -63,9 +63,9 @@ export default function UploadModal() {
 		const folderId = folderSel ? parseInt( folderSel.value ) || 0 : 0;
 
 		const formData = new FormData();
-		formData.append( 'file', file );
+		formData.append( 'async-upload', file );
 		formData.append( 'action', 'upload-attachment' );
-		formData.append( '_wpnonce', cfg.nonce || '' );
+		formData.append( '_wpnonce', cfg.mediaUploadNonce || '' );
 
 		const xhr = new XMLHttpRequest();
 		xhr.open( 'POST', ( cfg.adminUrl || '' ) + 'async-upload.php' );
@@ -83,11 +83,13 @@ export default function UploadModal() {
 			try {
 				const data = JSON.parse( xhr.responseText );
 				if ( xhr.status >= 400 || data?.success === false ) {
-					throw new Error( data?.data?.message || 'Upload failed' );
+					throw new Error(
+						data?.data?.message ||
+							__( 'Upload failed', 'nhrrob-smart-media-manager' )
+					);
 				}
 				const attachId = data?.data?.id || data?.id;
 				if ( attachId && folderId ) {
-					// Move to selected folder via REST
 					await fetch( `${ cfg.restUrl }/media/${ attachId }/move`, {
 						method: 'POST',
 						headers: {
@@ -100,25 +102,24 @@ export default function UploadModal() {
 				}
 				updateItem( itemId, { progress: 100, status: 'ok' } );
 				setResults( ( prev ) => ( { ...prev, ok: prev.ok + 1 } ) );
-			} catch {
-				updateItem( itemId, { status: 'fail' } );
+			} catch ( err ) {
+				updateItem( itemId, { status: 'fail', error: err.message } );
 				setResults( ( prev ) => ( { ...prev, fail: prev.fail + 1 } ) );
 			}
-			setDone( ( prev ) => {
-				// Will recalculate below
-				return prev;
-			} );
+			setDone( ( prev ) => prev );
 		} );
 
 		xhr.addEventListener( 'error', () => {
-			updateItem( itemId, { status: 'fail' } );
+			updateItem( itemId, {
+				status: 'fail',
+				error: __( 'Network error', 'nhrrob-smart-media-manager' ),
+			} );
 			setResults( ( prev ) => ( { ...prev, fail: prev.fail + 1 } ) );
 		} );
 
 		xhr.send( formData );
 	}
 
-	// Determine when all uploads are done
 	useEffect( () => {
 		if ( queue.length === 0 ) {
 			return;
@@ -151,7 +152,8 @@ export default function UploadModal() {
 			<div className="smm-modal" onClick={ ( e ) => e.stopPropagation() }>
 				<div className="modal-header">
 					<span className="modal-title">
-						<i className="ti ti-cloud-upload" /> Upload Files
+						<i className="ti ti-cloud-upload" />{ ' ' }
+						{ __( 'Upload Files', 'nhrrob-smart-media-manager' ) }
 					</span>
 					<button className="btn-icon" onClick={ close }>
 						<i className="ti ti-x" />
@@ -159,7 +161,6 @@ export default function UploadModal() {
 				</div>
 
 				<div className="modal-body">
-					{ /* Dropzone */ }
 					{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 					<div
 						className="upload-dropzone"
@@ -181,8 +182,18 @@ export default function UploadModal() {
 					>
 						<div className="dropzone-inner">
 							<i className="ti ti-cloud-upload dropzone-icon" />
-							<p className="dropzone-title">Drop files here</p>
-							<p className="dropzone-sub">or click to browse</p>
+							<p className="dropzone-title">
+								{ __(
+									'Drop files here',
+									'nhrrob-smart-media-manager'
+								) }
+							</p>
+							<p className="dropzone-sub">
+								{ __(
+									'or click to browse',
+									'nhrrob-smart-media-manager'
+								) }
+							</p>
 							<input
 								ref={ fileInputRef }
 								type="file"
@@ -202,28 +213,40 @@ export default function UploadModal() {
 									fileInputRef.current?.click();
 								} }
 							>
-								<i className="ti ti-upload" /> Browse Files
+								<i className="ti ti-upload" />{ ' ' }
+								{ __(
+									'Browse Files',
+									'nhrrob-smart-media-manager'
+								) }
 							</button>
 						</div>
 					</div>
 
-					{ /* Folder selector */ }
 					<div
 						className="upload-options"
 						style={ { marginTop: '12px' } }
 					>
 						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
-						<label className="smm-label">Upload to folder</label>
+						<label className="smm-label">
+							{ __(
+								'Upload to folder',
+								'nhrrob-smart-media-manager'
+							) }
+						</label>
 						<select
 							className="smm-select"
 							id="smm-upload-folder-select"
 						>
-							<option value="0">Uncategorized</option>
+							<option value="0">
+								{ __(
+									'Uncategorized',
+									'nhrrob-smart-media-manager'
+								) }
+							</option>
 							{ renderFolderOptions( folders ) }
 						</select>
 					</div>
 
-					{ /* Upload queue */ }
 					{ queue.length > 0 && (
 						<div
 							className="upload-queue"
@@ -235,12 +258,6 @@ export default function UploadModal() {
 									statusSuffix = ' success';
 								} else if ( item.status === 'fail' ) {
 									statusSuffix = ' error';
-								}
-								let statusIcon = 'Waiting…';
-								if ( item.status === 'ok' ) {
-									statusIcon = '✓';
-								} else if ( item.status === 'fail' ) {
-									statusIcon = '✗';
 								}
 								return (
 									<div
@@ -254,19 +271,40 @@ export default function UploadModal() {
 											<div className="upload-item-name">
 												{ item.name }
 											</div>
-											<div className="upload-progress-bar">
-												<div
-													className="upload-progress-fill"
-													style={ {
-														width: `${ item.progress }%`,
-													} }
-												/>
-											</div>
+											{ item.status !== 'fail' && (
+												<div className="upload-progress-bar">
+													<div
+														className="upload-progress-fill"
+														style={ {
+															width: `${ item.progress }%`,
+														} }
+													/>
+												</div>
+											) }
+											{ item.status === 'fail' &&
+												item.error && (
+													<div className="upload-item-error">
+														{ item.error }
+													</div>
+												) }
 										</div>
 										<span
 											className={ `upload-item-status${ statusSuffix }` }
 										>
-											{ statusIcon }
+											{ item.status === 'ok' && (
+												<i className="ti ti-circle-check" />
+											) }
+											{ item.status === 'fail' && (
+												<i className="ti ti-circle-x" />
+											) }
+											{ item.status === 'waiting' && (
+												<span className="upload-waiting-text">
+													{ __(
+														'Waiting…',
+														'nhrrob-smart-media-manager'
+													) }
+												</span>
+											) }
 										</span>
 									</div>
 								);
@@ -286,8 +324,15 @@ export default function UploadModal() {
 										borderRadius: '4px',
 									} }
 								>
-									{ results.ok } uploaded, { results.fail }{ ' ' }
-									failed
+									{ sprintf(
+										// translators: %1$d: uploaded count, %2$d: failed count
+										__(
+											'%1$d uploaded, %2$d failed',
+											'nhrrob-smart-media-manager'
+										),
+										results.ok,
+										results.fail
+									) }
 								</span>
 							) : (
 								<span
@@ -297,14 +342,21 @@ export default function UploadModal() {
 										borderRadius: '4px',
 									} }
 								>
-									{ results.ok } file
-									{ results.ok === 1 ? '' : 's' } uploaded
-									successfully
+									{ sprintf(
+										// translators: %d: number of uploaded files
+										_n(
+											'%d file uploaded successfully',
+											'%d files uploaded successfully',
+											results.ok,
+											'nhrrob-smart-media-manager'
+										),
+										results.ok
+									) }
 								</span>
 							) }
 						</span>
 						<button className="btn btn-default" onClick={ onDone }>
-							Done
+							{ __( 'Done', 'nhrrob-smart-media-manager' ) }
 						</button>
 					</div>
 				) }

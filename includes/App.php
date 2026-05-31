@@ -61,16 +61,17 @@ class App {
 			'nhrsmm_media_folder',
 			'attachment',
 			[
-				'labels'       => [
+				'labels'                => [
 					'name'          => __( 'Media Folders', 'nhrrob-smart-media-manager' ),
 					'singular_name' => __( 'Media Folder', 'nhrrob-smart-media-manager' ),
 				],
-				'public'       => false,
-				'show_ui'      => false,
-				'show_in_rest' => false,
-				'hierarchical' => true,
-				'rewrite'      => false,
-				'query_var'    => false,
+				'public'                => false,
+				'show_ui'               => false,
+				'show_in_rest'          => false,
+				'hierarchical'          => true,
+				'rewrite'               => false,
+				'query_var'             => false,
+				'update_count_callback' => '_update_generic_term_count',
 			]
 		);
 	}

@@ -39,7 +39,20 @@ class Assets {
 		if ( false !== strpos( $page, 'nhrsmm-' ) ) {
 			$classes .= ' nhrsmm-page';
 		}
+		if ( $this->is_media_page_slug( $page ) ) {
+			$classes .= ' nhrsmm-media-page';
+		}
 		return $classes;
+	}
+
+	/**
+	 * Returns true when the given page slug is the Smart Media Library slug.
+	 *
+	 * @param string $page Sanitized page slug from $_GET['page'].
+	 * @return bool
+	 */
+	private function is_media_page_slug( string $page ): bool {
+		return false !== strpos( $page, 'nhrsmm-media-library' );
 	}
 
 	/**
@@ -83,6 +96,16 @@ class Assets {
 			[ 'in_footer' => true ]
 		);
 
+		wp_set_script_translations( 'nhrsmm-app', 'nhrrob-smart-media-manager', NHRSMM_PLUGIN_DIR . 'languages' );
+		wp_set_script_translations( 'nhrsmm-settings', 'nhrrob-smart-media-manager', NHRSMM_PLUGIN_DIR . 'languages' );
+
+		wp_register_style(
+			'nhrsmm-icons',
+			NHRSMM_URL . '/admin/css/nhrsmm-icons.css',
+			[],
+			NHRSMM_VERSION
+		);
+
 		wp_register_style(
 			'nhrsmm-admin',
 			NHRSMM_URL . '/admin/css/nhrsmm-admin.css',
@@ -107,17 +130,20 @@ class Assets {
 				'nhrsmm-app',
 				'nhrsmmConfig',
 				[
-					'restUrl'       => esc_url_raw( rest_url( 'nhrsmm/v1' ) ),
-					'nonce'         => wp_create_nonce( 'wp_rest' ),
-					'adminUrl'      => esc_url( admin_url() ),
-					'pluginUrl'     => esc_url( NHRSMM_URL ),
-					'settingsUrl'   => esc_url( admin_url( 'options-general.php?page=nhrsmm-settings' ) ),
-					'defaultView'   => sanitize_key( $settings['default_view'] ?? 'grid' ),
-					'thumbSize'     => sanitize_key( $settings['thumbnail_size'] ?? 'medium' ),
-					'perPage'       => absint( $settings['items_per_page'] ?? 40 ),
-					'version'       => NHRSMM_VERSION,
-					'aiConfigured'  => function_exists( 'is_supported_for_text_generation' ) && is_supported_for_text_generation(),
-					'currentUserId' => get_current_user_id(),
+					'restUrl'          => esc_url_raw( rest_url( 'nhrsmm/v1' ) ),
+					'nonce'            => wp_create_nonce( 'wp_rest' ),
+					'mediaUploadNonce' => wp_create_nonce( 'media-form' ),
+					'adminUrl'         => esc_url( admin_url() ),
+					'pluginUrl'        => esc_url( NHRSMM_URL ),
+					'settingsUrl'      => esc_url( admin_url( 'options-general.php?page=nhrsmm-settings' ) ),
+					'connectorsUrl'    => esc_url( admin_url( 'options-connectors.php' ) ),
+					'defaultView'      => sanitize_key( $settings['default_view'] ?? 'grid' ),
+					'thumbSize'        => sanitize_key( $settings['thumbnail_size'] ?? 'medium' ),
+					'perPage'          => absint( $settings['items_per_page'] ?? 40 ),
+					'version'          => NHRSMM_VERSION,
+					'aiConfigured'     => function_exists( 'wp_supports_ai' ) && wp_supports_ai(),
+					'aiProvider'       => $this->get_ai_provider_label(),
+					'currentUserId'    => get_current_user_id(),
 				]
 			);
 		}
@@ -134,8 +160,10 @@ class Assets {
 					'restUrl'         => esc_url_raw( rest_url( 'nhrsmm/v1' ) ),
 					'nonce'           => wp_create_nonce( 'wp_rest' ),
 					'mediaLibraryUrl' => esc_url( admin_url( 'upload.php?page=nhrsmm-media-library' ) ),
-					'connectorsUrl'   => esc_url( admin_url( 'options-general.php#ai-connectors' ) ),
-					'aiConfigured'    => function_exists( 'is_supported_for_text_generation' ) && is_supported_for_text_generation(),
+					'connectorsUrl'   => esc_url( admin_url( 'options-connectors.php' ) ),
+					'wpMediaUrl'      => esc_url( admin_url( 'upload.php' ) ),
+					'version'         => NHRSMM_VERSION,
+					'aiConfigured'    => function_exists( 'wp_supports_ai' ) && wp_supports_ai(),
 					'settings'        => [
 						'default_view'   => sanitize_key( $settings['default_view'] ?? 'grid' ),
 						'thumbnail_size' => sanitize_key( $settings['thumbnail_size'] ?? 'medium' ),
@@ -152,21 +180,29 @@ class Assets {
 	 * @return void
 	 */
 	private function enqueue_common(): void {
+		wp_enqueue_style( 'nhrsmm-icons' );
 		wp_enqueue_style( 'nhrsmm-admin' );
-		// phpcs:disable WordPress.WP.EnqueuedResourceParameters.MissingVersion
-		wp_enqueue_style(
-			'nhrsmm-google-fonts',
-			'https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap',
-			[],
-			null
-		);
-		wp_enqueue_style(
-			'nhrsmm-tabler-icons',
-			'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css',
-			[],
-			null
-		);
-		// phpcs:enable WordPress.WP.EnqueuedResourceParameters.MissingVersion
+	}
+
+	/**
+	 * Detects the configured AI provider name for display purposes.
+	 *
+	 * @return string Provider label, or empty string if AI is not configured.
+	 */
+	private function get_ai_provider_label(): string {
+		if ( ! function_exists( 'wp_supports_ai' ) || ! wp_supports_ai() ) {
+			return '';
+		}
+		if ( class_exists( 'WordPress\\AnthropicAiProvider\\Provider\\AnthropicProvider' ) ) {
+			return 'Anthropic';
+		}
+		if ( class_exists( 'WordPress\\OpenAiAiProvider\\Provider\\OpenAiProvider' ) ) {
+			return 'OpenAI';
+		}
+		if ( class_exists( 'WordPress\\GoogleAiProvider\\Provider\\GoogleProvider' ) ) {
+			return 'Google';
+		}
+		return 'AI';
 	}
 
 	/**

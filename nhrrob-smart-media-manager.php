@@ -6,7 +6,7 @@
  * Author: Nazmul Hasan Robin
  * Author URI: https://profiles.wordpress.org/nhrrob/
  * Version: 1.0.0
- * Requires at least: 6.0
+ * Requires at least: 7.0
  * Requires PHP: 7.4
  * Text Domain: nhrrob-smart-media-manager
  * License: GPLv2 or later
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/includes/autoload.php';
 
 /**
  * Main plugin class — singleton bootstrap.

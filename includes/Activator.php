@@ -22,16 +22,31 @@ class Activator {
 	 * @return void
 	 */
 	public static function run() {
-		if ( ! get_option( 'nhrsmm_settings' ) ) {
+		if ( false === get_option( 'nhrsmm_settings', false ) ) {
 			update_option(
 				'nhrsmm_settings',
 				[
 					'default_view'   => 'grid',
 					'thumbnail_size' => 'medium',
 					'items_per_page' => 40,
-				]
+				],
+				false
 			);
 		}
+
+		// Taxonomy is not registered during activation (init hasn't fired for a newly activated plugin).
+		register_taxonomy(
+			'nhrsmm_media_folder',
+			'attachment',
+			[
+				'public'                => false,
+				'show_ui'               => false,
+				'hierarchical'          => true,
+				'rewrite'               => false,
+				'query_var'             => false,
+				'update_count_callback' => '_update_generic_term_count',
+			]
+		);
 
 		// Ensure the "Uncategorized" default folder exists.
 		if ( ! term_exists( 'Uncategorized', 'nhrsmm_media_folder' ) ) {

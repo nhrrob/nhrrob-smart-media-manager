@@ -1,71 +1,43 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with code in this repository.
-
-## Build Commands
+## Commands
 
 ```bash
-npm run build   # production build → admin/build/
-npm run start   # development watch mode
+# Release / zip
+npm run release      # lint → unit tests → e2e → build → dump-autoload --no-dev → pcp → zip → restore autoload
+npm run build:zip    # build → dump-autoload --no-dev → zip → restore autoload
+
+# JS
+npm run build        # production build → admin/build/ + regenerates POT file
+npm run start        # watch mode
+npm run make:pot     # regenerate languages/nhrrob-smart-media-manager.pot manually
+npm run lint:js      # wp-scripts lint-js admin/src
+npm run format:js    # wp-scripts format admin/src
+npm run lint:css     # wp-scripts lint-style admin/css/*.css
+
+# PHP
+composer run phpcs   # lint
+composer run phpcbf  # auto-fix
+
+# Tests
+composer run test:unit   # PHPUnit (Brain Monkey, no DB)
+npm run test:e2e         # Playwright (requires wp-env running)
+npm run test:e2e:ui
+
+# wp-env (Docker required)
+npm run env:start    # http://localhost:8888  admin/password
+npm run env:stop
+npm run env:clean    # wipe DB + uploads
+npm run env:destroy
 ```
 
-PHP has no build step. Composer autoload is pre-generated; run `composer dump-autoload` only when adding new classes to `includes/`.
+Node: pin to Node 24 — run `nvm use` in project root.
 
-## Linting & Formatting
+`node_modules` is dev-only. `admin/build/`, `admin/svg/`, `admin/css/nhrsmm-icons.css` are committed and work without it.
 
-```bash
-npm run lint          # JS + CSS + PHP (all)
-npm run lint:js       # wp-scripts lint-js admin/src
-npm run lint:css      # wp-scripts lint-style admin/src
-npm run lint:php      # phpcs via composer
-npm run format:js     # wp-scripts format admin/src
+**No production Composer deps.** The plugin self-autoloads its own `Nhrsmm\SmartMediaManager\` classes via a `spl_autoload_register` in the main file (mapping → `includes/`) — it does NOT `require vendor/autoload.php`. `vendor/` is dev-only (phpunit/phpcs/brain-monkey), gitignored, and excluded from every zip (`.distignore` + `.gitattributes`). This is why all distribution paths work without churn: GitHub source zip, `wp dist-archive`, and WP.org never carry a Composer autoloader that could reference missing dev packages. After cloning, run `composer install` for dev tools. `vendor/autoload.php` is loaded only in the phpunit bootstrap (`tests/php/bootstrap.php`). If you ever add a real production dependency, switch the main file back to `require vendor/autoload.php` and ship the `--no-dev` vendor.
 
-composer run phpcbf   # auto-fix PHP CS violations
-```
-
-## Sandbox Environment (wp-env / Docker)
-
-```bash
-npm run env:start     # spin up WP on http://localhost:8888 (admin/password)
-npm run env:stop      # stop containers
-npm run env:clean     # wipe DB and uploads, keep containers
-npm run env:destroy   # remove containers and volumes entirely
-```
-
-wp-env requires Docker Desktop running. Config: `.wp-env.json`.
-
-## Testing
-
-```bash
-composer run test:unit          # PHPUnit unit tests (Brain Monkey, no DB)
-npm run test:unit               # same, via npm proxy
-
-npm run test:e2e                # Playwright E2E (requires wp-env running)
-npm run test:e2e:ui             # Playwright in interactive UI mode
-WP_BASE_URL=http://... npm run test:e2e  # override base URL
-```
-
-PHPUnit config: `phpunit.xml.dist`. Tests live in `tests/php/Unit/`.
-Playwright config: `playwright.config.js`. Tests live in `tests/e2e/`.
-
-## Node Version
-
-Pin: Node 24 (`.nvmrc`). Run `nvm use` in the project root to switch.
-
-## Architecture
-
-### Boot Flow
-
-`nhrrob-smart-media-manager.php` → `Nhrsmm_Smart_Media_Manager::init()` (singleton) → `plugins_loaded` → `init_plugin()` → `App::init()`:
-
-1. `register_taxonomy()` — registers `nhrsmm_media_folder` hierarchical taxonomy on `init`
-2. `new Assets()` — registers/enqueues scripts+styles on `admin_enqueue_scripts`; adds `nhrsmm-page` body class
-3. `new Admin\MediaPage()` — adds Smart Media Library submenu page under Media
-4. `new Admin\Settings()` — adds settings page under Settings menu
-5. `rest_api_init` — registers all four REST controllers
-6. `add_attachment` / `delete_attachment` — auto-assigns/removes default folder
-
-### REST API (`nhrsmm/v1`)
+## REST API (`nhrsmm/v1`)
 
 | Route | Methods | Controller |
 |---|---|---|
@@ -79,73 +51,71 @@ Pin: Node 24 (`.nvmrc`). Run `nvm use` in the project root to switch.
 | `/media/{id}/move` | POST | `RestMedia` |
 | `/media/{id}/usage` | GET | `RestMedia` |
 | `/ai/alt-text` | POST | `RestAi` |
+| `/ai/caption` | POST | `RestAi` |
 | `/settings` | GET, POST | `RestSettings` |
 
-Media routes require `upload_files`. Settings route requires `manage_options`.
+Media routes require `upload_files`. Settings requires `manage_options`.
 
-### Class Responsibilities (`includes/`)
+## Non-Obvious Implementation Details
 
-| Class | File | Job |
+**Asset manifests:** `@wordpress/scripts` emits `admin/build/{name}.asset.php` with auto-detected WP package dependencies and a content-hash version. Never manage script deps manually.
+
+**CSS is hand-crafted:** `admin/css/nhrsmm-admin.css` is plain CSS (not a build output). Scoped under `.nhrsmm`. `admin/css/nhrsmm-icons.css` maps `.ti-xxx` to SVGs in `admin/svg/` via `mask-image`.
+
+**Icons (no icon font):** `admin/svg/` holds Tabler Icons SVG files. Icons render via CSS `mask-image` — the `.ti` base class sets `display: inline-block; width/height: 1em; background-color: currentColor`. Use `<i className="ti ti-xxx" />` in JSX.
+
+**Adding an icon:**
+1. `npm install` if `node_modules` was deleted.
+2. Copy `node_modules/@tabler/icons/icons/outline/<name>.svg` → `admin/svg/<name>.svg`
+3. Add to `admin/css/nhrsmm-icons.css` (alphabetical): `.ti-<name> { -webkit-mask-image: url('../svg/<name>.svg'); mask-image: url('../svg/<name>.svg'); }`
+4. Use `<i className="ti ti-<name>" />`. No build needed.
+For filled icons: source from `icons/filled/`, name as `<name>-filled`.
+
+**`Folders::get_counts()` direct DB query:** `wp_term_taxonomy.count` is only updated for published posts — attachments use `post_status = 'inherit'` so it's always 0. The direct query counts `term_relationships` rows. The `phpcs:disable` block is intentional — keep it.
+
+**`_nhrsmm_filesize` post meta:** Written lazily in `format_attachment()` on first read (not on upload). Enables `orderby=meta_value_num` sort-by-size without a migration.
+
+**Upload flow:** `UploadModal.js` posts to WP's `async-upload.php` (legacy endpoint, `action=upload-attachment`, `media-form` nonce), then calls `POST /media/{id}/move` to assign a folder. Two steps because WP has no REST upload endpoint.
+
+**localStorage-only state:** `starredIds`, `thumbSize` (grid column size, 80–200 px), and `recentIds` never sync to DB. `thumbSize` (px) is separate from `thumbnail_size` in plugin settings (`small|medium|large`, controls which WP image size the API returns).
+
+## Frontend Entry Points
+
+| Entry | Mount | JS Config global |
 |---|---|---|
-| `App` | `App.php` | Boot; registers taxonomy, wires all classes, REST routes, attachment hooks |
-| `Assets` | `Assets.php` | Register/enqueue scripts+styles; localize config; body class filter |
-| `Admin\MediaPage` | `Admin/MediaPage.php` | Adds media library submenu page; renders `#nhrsmm-app` mount point |
-| `Admin\Settings` | `Admin/Settings.php` | Adds settings page; renders `#nhrsmm-settings-app` mount point |
-| `Core\Media` | `Core/Media.php` | `WP_Query` media list, single get, update, move, bulk operations, usage search |
-| `Core\Folders` | `Core/Folders.php` | Folder CRUD via `nhrsmm_media_folder` taxonomy terms; recursive tree builder |
-| `Core\Ai` | `Core/Ai.php` | AI alt text via WP 7.0 `wp_ai_client_prompt()` |
-| `Api\RestMedia` | `Api/RestMedia.php` | REST endpoints for all media operations |
-| `Api\RestFolders` | `Api/RestFolders.php` | REST endpoints for folder CRUD and move |
-| `Api\RestAi` | `Api/RestAi.php` | REST endpoint for AI alt text generation |
-| `Api\RestSettings` | `Api/RestSettings.php` | REST GET/POST for plugin settings |
-| `Activator` | `Activator.php` | Plugin activation tasks |
-| `Deactivator` | `Deactivator.php` | Plugin deactivation tasks |
+| `admin/src/index.js` | `#nhrsmm-app` | `window.nhrsmmConfig` |
+| `admin/src/settings.js` | `#nhrsmm-settings-app` | `window.nhrsmmSettingsConfig` |
 
-### Frontend
+**`nhrsmmConfig` shape:**
+```js
+{ restUrl, nonce, mediaUploadNonce, adminUrl, pluginUrl, settingsUrl,
+  connectorsUrl, defaultView, thumbSize, perPage, version,
+  aiConfigured, aiProvider, currentUserId }
+```
 
-Two separate React bundles (both built with `@wordpress/scripts`):
-
-| Entry | Output | Mount | JS Config |
-|---|---|---|---|
-| `admin/src/index.js` | `admin/build/index.js` | `#nhrsmm-app` | `window.nhrsmmConfig` |
-| `admin/src/settings.js` | `admin/build/settings.js` | `#nhrsmm-settings-app` | `window.nhrsmmSettingsConfig` |
-
-Media library state: `useReducer` + `AppContext` (`admin/src/context.js`). Components: `App`, `Sidebar`, `MainArea`, `DetailsPanel`, `UploadModal`, `Modals`.
-
-Settings app: local `useState` per tab; saves via `fetch` POST to `/nhrsmm/v1/settings`.
-
-### Settings
-
-All settings stored in `nhrsmm_settings` WP option (array):
-
-| Key | Values | Default |
-|---|---|---|
-| `default_view` | `grid`, `list` | `grid` |
-| `thumbnail_size` | `small`, `medium`, `large` | `medium` |
-| `items_per_page` | `20`, `40`, `60`, `100` | `40` |
-
-Default upload folder stored separately in `nhrsmm_default_upload_folder` option (term ID, int).
+**`nhrsmmSettingsConfig` shape:**
+```js
+{ restUrl, nonce, mediaLibraryUrl, connectorsUrl, wpMediaUrl, version,
+  aiConfigured, settings: { default_view, thumbnail_size, items_per_page } }
+```
 
 ## Key Conventions
 
-- **Constant prefix:** `NHRSMM_` — all six constants defined in main plugin file
-- **Option/hook/nonce prefix:** `nhrsmm_`
-- **Script/style handles:** `nhrsmm-app`, `nhrsmm-settings`, `nhrsmm-admin`
-- **REST namespace:** `nhrsmm/v1`
-- **Taxonomy:** `nhrsmm_media_folder` (hierarchical, non-public)
-- **CSS scope:** all styles scoped under `.nhrsmm` wrapper class
-- **JS globals:** `nhrsmmConfig` (media library), `nhrsmmSettingsConfig` (settings page)
-- **PHP:** 7.4+ compatible — no union types (`|`) in signatures; use scalar return types only
-- **AI:** `wp_ai_client_prompt()` only — never call any provider directly; gate all AI UI on `is_supported_for_text_generation()`
+- **Prefix:** `NHRSMM_` (constants), `nhrsmm_` (options, hooks, nonces, handles)
+- **REST namespace:** `nhrsmm/v1` | **Taxonomy:** `nhrsmm_media_folder` | **CSS scope:** `.nhrsmm`
+- **PHP 7.4+:** no union types in signatures; scalar return types only
+- **AI:** use `wp_ai_client_prompt()` only — never call providers directly. Gate all AI UI on `wp_supports_ai()`. Builder: `using_system_instruction()` → `with_text()` (or `with_file()`) → `generate_text()` returns `string|\WP_Error`. `is_supported_for_text_generation()` does NOT exist. AI Connectors page: `options-connectors.php`.
+- **JS i18n:** `.eslintrc.js` has `allowedTextDomain: ['nhrrob-smart-media-manager']` configured. All `__()` / `_n()` calls need the text domain. `sprintf()` with placeholders needs a `// translators:` comment above it.
+- **Docblocks:** PHP docblocks required on all public/protected methods (PHPCS enforces). JS inline comments for non-obvious WHY only — one line max.
+
+## Testing Constraint (Brain Monkey / Patchwork)
+
+**Never define WP functions as stubs in `bootstrap.php`.** Patchwork cannot intercept functions defined before `Monkey\setUp()` runs. Define all per-test overrides with `Functions\when()` or `Functions\expect()` inside test methods only. Only class stubs (e.g. `WP_Error`) are safe in bootstrap.
 
 ## Release Exclusions
 
-The following dev-only files are excluded from both `.distignore` (WP.org distribution) and `.gitattributes` (git archive export). Any new dev-only file must be added to **both**.
-
-Excluded: `CLAUDE.md`, `.ai/`, `admin/src/`, `node_modules/`, `.github/`, `.gitattributes`, `.gitignore`, `.distignore`, `package.json`, `package-lock.json`, `composer.lock`, `README.md`, and standard tooling files.
-
-`admin/build/` is **NOT** excluded — compiled output must ship to WP.org.
+`.distignore` (WP.org zip) and `.gitattributes` (git archive) must stay in sync. `vendor/` ships partially — autoloader + production deps only; dev packages excluded by path. `admin/build/` ships (never exclude it).
 
 ## Skills
 
-- `/release_plugin` — step-by-step release procedure (version bump, PR, tag, publish)
+- `/release_plugin` — version bump, PR, tag, publish procedure

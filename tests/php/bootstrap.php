@@ -1,17 +1,11 @@
 <?php
-/**
- * PHPUnit bootstrap — defines constants so WP-guarded classes can load,
- * then pulls in the Composer autoloader (includes Brain Monkey stubs).
- */
 
 declare( strict_types=1 );
 
-// Satisfy the ABSPATH guard present in every plugin class.
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', dirname( __DIR__, 3 ) . '/' );
 }
 
-// Plugin constants required by any class that reads them at load time.
 if ( ! defined( 'NHRSMM_VERSION' ) ) {
 	define( 'NHRSMM_VERSION', '1.0.0' );
 	define( 'NHRSMM_FILE', dirname( __DIR__, 2 ) . '/nhrrob-smart-media-manager.php' );
@@ -22,3 +16,23 @@ if ( ! defined( 'NHRSMM_VERSION' ) ) {
 }
 
 require_once dirname( __DIR__, 2 ) . '/vendor/autoload.php';
+
+// Never define WP functions here — Patchwork cannot intercept functions defined before Brain Monkey setUp().
+if ( ! class_exists( 'WP_Error' ) ) {
+	// phpcs:ignore Generic.Files.OneClassPerFile.MultipleFound
+	class WP_Error {
+		private string $code;
+		private string $message;
+		private $data;
+
+		public function __construct( string $code = '', string $message = '', $data = '' ) {
+			$this->code    = $code;
+			$this->message = $message;
+			$this->data    = $data;
+		}
+
+		public function get_error_code(): string { return $this->code; }
+		public function get_error_message( string $code = '' ): string { return $this->message; }
+		public function get_error_data( string $code = '' ) { return $this->data; }
+	}
+}

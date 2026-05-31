@@ -1,0 +1,124 @@
+/**
+ * Plugin icon definitions — SVG files live in admin/svg/.
+ *
+ * To add an icon:
+ *   1. Copy the .svg file from @tabler/icons/icons/outline/ into admin/svg/
+ *   2. Add a .ti-<name> rule below following the same pattern.
+ *
+ * Filled variants (e.g. star-filled) come from @tabler/icons/icons/filled/.
+ */
+
+/* Base — replaces the Tabler webfont .ti definition */
+.ti {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+    background-color: currentcolor;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-position: center;
+    mask-position: center;
+}
+
+/* Icons — outline variants */
+.ti-adjustments-horizontal { -webkit-mask-image: url(../svg/adjustments-horizontal.svg); mask-image: url(../svg/adjustments-horizontal.svg); }
+
+.ti-alert-circle            { -webkit-mask-image: url(../svg/alert-circle.svg);            mask-image: url(../svg/alert-circle.svg); }
+
+.ti-alert-triangle          { -webkit-mask-image: url(../svg/alert-triangle.svg);          mask-image: url(../svg/alert-triangle.svg); }
+
+.ti-arrows-move             { -webkit-mask-image: url(../svg/arrows-move.svg);             mask-image: url(../svg/arrows-move.svg); }
+
+.ti-arrows-sort             { -webkit-mask-image: url(../svg/arrows-sort.svg);             mask-image: url(../svg/arrows-sort.svg); }
+
+.ti-bolt                    { -webkit-mask-image: url(../svg/bolt.svg);                    mask-image: url(../svg/bolt.svg); }
+
+.ti-check                   { -webkit-mask-image: url(../svg/check.svg);                   mask-image: url(../svg/check.svg); }
+
+.ti-chevron-down            { -webkit-mask-image: url(../svg/chevron-down.svg);            mask-image: url(../svg/chevron-down.svg); }
+
+.ti-chevron-left            { -webkit-mask-image: url(../svg/chevron-left.svg);            mask-image: url(../svg/chevron-left.svg); }
+
+.ti-chevron-right           { -webkit-mask-image: url(../svg/chevron-right.svg);           mask-image: url(../svg/chevron-right.svg); }
+
+.ti-chevron-up              { -webkit-mask-image: url(../svg/chevron-up.svg);              mask-image: url(../svg/chevron-up.svg); }
+
+.ti-circle-check            { -webkit-mask-image: url(../svg/circle-check.svg);            mask-image: url(../svg/circle-check.svg); }
+
+.ti-circle-x                { -webkit-mask-image: url(../svg/circle-x.svg);                mask-image: url(../svg/circle-x.svg); }
+
+.ti-clock                   { -webkit-mask-image: url(../svg/clock.svg);                   mask-image: url(../svg/clock.svg); }
+
+.ti-clock-off               { -webkit-mask-image: url(../svg/clock-off.svg);               mask-image: url(../svg/clock-off.svg); }
+
+.ti-cloud-upload            { -webkit-mask-image: url(../svg/cloud-upload.svg);            mask-image: url(../svg/cloud-upload.svg); }
+
+.ti-copy                    { -webkit-mask-image: url(../svg/copy.svg);                    mask-image: url(../svg/copy.svg); }
+
+.ti-device-floppy           { -webkit-mask-image: url(../svg/device-floppy.svg);           mask-image: url(../svg/device-floppy.svg); }
+
+.ti-download                { -webkit-mask-image: url(../svg/download.svg);                mask-image: url(../svg/download.svg); }
+
+.ti-edit                    { -webkit-mask-image: url(../svg/edit.svg);                    mask-image: url(../svg/edit.svg); }
+
+.ti-external-link           { -webkit-mask-image: url(../svg/external-link.svg);           mask-image: url(../svg/external-link.svg); }
+
+.ti-file                    { -webkit-mask-image: url(../svg/file.svg);                    mask-image: url(../svg/file.svg); }
+
+.ti-file-spreadsheet        { -webkit-mask-image: url(../svg/file-spreadsheet.svg);        mask-image: url(../svg/file-spreadsheet.svg); }
+
+.ti-file-type-doc           { -webkit-mask-image: url(../svg/file-type-doc.svg);           mask-image: url(../svg/file-type-doc.svg); }
+
+.ti-file-type-pdf           { -webkit-mask-image: url(../svg/file-type-pdf.svg);           mask-image: url(../svg/file-type-pdf.svg); }
+
+.ti-file-zip                { -webkit-mask-image: url(../svg/file-zip.svg);                mask-image: url(../svg/file-zip.svg); }
+
+.ti-filter                  { -webkit-mask-image: url(../svg/filter.svg);                  mask-image: url(../svg/filter.svg); }
+
+.ti-folder                  { -webkit-mask-image: url(../svg/folder.svg);                  mask-image: url(../svg/folder.svg); }
+
+.ti-folder-off              { -webkit-mask-image: url(../svg/folder-off.svg);              mask-image: url(../svg/folder-off.svg); }
+
+.ti-folder-plus             { -webkit-mask-image: url(../svg/folder-plus.svg);             mask-image: url(../svg/folder-plus.svg); }
+
+.ti-home                    { -webkit-mask-image: url(../svg/home.svg);                    mask-image: url(../svg/home.svg); }
+
+.ti-info-circle             { -webkit-mask-image: url(../svg/info-circle.svg);             mask-image: url(../svg/info-circle.svg); }
+
+.ti-layout-grid             { -webkit-mask-image: url(../svg/layout-grid.svg);             mask-image: url(../svg/layout-grid.svg); }
+
+.ti-list                    { -webkit-mask-image: url(../svg/list.svg);                    mask-image: url(../svg/list.svg); }
+
+.ti-minus                   { -webkit-mask-image: url(../svg/minus.svg);                   mask-image: url(../svg/minus.svg); }
+
+.ti-music                   { -webkit-mask-image: url(../svg/music.svg);                   mask-image: url(../svg/music.svg); }
+
+.ti-photo                   { -webkit-mask-image: url(../svg/photo.svg);                   mask-image: url(../svg/photo.svg); }
+
+.ti-player-play             { -webkit-mask-image: url(../svg/player-play.svg);             mask-image: url(../svg/player-play.svg); }
+
+.ti-plug                    { -webkit-mask-image: url(../svg/plug.svg);                    mask-image: url(../svg/plug.svg); }
+
+.ti-search                  { -webkit-mask-image: url(../svg/search.svg);                  mask-image: url(../svg/search.svg); }
+
+.ti-settings                { -webkit-mask-image: url(../svg/settings.svg);                mask-image: url(../svg/settings.svg); }
+
+.ti-sparkles                { -webkit-mask-image: url(../svg/sparkles.svg);                mask-image: url(../svg/sparkles.svg); }
+
+.ti-stack-2                 { -webkit-mask-image: url(../svg/stack-2.svg);                 mask-image: url(../svg/stack-2.svg); }
+
+.ti-star                    { -webkit-mask-image: url(../svg/star.svg);                    mask-image: url(../svg/star.svg); }
+
+.ti-tag                     { -webkit-mask-image: url(../svg/tag.svg);                     mask-image: url(../svg/tag.svg); }
+
+.ti-trash                   { -webkit-mask-image: url(../svg/trash.svg);                   mask-image: url(../svg/trash.svg); }
+
+.ti-upload                  { -webkit-mask-image: url(../svg/upload.svg);                  mask-image: url(../svg/upload.svg); }
+
+.ti-x                       { -webkit-mask-image: url(../svg/x.svg);                       mask-image: url(../svg/x.svg); }
+
+/* Filled variants */
+.ti-star-filled             { -webkit-mask-image: url(../svg/star-filled.svg);             mask-image: url(../svg/star-filled.svg); }

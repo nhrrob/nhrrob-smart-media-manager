@@ -7,6 +7,7 @@ admin/src
 # Claude / AI context (dev-only)
 CLAUDE.md
 .ai/
+.claude
 .sass-cache
 .DS_Store
 .phpintel
@@ -17,32 +18,21 @@ package-lock.json
 pnpm-lock.yaml
 composer.lock
 
-# Dependencies
+# Dependencies (vendor is dev-only — no production Composer deps; plugin self-autoloads)
 node_modules
+vendor
+
+# Stray wp-scripts default output (real build goes to admin/build)
+/build
 
 # Development tools
+.husky
+.phpunit.cache
 /.phpunit.result.cache
-/vendor/phpunit
-/vendor/10up
-/vendor/mockery
-/vendor/hamcrest
-/vendor/sebastian
-/vendor/bin
-/vendor/symfony/yaml
-/vendor/antecedent
-/vendor/doctrine
-/vendor/myclabs
-/vendor/nikic
-/vendor/phar-io
-/vendor/theseer
-/vendor/brain
-/vendor/dealerdirect
-/vendor/phpcsstandards
-/vendor/squizlabs
-/vendor/wp-coding-standards
-/vendor/yoast
+test-results
+playwright-report
 
-# Additional WordPress.org exclusions
+# Additional exclusions
 .babelrc
 .deployignore
 .distignore

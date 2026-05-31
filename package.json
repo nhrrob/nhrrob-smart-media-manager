@@ -5,8 +5,10 @@
 	"description": "NHR Smart Media Manager WordPress Plugin",
 	"prettier": "@wordpress/prettier-config",
 	"scripts": {
+		"prepare": "git config core.hooksPath .husky || true",
 		"start": "wp-scripts start admin/src/index.js admin/src/settings.js --output-path=admin/build",
-		"build": "wp-scripts build admin/src/index.js admin/src/settings.js --output-path=admin/build",
+		"build": "wp-scripts build admin/src/index.js admin/src/settings.js --output-path=admin/build && npm run make:pot",
+		"make:pot": "wp i18n make-pot . languages/nhrrob-smart-media-manager.pot --slug=nhrrob-smart-media-manager --domain=nhrrob-smart-media-manager --exclude=vendor,node_modules,admin/build,tests,playwright-report,test-results",
 		"lint:js": "wp-scripts lint-js admin/src",
 		"lint:css": "wp-scripts lint-style 'admin/css/*.css'",
 		"lint:php": "composer run phpcs",
@@ -20,10 +22,14 @@
 		"test:unit": "composer run test:unit",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
-		"test": "npm run test:unit && npm run test:e2e"
+		"test": "npm run test:unit && npm run test:e2e",
+		"check:pcp": "cd ../../.. && wp plugin check nhrrob-smart-media-manager --exclude-directories=tests,test-results --exclude-files=phpcs.xml,phpunit.xml",
+		"release": "npm run lint && npm run test:unit && npm run env:start && npm run test:e2e && npm run build && npm run check:pcp && wp dist-archive .",
+		"build:zip": "npm run build && wp dist-archive ."
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.50.0",
+		"@tabler/icons": "^3.34.0",
 		"@wordpress/env": "^10.19.0",
 		"@wordpress/scripts": "^30.0.0"
 	}

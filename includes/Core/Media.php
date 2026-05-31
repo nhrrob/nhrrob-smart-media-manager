@@ -31,21 +31,52 @@ class Media {
 		$file_type = sanitize_key( $params['type'] ?? '' );
 		$orderby   = sanitize_key( $params['orderby'] ?? 'date' );
 		$order     = 'ASC' === strtoupper( sanitize_key( $params['order'] ?? 'DESC' ) ) ? 'ASC' : 'DESC';
+		$ids       = isset( $params['ids'] ) ? array_filter( array_map( 'absint', (array) $params['ids'] ) ) : [];
+
+		if ( ! empty( $ids ) ) {
+			$args  = [
+				'post_type'              => 'attachment',
+				'post_status'            => 'inherit',
+				'posts_per_page'         => count( $ids ),
+				'post__in'               => $ids,
+				'orderby'                => 'post__in',
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
+			];
+			$query = new \WP_Query( $args );
+			$items = [];
+			foreach ( $query->posts as $post ) {
+				$items[] = $this->format_attachment( $post );
+			}
+			return [
+				'items'    => $items,
+				'total'    => count( $items ),
+				'pages'    => 1,
+				'page'     => 1,
+				'per_page' => $per_page,
+			];
+		}
 
 		$args = [
 			'post_type'      => 'attachment',
 			'post_status'    => 'inherit',
 			'posts_per_page' => $per_page,
 			'paged'          => $page,
-			'orderby'        => in_array( $orderby, [ 'date', 'title', 'name' ], true ) ? $orderby : 'date',
 			'order'          => $order,
 		];
+
+		if ( 'size' === $orderby ) {
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			$args['meta_key'] = '_nhrsmm_filesize';
+			$args['orderby']  = 'meta_value_num';
+		} else {
+			$args['orderby'] = in_array( $orderby, [ 'date', 'title', 'name' ], true ) ? $orderby : 'date';
+		}
 
 		if ( ! empty( $search ) ) {
 			$args['s'] = $search;
 		}
 
-		// Folder filter.
 		if ( null !== $folder ) {
 			if ( 0 === $folder ) {
 				// Uncategorized: no folder term assigned.
@@ -69,18 +100,16 @@ class Media {
 			}
 		}
 
-		// File type filter.
 		if ( ! empty( $file_type ) ) {
 			$mime_map = [
-				'image'    => 'image',
-				'video'    => 'video',
-				'audio'    => 'audio',
-				'document' => [ 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/plain' ],
-				'other'    => [],
+				'image'       => 'image',
+				'video'       => 'video',
+				'audio'       => 'audio',
+				'document'    => [ 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain' ],
+				'spreadsheet' => [ 'text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/csv' ],
+				'other'       => [ 'application/zip', 'application/x-rar-compressed', 'application/x-zip-compressed' ],
 			];
-			if ( isset( $mime_map[ $file_type ] ) && is_string( $mime_map[ $file_type ] ) ) {
-				$args['post_mime_type'] = $mime_map[ $file_type ];
-			} elseif ( isset( $mime_map[ $file_type ] ) && is_array( $mime_map[ $file_type ] ) && ! empty( $mime_map[ $file_type ] ) ) {
+			if ( isset( $mime_map[ $file_type ] ) ) {
 				$args['post_mime_type'] = $mime_map[ $file_type ];
 			}
 		}
@@ -146,7 +175,11 @@ class Media {
 			update_post_meta( $id, '_wp_attachment_image_alt', sanitize_text_field( $data['alt'] ) );
 		}
 
-		return $this->format_attachment( get_post( $id ), true );
+		$post = get_post( $id );
+		if ( ! $post ) {
+			return new \WP_Error( 'not_found', __( 'Attachment not found.', 'nhrrob-smart-media-manager' ) );
+		}
+		return $this->format_attachment( $post, true );
 	}
 
 	/**
@@ -262,7 +295,6 @@ class Media {
 			];
 		}
 
-		// Posts whose content contains the attachment URL.
 		if ( $url ) {
 			$like = $wpdb->esc_like( $url );
 			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -301,12 +333,21 @@ class Media {
 		$mime      = $post->post_mime_type;
 		$url       = wp_get_attachment_url( $post->ID );
 		$file_path = get_attached_file( $post->ID );
-		$file_size = $file_path && file_exists( $file_path ) ? filesize( $file_path ) : 0;
 
-		$thumb = '';
+		// Read from cached meta first; only hit the filesystem on first access.
+		$file_size = (int) get_post_meta( $post->ID, '_nhrsmm_filesize', true );
+		if ( ! $file_size && $file_path && file_exists( $file_path ) ) {
+			$file_size = (int) filesize( $file_path );
+			update_post_meta( $post->ID, '_nhrsmm_filesize', $file_size );
+		}
+
+		$thumb    = '';
+		$thumb_md = '';
 		if ( 0 === strpos( $mime, 'image' ) ) {
-			$thumb_data = wp_get_attachment_image_src( $post->ID, 'thumbnail' );
-			$thumb      = $thumb_data ? $thumb_data[0] : $url;
+			$thumb_data    = wp_get_attachment_image_src( $post->ID, 'thumbnail' );
+			$thumb         = $thumb_data ? $thumb_data[0] : $url;
+			$thumb_md_data = wp_get_attachment_image_src( $post->ID, 'medium' );
+			$thumb_md      = $thumb_md_data ? $thumb_md_data[0] : $thumb;
 		}
 
 		$folder_terms = wp_get_object_terms( $post->ID, 'nhrsmm_media_folder', [ 'fields' => 'ids' ] );
@@ -318,12 +359,16 @@ class Media {
 			'filename'  => basename( false !== $file_path ? $file_path : '' ),
 			'url'       => $url,
 			'thumb'     => $thumb,
+			'thumb_md'  => $thumb_md,
 			'mime'      => $mime,
 			'type'      => $this->mime_to_type( $mime ),
 			'size'      => $file_size,
 			'date'      => $post->post_date,
 			'folder_id' => $folder_id,
 			'author'    => get_the_author_meta( 'display_name', $post->post_author ),
+			'has_alt'   => 0 === strpos( $mime, 'image' )
+							? '' !== get_post_meta( $post->ID, '_wp_attachment_image_alt', true )
+							: null,
 		];
 
 		if ( 0 === strpos( $mime, 'image' ) ) {
@@ -365,7 +410,7 @@ class Media {
 		if ( false !== strpos( $mime, 'word' ) || false !== strpos( $mime, 'document' ) ) {
 			return 'document';
 		}
-		if ( false !== strpos( $mime, 'excel' ) || false !== strpos( $mime, 'spreadsheet' ) ) {
+		if ( false !== strpos( $mime, 'excel' ) || false !== strpos( $mime, 'spreadsheet' ) || false !== strpos( $mime, 'csv' ) ) {
 			return 'spreadsheet';
 		}
 		if ( false !== strpos( $mime, 'zip' ) || false !== strpos( $mime, 'rar' ) ) {

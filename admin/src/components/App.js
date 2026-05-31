@@ -1,4 +1,5 @@
 import { useReducer, useCallback, useEffect, useRef } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { AppContext, initialState, reducer } from '../context';
 import { get, del } from '../api';
 import { getUrlParam } from '../utils';
@@ -13,20 +14,20 @@ import { ConfirmModal, ContextMenus, Toast, StatusBar } from './Modals';
 const cfg = window.nhrsmmConfig || {};
 
 export default function App() {
-	const [ state, dispatch ] = useReducer( reducer, {
-		...initialState,
-		view: cfg.defaultView || 'grid',
-	} );
+	const [ state, dispatch ] = useReducer( reducer, initialState );
 
 	const stateRef = useRef( state );
 	stateRef.current = state;
 
-	/* ── DATA LOADING ──────────────────────────────────────── */
 	const loadMedia = useCallback( async ( opts = {} ) => {
 		const s = stateRef.current;
 		dispatch( { type: 'SET_LOADING', loading: true } );
 
 		const params = new URLSearchParams();
+		const recentView =
+			opts.recentView !== undefined ? opts.recentView : s.recentView;
+		const starredView =
+			opts.starredView !== undefined ? opts.starredView : s.starredView;
 		const folder =
 			opts.folder !== undefined ? opts.folder : s.currentFolder;
 		const page = opts.page !== undefined ? opts.page : s.pagination.page;
@@ -36,19 +37,51 @@ export default function App() {
 		const sortOrd =
 			opts.sortOrder !== undefined ? opts.sortOrder : s.sortOrder;
 
-		if ( folder !== null ) {
-			params.set( 'folder', folder );
+		if ( starredView ) {
+			const ids = [ ...s.starredIds ];
+			if ( ids.length === 0 ) {
+				dispatch( {
+					type: 'SET_FILES',
+					items: [],
+					total: 0,
+					pages: 0,
+					page: 1,
+					per_page: s.pagination.perPage,
+				} );
+				return;
+			}
+			params.set( 'ids', ids.join( ',' ) );
+		} else if ( recentView ) {
+			const recentIds = JSON.parse(
+				localStorage.getItem( 'nhrsmm_recent_ids' ) || '[]'
+			);
+			if ( recentIds.length === 0 ) {
+				dispatch( {
+					type: 'SET_FILES',
+					items: [],
+					total: 0,
+					pages: 0,
+					page: 1,
+					per_page: s.pagination.perPage,
+				} );
+				return;
+			}
+			params.set( 'ids', recentIds.join( ',' ) );
+		} else {
+			if ( folder !== null ) {
+				params.set( 'folder', folder );
+			}
+			if ( search ) {
+				params.set( 'search', search );
+			}
+			if ( filter ) {
+				params.set( 'type', filter );
+			}
+			params.set( 'page', page );
+			params.set( 'per_page', s.pagination.perPage );
+			params.set( 'orderby', sortBy );
+			params.set( 'order', sortOrd );
 		}
-		if ( search ) {
-			params.set( 'search', search );
-		}
-		if ( filter ) {
-			params.set( 'type', filter );
-		}
-		params.set( 'page', page );
-		params.set( 'per_page', s.pagination.perPage );
-		params.set( 'orderby', sortBy );
-		params.set( 'order', sortOrd );
 
 		try {
 			const result = await get( '/media?' + params.toString() );
@@ -57,7 +90,9 @@ export default function App() {
 			dispatch( { type: 'SET_LOADING', loading: false } );
 			dispatch( {
 				type: 'SHOW_TOAST',
-				message: e.message || 'Failed to load media.',
+				message:
+					e.message ||
+					__( 'Failed to load media.', 'nhrrob-smart-media-manager' ),
 				kind: 'danger',
 			} );
 		}
@@ -65,8 +100,12 @@ export default function App() {
 
 	const loadFolders = useCallback( async () => {
 		try {
-			const tree = await get( '/folders' );
-			dispatch( { type: 'SET_FOLDERS', folders: tree } );
+			const result = await get( '/folders' );
+			dispatch( {
+				type: 'SET_FOLDERS',
+				folders: result.tree,
+				uncategorizedCount: result.uncategorized,
+			} );
 		} catch {
 			// non-critical
 		}
@@ -87,17 +126,31 @@ export default function App() {
 		}
 		const count = s.selection.size;
 		showConfirm(
-			`Delete ${ count } file${
-				count === 1 ? '' : 's'
-			}? This cannot be undone.`,
+			sprintf(
+				// translators: %d: number of files to delete
+				_n(
+					'Delete %d file? This cannot be undone.',
+					'Delete %d files? This cannot be undone.',
+					count,
+					'nhrrob-smart-media-manager'
+				),
+				count
+			),
 			async () => {
 				const ids = [ ...stateRef.current.selection ];
 				try {
 					const res = await del( '/media/bulk-delete', { ids } );
 					showToast(
-						`Deleted ${ res.deleted } file${
-							res.deleted === 1 ? '' : 's'
-						}.`,
+						sprintf(
+							// translators: %d: number of deleted files
+							_n(
+								'Deleted %d file.',
+								'Deleted %d files.',
+								res.deleted,
+								'nhrrob-smart-media-manager'
+							),
+							res.deleted
+						),
 						'success'
 					);
 					dispatch( { type: 'CLEAR_SELECTION' } );
@@ -110,7 +163,6 @@ export default function App() {
 		);
 	}, [ showConfirm, showToast, loadFolders, loadMedia ] );
 
-	/* ── KEYBOARD SHORTCUTS ────────────────────────────────── */
 	useEffect( () => {
 		function onKeyDown( e ) {
 			if ( e.target.matches( 'input, textarea, select' ) ) {
@@ -133,13 +185,46 @@ export default function App() {
 		return () => document.removeEventListener( 'keydown', onKeyDown );
 	}, [ deleteSelected ] );
 
-	/* ── GLOBAL CLICK (close context menus) ─────────────────── */
+	useEffect( () => {
+		localStorage.setItem(
+			'nhrsmm_starred_ids',
+			JSON.stringify( [ ...state.starredIds ] )
+		);
+	}, [ state.starredIds ] );
+
+	useEffect( () => {
+		localStorage.setItem( 'nhrsmm_thumb_size', String( state.thumbSize ) );
+	}, [ state.thumbSize ] );
+
+	useEffect( () => {
+		localStorage.setItem( 'nhrsmm_view', state.view );
+	}, [ state.view ] );
+
+	useEffect( () => {
+		const id = state.detailsTarget;
+		if ( ! id ) {
+			return;
+		}
+		const stored = JSON.parse(
+			localStorage.getItem( 'nhrsmm_recent_ids' ) || '[]'
+		);
+		const updated = [ id, ...stored.filter( ( i ) => i !== id ) ].slice(
+			0,
+			20
+		);
+		localStorage.setItem( 'nhrsmm_recent_ids', JSON.stringify( updated ) );
+	}, [ state.detailsTarget ] );
+
 	useEffect( () => {
 		function onClick( e ) {
 			if (
 				! e.target.closest( '.smm-context-menu' ) &&
 				! e.target.closest( '#smm-filter-btn' ) &&
-				! e.target.closest( '#smm-filter-dropdown' )
+				! e.target.closest( '#smm-filter-dropdown' ) &&
+				! e.target.closest( '#smm-sort-btn' ) &&
+				! e.target.closest( '#smm-sort-dropdown' ) &&
+				! e.target.closest( '#smm-ai-btn' ) &&
+				! e.target.closest( '#smm-ai-dropdown' )
 			) {
 				dispatch( { type: 'HIDE_CONTEXT_MENUS' } );
 			}
@@ -148,14 +233,12 @@ export default function App() {
 		return () => document.removeEventListener( 'click', onClick );
 	}, [] );
 
-	/* ── INITIAL LOAD (once, with URL params) ──────────────── */
 	useEffect( () => {
 		const urlFolder = getUrlParam( 'folder' );
 		const urlType = getUrlParam( 'type' );
 		const urlPage = getUrlParam( 'page' );
 		const urlQ = getUrlParam( 'q' );
 
-		// Sync URL params into state
 		if ( urlFolder !== null ) {
 			dispatch( {
 				type: 'SET_FOLDER',
@@ -169,10 +252,8 @@ export default function App() {
 			dispatch( { type: 'SET_SEARCH', search: urlQ } );
 		}
 
-		// Load folders
 		loadFolders();
 
-		// Load media with URL params directly (don't wait for state to sync)
 		let initialFolder;
 		if ( urlFolder === null ) {
 			initialFolder = undefined;
@@ -184,12 +265,14 @@ export default function App() {
 		loadMedia( {
 			folder: initialFolder,
 			filter: urlType || undefined,
-			page: urlPage ? parseInt( urlPage ) : undefined,
+			page:
+				urlPage && /^\d+$/.test( urlPage )
+					? parseInt( urlPage, 10 )
+					: undefined,
 			search: urlQ || undefined,
 		} );
 	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
-	/* ── CONTEXT VALUE ─────────────────────────────────────── */
 	const ctx = {
 		state,
 		dispatch,
