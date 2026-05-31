@@ -24,6 +24,7 @@ class FoldersTest extends TestCase {
 		$wpdb->posts              = 'wp_posts';
 		$wpdb->shouldReceive( 'get_results' )->andReturn( [] );
 		$wpdb->shouldReceive( 'get_var' )->andReturn( '0' );
+		$wpdb->shouldReceive( 'prepare' )->andReturnArg( 0 );
 	}
 
 	protected function tearDown(): void {
@@ -133,6 +134,7 @@ class FoldersTest extends TestCase {
 		$wpdb->posts              = 'wp_posts';
 		$wpdb->shouldReceive( 'get_results' )->andReturn( [ $row ] );
 		$wpdb->shouldReceive( 'get_var' )->andReturn( '0' );
+		$wpdb->shouldReceive( 'prepare' )->andReturnArg( 0 );
 
 		Functions\expect( 'get_terms' )->once()->andReturn( [ $term ] );
 		Functions\expect( 'is_wp_error' )->once()->andReturn( false );

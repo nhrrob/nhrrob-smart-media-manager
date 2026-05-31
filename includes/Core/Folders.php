@@ -84,16 +84,23 @@ class Folders {
 			return $counts;
 		}
 
-		// $ids contains only cast integers — no user input reaches this query.
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+		$placeholders = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
+		$tr           = $wpdb->term_relationships;
+		$tt           = $wpdb->term_taxonomy;
+		// Table names and $placeholders ('%d, %d, …') cannot be parameterised — safe because
+		// $tr/$tt are WP globals and $ids is a cast-integer array with no user input.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$rows = $wpdb->get_results(
-			'SELECT tt.term_id, COUNT(tr.object_id) AS c
-			 FROM ' . $wpdb->term_relationships . ' tr
-			 INNER JOIN ' . $wpdb->term_taxonomy . ' tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-			 WHERE tt.term_id IN (' . implode( ',', $ids ) . ')
-			 GROUP BY tt.term_id'
+			$wpdb->prepare(
+				"SELECT tt.term_id, COUNT(tr.object_id) AS c
+				 FROM $tr tr
+				 INNER JOIN $tt tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+				 WHERE tt.term_id IN ($placeholders)
+				 GROUP BY tt.term_id",
+				...$ids
+			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
 		foreach ( $rows as $row ) {
 			$counts[ (int) $row->term_id ] = (int) $row->c;

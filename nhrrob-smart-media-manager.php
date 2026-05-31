@@ -6,7 +6,7 @@
  * Author: Nazmul Hasan Robin
  * Author URI: https://profiles.wordpress.org/nhrrob/
  * Version: 1.0.0
- * Requires at least: 6.0
+ * Requires at least: 7.0
  * Requires PHP: 7.4
  * Text Domain: nhrrob-smart-media-manager
  * License: GPLv2 or later

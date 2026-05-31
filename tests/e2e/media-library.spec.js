@@ -100,48 +100,81 @@ test.describe( 'Smart Media Library', () => {
 		);
 	} );
 
-	test( 'moving a folder into its own descendant is rejected via the REST API', async ( { page } ) => {
+	test( 'moving a folder into its own descendant is rejected via the REST API', async ( {
+		page,
+	} ) => {
 		await gotoLibrary( page );
-
-		const { restUrl, nonce } = await page.evaluate( () => ( {
-			restUrl: window.nhrsmmConfig.restUrl,
-			nonce: window.nhrsmmConfig.nonce,
-		} ) );
 
 		const stamp = Date.now();
 
-		// Create parent folder.
-		const parentRes = await page.request.post( `${ restUrl }folders`, {
-			data: { name: `e2e-parent-${ stamp }` },
-			headers: { 'X-WP-Nonce': nonce, 'Content-Type': 'application/json' },
-		} );
-		expect( parentRes.ok() ).toBe( true );
-		const parent = await parentRes.json();
+		// Run all REST calls inside the browser via page.evaluate so they share
+		// the page's authenticated session and credentials: 'same-origin' nonce auth.
+		const result = await page.evaluate(
+			async ( { parentName, childName } ) => {
+				const { restUrl, nonce } = window.nhrsmmConfig;
+				const buildUrl = ( urlPath ) => {
+					if ( ! restUrl.includes( 'rest_route=' ) ) {
+						return restUrl + urlPath;
+					}
+					const [ route ] = urlPath.split( '?' );
+					return restUrl + route;
+				};
+				const apiFetch = async ( method, urlPath, body = null ) => {
+					const res = await fetch( buildUrl( urlPath ), {
+						method,
+						headers: {
+							'Content-Type': 'application/json',
+							'X-WP-Nonce': nonce,
+						},
+						credentials: 'same-origin',
+						body: body ? JSON.stringify( body ) : undefined,
+					} );
+					const data = await res.json().catch( () => null );
+					return { ok: res.ok, data };
+				};
 
-		// Create child under parent.
-		const childRes = await page.request.post( `${ restUrl }folders`, {
-			data: { name: `e2e-child-${ stamp }`, parent: parent.id },
-			headers: { 'X-WP-Nonce': nonce, 'Content-Type': 'application/json' },
-		} );
-		expect( childRes.ok() ).toBe( true );
-		const child = await childRes.json();
+				const { ok: parentOk, data: parent } = await apiFetch(
+					'POST',
+					'/folders',
+					{ name: parentName }
+				);
+				if ( ! parentOk ) {
+					return {
+						error: `create parent failed: ${ parent?.message }`,
+					};
+				}
 
-		// Try to move parent into child — must be rejected.
-		const moveRes = await page.request.post(
-			`${ restUrl }folders/${ parent.id }/move`,
+				const { ok: childOk, data: child } = await apiFetch(
+					'POST',
+					'/folders',
+					{ name: childName, parent: parent.id }
+				);
+				if ( ! childOk ) {
+					return {
+						error: `create child failed: ${ child?.message }`,
+					};
+				}
+
+				const { ok: moveOk, data: moveData } = await apiFetch(
+					'POST',
+					`/folders/${ parent.id }/move`,
+					{ parent: child.id }
+				);
+
+				// Cleanup: deleting parent cascades to child.
+				await apiFetch( 'DELETE', `/folders/${ parent.id }` );
+
+				return { moveOk, moveCode: moveData?.code };
+			},
 			{
-				data: { parent: child.id },
-				headers: { 'X-WP-Nonce': nonce, 'Content-Type': 'application/json' },
+				parentName: `e2e-parent-${ stamp }`,
+				childName: `e2e-child-${ stamp }`,
 			}
 		);
-		expect( moveRes.ok() ).toBe( false );
-		const body = await moveRes.json();
-		expect( body.code ).toBe( 'circular_parent' );
 
-		// Cleanup: deleting parent cascades to child.
-		await page.request.delete( `${ restUrl }folders/${ parent.id }`, {
-			headers: { 'X-WP-Nonce': nonce },
-		} );
+		expect( result.error ).toBeUndefined();
+		expect( result.moveOk ).toBe( false );
+		expect( result.moveCode ).toBe( 'circular_parent' );
 	} );
 
 	test( 'creating a folder adds it to the sidebar', async ( { page } ) => {
@@ -152,7 +185,7 @@ test.describe( 'Smart Media Library', () => {
 			.locator( '#smm-folder-tree .folder-item' )
 			.count();
 
-		await page.locator( '.folder-new-btn' ).click();
+		await page.locator( 'button[title="New folder"]' ).click();
 
 		const input = page.locator( '.folder-rename-input' );
 		await input.waitFor( { timeout: 3000 } );

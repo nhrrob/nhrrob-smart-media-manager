@@ -20,7 +20,8 @@
 		"test:unit": "composer run test:unit",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
-		"test": "npm run test:unit && npm run test:e2e"
+		"test": "npm run test:unit && npm run test:e2e",
+		"check:pcp": "npx @wordpress/env run cli sh -c 'wp plugin is-installed plugin-check 2>/dev/null || wp plugin install plugin-check --activate --quiet; wp plugin check nhrrob-smart-media-manager --exclude-directories=tests,test-results'"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.50.0",
