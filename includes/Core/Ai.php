@@ -85,7 +85,7 @@ class Ai {
 			if ( ! $image_path ) {
 				return new \WP_Error( 'no_file', __( 'Could not retrieve image file.', 'nhrrob-smart-media-manager' ) );
 			}
-			$mime   = get_post_mime_type( $attachment_id ) ?: 'image/jpeg';
+			$mime   = get_post_mime_type( $attachment_id ) ? get_post_mime_type( $attachment_id ) : 'image/jpeg';
 			$result = wp_ai_client_prompt()
 				->using_system_instruction( 'You are a content writer for a website.' )
 				->with_file( $image_path, $mime )
@@ -95,11 +95,12 @@ class Ai {
 			$post  = get_post( $attachment_id );
 			$label = $post ? sanitize_text_field( $post->post_title ) : '';
 			if ( ! $label ) {
-				$label = basename( get_attached_file( $attachment_id ) ?: '' );
+				$file  = get_attached_file( $attachment_id );
+				$label = basename( $file ? $file : '' );
 			}
 			$result = wp_ai_client_prompt()
 				->using_system_instruction( 'You are a content writer for a website.' )
-				->with_text( 'Write a short, descriptive caption for a file named "' . esc_html( $label ) . '". Under 100 characters. Return only the caption text, nothing else.' )
+				->with_text( 'Write a short, descriptive caption for a file named "' . $label . '". Under 100 characters. Return only the caption text, nothing else.' )
 				->generate_text();
 		}
 

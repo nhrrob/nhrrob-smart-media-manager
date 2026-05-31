@@ -100,6 +100,50 @@ test.describe( 'Smart Media Library', () => {
 		);
 	} );
 
+	test( 'moving a folder into its own descendant is rejected via the REST API', async ( { page } ) => {
+		await gotoLibrary( page );
+
+		const { restUrl, nonce } = await page.evaluate( () => ( {
+			restUrl: window.nhrsmmConfig.restUrl,
+			nonce: window.nhrsmmConfig.nonce,
+		} ) );
+
+		const stamp = Date.now();
+
+		// Create parent folder.
+		const parentRes = await page.request.post( `${ restUrl }folders`, {
+			data: { name: `e2e-parent-${ stamp }` },
+			headers: { 'X-WP-Nonce': nonce, 'Content-Type': 'application/json' },
+		} );
+		expect( parentRes.ok() ).toBe( true );
+		const parent = await parentRes.json();
+
+		// Create child under parent.
+		const childRes = await page.request.post( `${ restUrl }folders`, {
+			data: { name: `e2e-child-${ stamp }`, parent: parent.id },
+			headers: { 'X-WP-Nonce': nonce, 'Content-Type': 'application/json' },
+		} );
+		expect( childRes.ok() ).toBe( true );
+		const child = await childRes.json();
+
+		// Try to move parent into child — must be rejected.
+		const moveRes = await page.request.post(
+			`${ restUrl }folders/${ parent.id }/move`,
+			{
+				data: { parent: child.id },
+				headers: { 'X-WP-Nonce': nonce, 'Content-Type': 'application/json' },
+			}
+		);
+		expect( moveRes.ok() ).toBe( false );
+		const body = await moveRes.json();
+		expect( body.code ).toBe( 'circular_parent' );
+
+		// Cleanup: deleting parent cascades to child.
+		await page.request.delete( `${ restUrl }folders/${ parent.id }`, {
+			headers: { 'X-WP-Nonce': nonce },
+		} );
+	} );
+
 	test( 'creating a folder adds it to the sidebar', async ( { page } ) => {
 		await gotoLibrary( page );
 

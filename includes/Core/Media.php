@@ -34,7 +34,7 @@ class Media {
 		$ids       = isset( $params['ids'] ) ? array_filter( array_map( 'absint', (array) $params['ids'] ) ) : [];
 
 		if ( ! empty( $ids ) ) {
-			$args = [
+			$args  = [
 				'post_type'      => 'attachment',
 				'post_status'    => 'inherit',
 				'posts_per_page' => count( $ids ),
@@ -173,7 +173,11 @@ class Media {
 			update_post_meta( $id, '_wp_attachment_image_alt', sanitize_text_field( $data['alt'] ) );
 		}
 
-		return $this->format_attachment( get_post( $id ), true );
+		$post = get_post( $id );
+		if ( ! $post ) {
+			return new \WP_Error( 'not_found', __( 'Attachment not found.', 'nhrrob-smart-media-manager' ) );
+		}
+		return $this->format_attachment( $post, true );
 	}
 
 	/**

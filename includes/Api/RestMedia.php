@@ -129,7 +129,7 @@ class RestMedia {
 		$result = $media->get_list(
 			[
 				'page'     => absint( $request->get_param( 'page' ) ?? 1 ),
-				'per_page' => absint( $request->get_param( 'per_page' ) ?? 0 ),
+				'per_page' => null !== $request->get_param( 'per_page' ) ? absint( $request->get_param( 'per_page' ) ) : null,
 				'folder'   => null !== $request->get_param( 'folder' ) ? absint( $request->get_param( 'folder' ) ) : null,
 				'search'   => sanitize_text_field( $request->get_param( 'search' ) ?? '' ),
 				'type'     => sanitize_key( $request->get_param( 'type' ) ?? '' ),

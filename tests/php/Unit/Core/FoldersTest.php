@@ -161,7 +161,8 @@ class FoldersTest extends TestCase {
 
 		Functions\expect( 'sanitize_text_field' )->once()->with( 'New Folder' )->andReturn( 'New Folder' );
 		Functions\expect( 'wp_insert_term' )->once()->andReturn( [ 'term_id' => 10, 'term_taxonomy_id' => 10 ] );
-		Functions\expect( 'is_wp_error' )->once()->andReturn( false );
+		// is_wp_error is called twice: once for wp_insert_term result, once for get_term result.
+		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
 		Functions\expect( 'get_term' )->once()->andReturn( $term );
 
 		$result = $this->folders->create( 'New Folder' );
@@ -185,10 +186,109 @@ class FoldersTest extends TestCase {
 		Functions\expect( 'get_objects_in_term' )->once()->andReturn( [] );
 		Functions\expect( 'get_term_children' )->once()->andReturn( [] );
 		Functions\expect( 'wp_delete_term' )->once()->andReturn( true );
-		Functions\expect( 'is_wp_error' )->once()->andReturn( false );
+		// is_wp_error is called 3 times: for attachments, children, and wp_delete_term result.
+		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
 
 		$result = $this->folders->delete( 1 );
 
 		$this->assertTrue( $result );
+	}
+
+	public function test_delete_continues_when_get_objects_in_term_returns_wp_error(): void {
+		$error = new \WP_Error( 'db_error', 'Database error' );
+
+		Functions\when( 'get_objects_in_term' )->justReturn( $error );
+		Functions\when( 'get_term_children' )->justReturn( [] );
+		Functions\when( 'wp_delete_term' )->justReturn( true );
+		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
+
+		$result = $this->folders->delete( 1 );
+
+		$this->assertTrue( $result );
+	}
+
+	public function test_delete_continues_when_get_term_children_returns_wp_error(): void {
+		$error = new \WP_Error( 'db_error', 'Database error' );
+
+		Functions\when( 'get_objects_in_term' )->justReturn( [] );
+		Functions\when( 'get_term_children' )->justReturn( $error );
+		Functions\when( 'wp_delete_term' )->justReturn( true );
+		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
+
+		$result = $this->folders->delete( 1 );
+
+		$this->assertTrue( $result );
+	}
+
+	public function test_create_returns_term_error_when_get_term_returns_null(): void {
+		Functions\when( 'sanitize_text_field' )->returnArg();
+		Functions\when( 'wp_insert_term' )->justReturn( [ 'term_id' => 10, 'term_taxonomy_id' => 10 ] );
+		Functions\when( 'get_term' )->justReturn( null );
+		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
+		Functions\when( '__' )->returnArg();
+
+		$result = $this->folders->create( 'Test Folder' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'term_error', $result->get_error_code() );
+	}
+
+	public function test_rename_returns_term_error_when_get_term_returns_null(): void {
+		Functions\when( 'sanitize_text_field' )->returnArg();
+		Functions\when( 'wp_update_term' )->justReturn( [ 'term_id' => 5, 'term_taxonomy_id' => 5 ] );
+		Functions\when( 'get_term' )->justReturn( null );
+		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
+		Functions\when( '__' )->returnArg();
+
+		$result = $this->folders->rename( 5, 'New Name' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'term_error', $result->get_error_code() );
+	}
+
+	public function test_move_returns_circular_parent_error_when_new_parent_is_descendant(): void {
+		Functions\expect( 'get_term_children' )
+			->once()
+			->with( 1, 'nhrsmm_media_folder' )
+			->andReturn( [ 5, 6 ] );
+		Functions\when( '__' )->returnArg();
+
+		$result = $this->folders->move( 1, 5 );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'circular_parent', $result->get_error_code() );
+	}
+
+	public function test_move_to_top_level_skips_circular_parent_check(): void {
+		$term          = new \stdClass();
+		$term->term_id = 1;
+		$term->name    = 'Folder';
+		$term->slug    = 'folder';
+		$term->parent  = 0;
+		$term->count   = 0;
+
+		// get_term_children must NOT be called when new_parent is 0.
+		Functions\expect( 'get_term_children' )->never();
+		Functions\when( 'wp_update_term' )->justReturn( [ 'term_id' => 1, 'term_taxonomy_id' => 1 ] );
+		Functions\when( 'get_term' )->justReturn( $term );
+		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
+
+		$result = $this->folders->move( 1, 0 );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 1, $result['id'] );
+	}
+
+	public function test_move_returns_term_error_when_get_term_returns_null(): void {
+		Functions\when( 'get_term_children' )->justReturn( [] );
+		Functions\when( 'wp_update_term' )->justReturn( [ 'term_id' => 1, 'term_taxonomy_id' => 1 ] );
+		Functions\when( 'get_term' )->justReturn( null );
+		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
+		Functions\when( '__' )->returnArg();
+
+		$result = $this->folders->move( 1, 3 );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'term_error', $result->get_error_code() );
 	}
 }
