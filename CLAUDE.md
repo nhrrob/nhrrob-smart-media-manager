@@ -35,7 +35,7 @@ Node: pin to Node 24 — run `nvm use` in project root.
 
 `node_modules` is dev-only. `admin/build/`, `admin/svg/`, `admin/css/nhrsmm-icons.css` are committed and work without it.
 
-`vendor/` is committed in **`--no-dev` state** (autoloader only — no dev packages). This keeps GitHub zip downloads and `wp dist-archive` zips clean. After cloning, run `composer install` to add dev deps locally. When committing vendor changes, always run `composer install --no-dev` first, commit, then `composer install` to restore.
+**No production Composer deps.** The plugin self-autoloads its own `Nhrsmm\SmartMediaManager\` classes via a `spl_autoload_register` in the main file (mapping → `includes/`) — it does NOT `require vendor/autoload.php`. `vendor/` is dev-only (phpunit/phpcs/brain-monkey), gitignored, and excluded from every zip (`.distignore` + `.gitattributes`). This is why all distribution paths work without churn: GitHub source zip, `wp dist-archive`, and WP.org never carry a Composer autoloader that could reference missing dev packages. After cloning, run `composer install` for dev tools. `vendor/autoload.php` is loaded only in the phpunit bootstrap (`tests/php/bootstrap.php`). If you ever add a real production dependency, switch the main file back to `require vendor/autoload.php` and ship the `--no-dev` vendor.
 
 ## REST API (`nhrsmm/v1`)
 
