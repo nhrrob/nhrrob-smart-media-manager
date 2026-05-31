@@ -32,7 +32,7 @@
     "scripts": {
         "phpcs": "phpcs",
         "phpcbf": "phpcbf",
-        "test:unit": "phpunit --configuration phpunit.xml.dist"
+        "test:unit": "phpunit --configuration phpunit.xml"
     },
     "config": {
         "allow-plugins": {

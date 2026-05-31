@@ -5,6 +5,7 @@
 	"description": "NHR Smart Media Manager WordPress Plugin",
 	"prettier": "@wordpress/prettier-config",
 	"scripts": {
+		"prepare": "husky",
 		"start": "wp-scripts start admin/src/index.js admin/src/settings.js --output-path=admin/build",
 		"build": "wp-scripts build admin/src/index.js admin/src/settings.js --output-path=admin/build",
 		"lint:js": "wp-scripts lint-js admin/src",
@@ -21,12 +22,13 @@
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
 		"test": "npm run test:unit && npm run test:e2e",
-		"check:pcp": "cd ../../.. && wp plugin check nhrrob-smart-media-manager --exclude-directories=tests,test-results"
+		"check:pcp": "cd ../../.. && wp plugin check nhrrob-smart-media-manager --exclude-directories=tests,test-results --exclude-files=phpcs.xml,phpunit.xml"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.50.0",
 		"@tabler/icons": "^3.34.0",
 		"@wordpress/env": "^10.19.0",
-		"@wordpress/scripts": "^30.0.0"
+		"@wordpress/scripts": "^30.0.0",
+		"husky": "^9.1.7"
 	}
 }

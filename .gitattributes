@@ -18,6 +18,9 @@ package-lock.json       export-ignore
 pnpm-lock.yaml          export-ignore
 composer.lock           export-ignore
 
+# Development tools
+.husky/                 export-ignore
+
 # Dependencies
 node_modules/           export-ignore
 
