@@ -63,7 +63,7 @@ class App {
 			'<a href="' . esc_url( admin_url( 'options-general.php?page=nhrsmm-settings' ) ) . '">' . esc_html__( 'Settings', 'nhrrob-smart-media-manager' ) . '</a>',
 			'<a href="' . esc_url( admin_url( 'upload.php?page=nhrsmm-media-library' ) ) . '">' . esc_html__( 'Smart Library', 'nhrrob-smart-media-manager' ) . '</a>',
 		];
-		return array_merge( $plugin_links, $links );
+		return array_merge( $links, $plugin_links );
 	}
 
 	/**
