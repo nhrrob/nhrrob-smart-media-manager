@@ -33,7 +33,9 @@ npm run env:destroy
 
 Node: pin to Node 24 — run `nvm use` in project root.
 
-`node_modules` is dev-only. `admin/build/`, `admin/svg/`, `admin/css/nhrsmm-icons.css` are committed and work without it. `vendor/autoload.php` is pre-committed; run `composer dump-autoload` only when adding new PHP classes.
+`node_modules` is dev-only. `admin/build/`, `admin/svg/`, `admin/css/nhrsmm-icons.css` are committed and work without it.
+
+`vendor/` is committed in **`--no-dev` state** (autoloader only — no dev packages). This keeps GitHub zip downloads and `wp dist-archive` zips clean. After cloning, run `composer install` to add dev deps locally. When committing vendor changes, always run `composer install --no-dev` first, commit, then `composer install` to restore.
 
 ## REST API (`nhrsmm/v1`)
 
