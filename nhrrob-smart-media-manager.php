@@ -19,19 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * PSR-4 autoloader for the plugin's own classes.
- *
- * Maps `Nhrsmm\SmartMediaManager\` to `includes/` (same as composer.json).
- * The plugin has no production Composer dependencies, so it does not load
- * `vendor/autoload.php` — that directory is dev-only (phpunit/phpcs) and
- * never ships. Keeps every distribution path (WP.org, dist-archive, GitHub
- * source zip) free of a Composer autoloader that could reference missing
- * dev packages.
- *
- * @param string $class_name Fully-qualified class name.
- * @return void
- */
+// PSR-4 autoloader: Nhrsmm\SmartMediaManager\ -> includes/.
 spl_autoload_register(
 	static function ( $class_name ) {
 		$prefix = 'Nhrsmm\\SmartMediaManager\\';
