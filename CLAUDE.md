@@ -4,8 +4,9 @@
 
 ```bash
 # JS
-npm run build        # production build → admin/build/
+npm run build        # production build → admin/build/ + regenerates POT file
 npm run start        # watch mode
+npm run make:pot     # regenerate languages/nhrrob-smart-media-manager.pot manually
 npm run lint:js      # wp-scripts lint-js admin/src
 npm run format:js    # wp-scripts format admin/src
 npm run lint:css     # wp-scripts lint-style admin/css/*.css
