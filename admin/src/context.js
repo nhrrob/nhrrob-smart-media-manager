@@ -3,7 +3,7 @@ import { createContext, useContext } from '@wordpress/element';
 const cfg = window.nhrsmmConfig || {};
 
 export const initialState = {
-	view: cfg.defaultView || 'grid',
+	view: localStorage.getItem( 'nhrsmm_view' ) || cfg.defaultView || 'grid',
 	currentFolder: null,
 	files: [],
 	selection: new Set(),
@@ -12,7 +12,24 @@ export const initialState = {
 	filterType: null,
 	pagination: { page: 1, total: 0, pages: 1, perPage: cfg.perPage || 40 },
 	folders: [],
-	thumbSize: 120,
+	uncategorizedCount: 0,
+	recentView: false,
+	starredView: false,
+	starredIds: ( () => {
+		try {
+			return new Set(
+				JSON.parse(
+					localStorage.getItem( 'nhrsmm_starred_ids' ) || '[]'
+				)
+			);
+		} catch {
+			return new Set();
+		}
+	} )(),
+	thumbSize: parseInt(
+		localStorage.getItem( 'nhrsmm_thumb_size' ) || '120',
+		10
+	),
 	sortBy: 'date',
 	sortOrder: 'DESC',
 	loading: false,
@@ -32,9 +49,54 @@ export function reducer( state, action ) {
 			return {
 				...state,
 				currentFolder: action.folder,
+				recentView: false,
+				starredView: false,
 				selection: new Set(),
 				detailsTarget: null,
 				pagination: { ...state.pagination, page: 1 },
+			};
+
+		case 'SET_RECENT_VIEW':
+			return {
+				...state,
+				recentView: true,
+				starredView: false,
+				currentFolder: null,
+				selection: new Set(),
+				detailsTarget: null,
+				pagination: { ...state.pagination, page: 1 },
+			};
+
+		case 'SET_STARRED_VIEW':
+			return {
+				...state,
+				starredView: true,
+				recentView: false,
+				currentFolder: null,
+				selection: new Set(),
+				detailsTarget: null,
+				pagination: { ...state.pagination, page: 1 },
+			};
+
+		case 'TOGGLE_STAR': {
+			const next = new Set( state.starredIds );
+			if ( next.has( action.id ) ) {
+				next.delete( action.id );
+			} else {
+				next.add( action.id );
+			}
+			return { ...state, starredIds: next };
+		}
+
+		case 'CLEAR_STARS':
+			return { ...state, starredIds: new Set() };
+
+		case 'PATCH_FILE':
+			return {
+				...state,
+				files: state.files.map( ( f ) =>
+					f.id === action.id ? { ...f, ...action.patch } : f
+				),
 			};
 
 		case 'SET_FILES':
@@ -51,7 +113,11 @@ export function reducer( state, action ) {
 			};
 
 		case 'SET_FOLDERS':
-			return { ...state, folders: action.folders };
+			return {
+				...state,
+				folders: action.folders,
+				uncategorizedCount: action.uncategorizedCount ?? 0,
+			};
 
 		case 'SET_LOADING':
 			return { ...state, loading: action.loading };

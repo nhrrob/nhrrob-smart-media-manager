@@ -49,6 +49,9 @@ export function mimeToLabel( mime ) {
 	if ( mime.includes( 'excel' ) || mime.includes( 'spreadsheet' ) ) {
 		return 'XLS';
 	}
+	if ( mime.includes( 'csv' ) ) {
+		return 'CSV';
+	}
 	return 'FILE';
 }
 

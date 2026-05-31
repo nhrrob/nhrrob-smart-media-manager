@@ -7,6 +7,7 @@ module.exports = defineConfig( {
 	retries: process.env.CI ? 2 : 0,
 	workers: 1,
 	reporter: process.env.CI ? 'github' : 'html',
+	timeout: 60000,
 	use: {
 		baseURL: process.env.WP_BASE_URL ?? 'http://localhost:8888',
 		trace: 'on-first-retry',

@@ -3,7 +3,6 @@ import { useApp } from '../context';
 import { del, post } from '../api';
 import { copyToClipboard } from '../utils';
 
-/* ── Confirm Modal ─────────────────────────────────────────── */
 export function ConfirmModal() {
 	const { state, dispatch } = useApp();
 	const { confirmModal } = state;
@@ -20,38 +19,40 @@ export function ConfirmModal() {
 	}
 
 	return createPortal(
-		// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-		<div
-			className="smm-modal-overlay"
-			style={ { display: 'flex' } }
-			onClick={ cancel }
-		>
+		<div className="nhrsmm">
 			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 			<div
-				className="smm-modal smm-modal-sm"
-				onClick={ ( e ) => e.stopPropagation() }
+				className="smm-modal-overlay"
+				style={ { display: 'flex' } }
+				onClick={ cancel }
 			>
-				<div className="modal-header">
-					<span
-						className="modal-title"
-						style={ { color: 'var(--color-danger)' } }
-					>
-						<i className="ti ti-alert-circle" /> Confirm Delete
-					</span>
-				</div>
-				<div className="modal-body">
-					<p>{ confirmModal?.message }</p>
-				</div>
-				<div className="modal-footer">
-					<button className="btn btn-default" onClick={ cancel }>
-						Cancel
-					</button>
-					<button
-						className="btn btn-danger-solid"
-						onClick={ confirm }
-					>
-						Delete
-					</button>
+				{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
+				<div
+					className="smm-modal smm-modal-sm"
+					onClick={ ( e ) => e.stopPropagation() }
+				>
+					<div className="modal-header">
+						<span
+							className="modal-title"
+							style={ { color: 'var(--color-danger)' } }
+						>
+							<i className="ti ti-alert-circle" /> Confirm Delete
+						</span>
+					</div>
+					<div className="modal-body">
+						<p>{ confirmModal?.message }</p>
+					</div>
+					<div className="modal-footer">
+						<button className="btn btn-default" onClick={ cancel }>
+							Cancel
+						</button>
+						<button
+							className="btn btn-danger-solid"
+							onClick={ confirm }
+						>
+							Delete
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>,
@@ -59,7 +60,6 @@ export function ConfirmModal() {
 	);
 }
 
-/* ── Context Menus ─────────────────────────────────────────── */
 export function ContextMenus() {
 	const { state } = useApp();
 	const { contextMenu } = state;
@@ -75,13 +75,17 @@ export function ContextMenus() {
 
 	if ( contextMenu.kind === 'folder' ) {
 		return createPortal(
-			<FolderCtxMenu id={ contextMenu.id } style={ style } />,
+			<div className="nhrsmm">
+				<FolderCtxMenu id={ contextMenu.id } style={ style } />
+			</div>,
 			document.body
 		);
 	}
 
 	return createPortal(
-		<FileCtxMenu id={ contextMenu.id } style={ style } />,
+		<div className="nhrsmm">
+			<FileCtxMenu id={ contextMenu.id } style={ style } />
+		</div>,
 		document.body
 	);
 }
@@ -101,12 +105,9 @@ function FolderCtxMenu( { id, style } ) {
 				new CustomEvent( 'nhrsmm:rename-folder', { detail: id } )
 			);
 		} else if ( action === 'subfolder' ) {
-			try {
-				await post( '/folders', { name: 'New Folder', parent: id } );
-				await loadFolders();
-			} catch ( e ) {
-				showToast( e.message, 'danger' );
-			}
+			document.dispatchEvent(
+				new CustomEvent( 'nhrsmm:start-subfolder', { detail: id } )
+			);
 		} else if ( action === 'delete' ) {
 			showConfirm(
 				'Delete this folder? Files inside will become Uncategorized.',
@@ -166,9 +167,7 @@ function FileCtxMenu( { id, style } ) {
 
 	async function handleAction( action ) {
 		close();
-		if ( action === 'details' ) {
-			dispatch( { type: 'SELECT_FILE', id, mode: 'single' } );
-		} else if ( action === 'copy-url' ) {
+		if ( action === 'copy-url' ) {
 			const file = state.files.find( ( f ) => f.id === id );
 			if ( file ) {
 				await copyToClipboard( file.url );
@@ -190,10 +189,19 @@ function FileCtxMenu( { id, style } ) {
 				}
 			);
 		} else if ( action === 'move' ) {
-			dispatch( { type: 'SELECT_FILE', id, mode: 'single' } );
-			document.dispatchEvent(
-				new CustomEvent( 'nhrsmm:focus-folder-select' )
-			);
+			// Don't re-select: SELECT_FILE(single) toggles off when already selected (reducer clears sel.size===1).
+			setTimeout( () => {
+				const sel = document.getElementById(
+					'smm-details-folder-select'
+				);
+				if ( sel ) {
+					sel.focus();
+					sel.scrollIntoView( {
+						behavior: 'smooth',
+						block: 'center',
+					} );
+				}
+			}, 80 );
 		}
 	}
 
@@ -204,12 +212,6 @@ function FileCtxMenu( { id, style } ) {
 			style={ style }
 			onClick={ ( e ) => e.stopPropagation() }
 		>
-			<button
-				className="ctx-item"
-				onClick={ () => handleAction( 'details' ) }
-			>
-				<i className="ti ti-eye" /> View Details
-			</button>
 			<button
 				className="ctx-item"
 				onClick={ () => handleAction( 'copy-url' ) }
@@ -233,7 +235,6 @@ function FileCtxMenu( { id, style } ) {
 	);
 }
 
-/* ── Toast ─────────────────────────────────────────────────── */
 export function Toast() {
 	const { state, dispatch } = useApp();
 	const { toast } = state;
@@ -259,36 +260,40 @@ export function Toast() {
 		danger: 'ti-alert-circle',
 	};
 
-	const style = {
+	const wrapStyle = {
 		position: 'fixed',
 		bottom: '20px',
 		left: '50%',
-		transform: 'translateX(-50%)',
 		zIndex: 999999,
 		minWidth: '220px',
 		maxWidth: '400px',
+		animation: 'toastIn 0.22s ease forwards',
+	};
+
+	const noticeStyle = {
 		boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
 		borderRadius: '8px',
-		animation: 'scaleIn 0.2s ease',
+		margin: 0,
 	};
 
 	return createPortal(
-		<div
-			className={ `nhrsmm smm-notice smm-notice-${ toast.kind }` }
-			style={ style }
-		>
-			<i
-				className={ `ti ${
-					iconMap[ toast.kind ] || 'ti-info-circle'
-				}` }
-			/>{ ' ' }
-			{ toast.message }
+		<div className="nhrsmm" style={ wrapStyle }>
+			<div
+				className={ `smm-notice smm-notice-${ toast.kind }` }
+				style={ noticeStyle }
+			>
+				<i
+					className={ `ti ${
+						iconMap[ toast.kind ] || 'ti-info-circle'
+					}` }
+				/>{ ' ' }
+				{ toast.message }
+			</div>
 		</div>,
 		document.body
 	);
 }
 
-/* ── Status Bar ────────────────────────────────────────────── */
 export function StatusBar() {
 	const { state, cfg } = useApp();
 	const total = state.pagination.total;
@@ -296,28 +301,25 @@ export function StatusBar() {
 
 	return (
 		<div className="smm-statusbar" id="smm-statusbar">
-			<span className="status-count">
+			<span>
 				{ state.loading
 					? 'Loading…'
 					: `${ total } file${ total === 1 ? '' : 's' }` }
 			</span>
-			<span className="status-sep">·</span>
-			{ sel > 0 && <span className="status-sel">{ sel } selected</span> }
+			{ sel > 0 && (
+				<>
+					<span className="status-sep">·</span>
+					<span>{ sel } selected</span>
+				</>
+			) }
 			<div className="status-right">
-				<span
-					className="ai-dot"
-					style={ { opacity: cfg.aiConfigured ? '1' : '0.35' } }
-					title={
-						cfg.aiConfigured
-							? 'AI configured'
-							: 'AI not configured — go to Settings → Connectors'
-					}
-				>
-					AI
-				</span>
-				<span className="status-version">
-					v{ cfg.version || '1.0.0' }
-				</span>
+				{ cfg.aiConfigured && (
+					<span className="ai-dot">
+						{ cfg.aiProvider || 'AI' } Connected
+					</span>
+				) }
+				<span className="status-sep">·</span>
+				<span className="status-version">v{ cfg.version }</span>
 			</div>
 		</div>
 	);

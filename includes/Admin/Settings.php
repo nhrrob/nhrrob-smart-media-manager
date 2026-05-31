@@ -49,6 +49,10 @@ class Settings {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'nhrrob-smart-media-manager' ) );
 		}
-		echo '<div class="nhrsmm-settings" id="nhrsmm-settings-app"></div>';
+		echo '<div class="wrap">'
+			. '<h1 class="screen-reader-text">' . esc_html__( 'NHR Smart Media Settings', 'nhrrob-smart-media-manager' ) . '</h1>'
+			. '<hr class="wp-header-end">'
+			. '<div class="nhrsmm-settings" id="nhrsmm-settings-app"></div>'
+			. '</div>';
 	}
 }

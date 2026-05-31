@@ -7,6 +7,7 @@ admin/src/              export-ignore
 # Claude / AI context (dev-only)
 CLAUDE.md               export-ignore
 .ai/                    export-ignore
+.claude/                export-ignore
 .sass-cache             export-ignore
 .DS_Store               export-ignore
 .phpintel               export-ignore
@@ -21,7 +22,10 @@ composer.lock           export-ignore
 node_modules/           export-ignore
 
 # Development tools
+.phpunit.cache/         export-ignore
 .phpunit.result.cache   export-ignore
+test-results/           export-ignore
+playwright-report/      export-ignore
 vendor/phpunit/         export-ignore
 vendor/10up/            export-ignore
 vendor/mockery/         export-ignore

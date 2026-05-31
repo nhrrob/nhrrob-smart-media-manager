@@ -7,6 +7,7 @@ admin/src
 # Claude / AI context (dev-only)
 CLAUDE.md
 .ai/
+.claude
 .sass-cache
 .DS_Store
 .phpintel
@@ -21,7 +22,10 @@ composer.lock
 node_modules
 
 # Development tools
+.phpunit.cache
 /.phpunit.result.cache
+test-results
+playwright-report
 /vendor/phpunit
 /vendor/10up
 /vendor/mockery
@@ -42,7 +46,7 @@ node_modules
 /vendor/wp-coding-standards
 /vendor/yoast
 
-# Additional WordPress.org exclusions
+# Additional exclusions
 .babelrc
 .deployignore
 .distignore

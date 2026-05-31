@@ -135,6 +135,9 @@ class RestMedia {
 				'type'     => sanitize_key( $request->get_param( 'type' ) ?? '' ),
 				'orderby'  => sanitize_key( $request->get_param( 'orderby' ) ?? 'date' ),
 				'order'    => sanitize_key( $request->get_param( 'order' ) ?? 'DESC' ),
+				'ids'      => $request->get_param( 'ids' )
+					? array_filter( array_map( 'absint', explode( ',', $request->get_param( 'ids' ) ) ) )
+					: [],
 			]
 		);
 		return rest_ensure_response( $result );

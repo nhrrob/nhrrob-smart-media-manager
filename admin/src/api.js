@@ -1,5 +1,16 @@
 const cfg = window.nhrsmmConfig || {};
 
+// Plain-permalink: rest_route= value can't contain an embedded query string; promote params to top-level.
+function buildUrl( path ) {
+	const base = cfg.restUrl || '';
+	if ( ! base.includes( 'rest_route=' ) ) {
+		return base + path;
+	}
+	const [ routePart, queryPart ] = path.split( '?' );
+	const url = base + routePart;
+	return queryPart ? url + '&' + queryPart : url;
+}
+
 export async function apiFetch( method, path, body = null ) {
 	const opts = {
 		method,
@@ -12,7 +23,7 @@ export async function apiFetch( method, path, body = null ) {
 	if ( body && method !== 'GET' ) {
 		opts.body = JSON.stringify( body );
 	}
-	const url = cfg.restUrl + path;
+	const url = buildUrl( path );
 	const res = await fetch( url, opts );
 	const data = await res.json().catch( () => null );
 	if ( ! res.ok ) {

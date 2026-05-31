@@ -11,12 +11,11 @@ export default function UploadModal() {
 		loadFolders,
 		state: { uploadInitialFiles, folders },
 	} = useApp();
-	const [ queue, setQueue ] = useState( [] ); // [{ id, name, icon, progress, status }]
+	const [ queue, setQueue ] = useState( [] );
 	const [ results, setResults ] = useState( { ok: 0, fail: 0 } );
 	const [ done, setDone ] = useState( false );
 	const fileInputRef = useRef( null );
 
-	// If modal opened with dragged files, start uploading immediately
 	useEffect( () => {
 		if ( uploadInitialFiles ) {
 			addFiles( uploadInitialFiles );
@@ -63,9 +62,9 @@ export default function UploadModal() {
 		const folderId = folderSel ? parseInt( folderSel.value ) || 0 : 0;
 
 		const formData = new FormData();
-		formData.append( 'file', file );
+		formData.append( 'async-upload', file );
 		formData.append( 'action', 'upload-attachment' );
-		formData.append( '_wpnonce', cfg.nonce || '' );
+		formData.append( '_wpnonce', cfg.mediaUploadNonce || '' );
 
 		const xhr = new XMLHttpRequest();
 		xhr.open( 'POST', ( cfg.adminUrl || '' ) + 'async-upload.php' );
@@ -87,7 +86,6 @@ export default function UploadModal() {
 				}
 				const attachId = data?.data?.id || data?.id;
 				if ( attachId && folderId ) {
-					// Move to selected folder via REST
 					await fetch( `${ cfg.restUrl }/media/${ attachId }/move`, {
 						method: 'POST',
 						headers: {
@@ -100,25 +98,21 @@ export default function UploadModal() {
 				}
 				updateItem( itemId, { progress: 100, status: 'ok' } );
 				setResults( ( prev ) => ( { ...prev, ok: prev.ok + 1 } ) );
-			} catch {
-				updateItem( itemId, { status: 'fail' } );
+			} catch ( err ) {
+				updateItem( itemId, { status: 'fail', error: err.message } );
 				setResults( ( prev ) => ( { ...prev, fail: prev.fail + 1 } ) );
 			}
-			setDone( ( prev ) => {
-				// Will recalculate below
-				return prev;
-			} );
+			setDone( ( prev ) => prev );
 		} );
 
 		xhr.addEventListener( 'error', () => {
-			updateItem( itemId, { status: 'fail' } );
+			updateItem( itemId, { status: 'fail', error: 'Network error' } );
 			setResults( ( prev ) => ( { ...prev, fail: prev.fail + 1 } ) );
 		} );
 
 		xhr.send( formData );
 	}
 
-	// Determine when all uploads are done
 	useEffect( () => {
 		if ( queue.length === 0 ) {
 			return;
@@ -159,7 +153,6 @@ export default function UploadModal() {
 				</div>
 
 				<div className="modal-body">
-					{ /* Dropzone */ }
 					{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 					<div
 						className="upload-dropzone"
@@ -207,7 +200,6 @@ export default function UploadModal() {
 						</div>
 					</div>
 
-					{ /* Folder selector */ }
 					<div
 						className="upload-options"
 						style={ { marginTop: '12px' } }
@@ -223,7 +215,6 @@ export default function UploadModal() {
 						</select>
 					</div>
 
-					{ /* Upload queue */ }
 					{ queue.length > 0 && (
 						<div
 							className="upload-queue"
@@ -235,12 +226,6 @@ export default function UploadModal() {
 									statusSuffix = ' success';
 								} else if ( item.status === 'fail' ) {
 									statusSuffix = ' error';
-								}
-								let statusIcon = 'Waiting…';
-								if ( item.status === 'ok' ) {
-									statusIcon = '✓';
-								} else if ( item.status === 'fail' ) {
-									statusIcon = '✗';
 								}
 								return (
 									<div
@@ -254,19 +239,37 @@ export default function UploadModal() {
 											<div className="upload-item-name">
 												{ item.name }
 											</div>
-											<div className="upload-progress-bar">
-												<div
-													className="upload-progress-fill"
-													style={ {
-														width: `${ item.progress }%`,
-													} }
-												/>
-											</div>
+											{ item.status !== 'fail' && (
+												<div className="upload-progress-bar">
+													<div
+														className="upload-progress-fill"
+														style={ {
+															width: `${ item.progress }%`,
+														} }
+													/>
+												</div>
+											) }
+											{ item.status === 'fail' &&
+												item.error && (
+													<div className="upload-item-error">
+														{ item.error }
+													</div>
+												) }
 										</div>
 										<span
 											className={ `upload-item-status${ statusSuffix }` }
 										>
-											{ statusIcon }
+											{ item.status === 'ok' && (
+												<i className="ti ti-circle-check" />
+											) }
+											{ item.status === 'fail' && (
+												<i className="ti ti-circle-x" />
+											) }
+											{ item.status === 'waiting' && (
+												<span className="upload-waiting-text">
+													Waiting…
+												</span>
+											) }
 										</span>
 									</div>
 								);

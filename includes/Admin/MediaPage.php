@@ -49,6 +49,10 @@ class MediaPage {
 		if ( ! current_user_can( 'upload_files' ) ) {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'nhrrob-smart-media-manager' ) );
 		}
-		echo '<div class="nhrsmm" id="nhrsmm-app"></div>';
+		echo '<div class="wrap">'
+			. '<h1 class="screen-reader-text">' . esc_html__( 'NHR Smart Media Library', 'nhrrob-smart-media-manager' ) . '</h1>'
+			. '<hr class="wp-header-end">'
+			. '<div class="nhrsmm" id="nhrsmm-app"></div>'
+			. '</div>';
 	}
 }

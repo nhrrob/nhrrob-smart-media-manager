@@ -3,9 +3,8 @@ import { useState, useCallback } from '@wordpress/element';
 const cfg = window.nhrsmmSettingsConfig || {};
 
 const TABS = [
-	{ slug: 'general', label: 'General', icon: 'ti-layout' },
+	{ slug: 'general', label: 'General', icon: 'ti-adjustments-horizontal' },
 	{ slug: 'ai', label: 'AI', icon: 'ti-sparkles' },
-	{ slug: 'license', label: 'License', icon: 'ti-crown' },
 ];
 
 export default function SettingsApp() {
@@ -20,7 +19,7 @@ export default function SettingsApp() {
 		}
 	);
 	const [ saving, setSaving ] = useState( false );
-	const [ saveStatus, setSaveStatus ] = useState( null ); // null | 'saved' | 'error'
+	const [ saveStatus, setSaveStatus ] = useState( null );
 
 	function switchTab( slug ) {
 		setTab( slug );
@@ -60,32 +59,23 @@ export default function SettingsApp() {
 	return (
 		<div className="nhrsmm nhrsmm-settings">
 			<div className="settings-shell">
-				{ /* Topbar */ }
-				<div className="settings-topbar">
-					<div className="smm-logo">
-						<div className="smm-logo-icon">
+				<div className="settings-header">
+					<div className="settings-brand">
+						<div className="settings-brand-icon">
 							<i className="ti ti-stack-2" />
 						</div>
-						<span className="smm-logo-name">
-							NHR <span>Smart Media</span>
+						<span className="settings-brand-name">
+							Smart Media Manager
 						</span>
 					</div>
-					<span className="settings-topbar-title">Settings</span>
-					<a
-						href={ cfg.mediaLibraryUrl }
-						className="btn btn-sm btn-ghost-white"
-					>
-						<i className="ti ti-photo" /> Open Media Library
-					</a>
-				</div>
 
-				<div className="settings-body">
-					{ /* Sidebar nav */ }
-					<nav className="settings-nav">
+					<div className="settings-header-sep" />
+
+					<div className="settings-tabs">
 						{ TABS.map( ( t ) => (
 							<button
 								key={ t.slug }
-								className={ `settings-nav-item${
+								className={ `settings-tab${
 									tab === t.slug ? ' active' : ''
 								}` }
 								onClick={ () => switchTab( t.slug ) }
@@ -94,33 +84,50 @@ export default function SettingsApp() {
 								{ t.label }
 							</button>
 						) ) }
-					</nav>
+					</div>
 
-					{ /* Content */ }
-					<div className="settings-content">
-						{ saveStatus === 'saved' && (
-							<div className="smm-notice smm-notice-success">
-								<i className="ti ti-circle-check" /> Settings
-								saved.
-							</div>
-						) }
-						{ saveStatus === 'error' && (
-							<div className="smm-notice smm-notice-danger">
-								<i className="ti ti-alert-circle" /> Could not
-								save settings. Please try again.
-							</div>
-						) }
+					<div className="topbar-spacer" />
 
-						{ tab === 'general' && (
-							<GeneralTab
-								settings={ settings }
-								onChange={ setSettings }
-								onSave={ save }
-								saving={ saving }
-							/>
-						) }
-						{ tab === 'ai' && <AiTab /> }
-						{ tab === 'license' && <LicenseTab /> }
+					<a
+						href={ cfg.mediaLibraryUrl }
+						className="btn btn-sm btn-default"
+					>
+						<i className="ti ti-photo" /> Media Library
+					</a>
+				</div>
+
+				<div className="settings-content">
+					{ saveStatus === 'saved' && (
+						<div className="smm-notice smm-notice-success settings-notice-top">
+							<i className="ti ti-circle-check" /> Settings saved
+							successfully.
+						</div>
+					) }
+					{ saveStatus === 'error' && (
+						<div className="smm-notice smm-notice-danger settings-notice-top">
+							<i className="ti ti-alert-circle" /> Could not save
+							settings. Please try again.
+						</div>
+					) }
+
+					<div className="settings-layout">
+						<div className="settings-main">
+							{ tab === 'general' && (
+								<GeneralTab
+									settings={ settings }
+									onChange={ setSettings }
+									onSave={ save }
+									saving={ saving }
+								/>
+							) }
+							{ tab === 'ai' && <AiTab /> }
+						</div>
+
+						<aside className="settings-aside">
+							<QuickLinksWidget />
+							<AboutWidget />
+							<AiStatusWidget />
+						</aside>
 					</div>
 				</div>
 			</div>
@@ -128,7 +135,118 @@ export default function SettingsApp() {
 	);
 }
 
-/* ── General tab ─────────────────────────────────────────────── */
+function QuickLinksWidget() {
+	return (
+		<div className="widget-card">
+			<div className="widget-card-head">
+				<i className="ti ti-bolt" /> Quick Links
+			</div>
+			<div className="widget-links">
+				<a href={ cfg.mediaLibraryUrl } className="widget-link">
+					<i className="ti ti-photo" /> Media Library
+				</a>
+				<a href={ cfg.wpMediaUrl } className="widget-link">
+					<i className="ti ti-layout-grid" /> WP Media
+				</a>
+				<a href={ cfg.connectorsUrl } className="widget-link">
+					<i className="ti ti-plug" /> AI Connectors
+				</a>
+				<a
+					href="https://wordpress.org/plugins/nhrrob-smart-media-manager/"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="widget-link"
+				>
+					<i className="ti ti-star" /> Rate Plugin
+				</a>
+			</div>
+		</div>
+	);
+}
+
+function AboutWidget() {
+	return (
+		<div className="widget-card">
+			<div className="widget-card-head">
+				<i className="ti ti-info-circle" /> About
+			</div>
+			<div className="widget-body">
+				<div className="widget-version-badge">
+					<i className="ti ti-tag" /> v{ cfg.version || '1.0.0' }
+				</div>
+				<div className="widget-meta-line">
+					Smart Media Manager by{ ' ' }
+					<a
+						href="https://profiles.wordpress.org/nhrrob/"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Nazmul Hasan Robin
+					</a>
+					.<br />
+					Available on{ ' ' }
+					<a
+						href="https://wordpress.org/plugins/nhrrob-smart-media-manager/"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						WordPress.org
+					</a>
+					.
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function AiStatusWidget() {
+	const ready = cfg.aiConfigured;
+	return (
+		<div className="widget-card">
+			<div className="widget-card-head">
+				<i className="ti ti-sparkles" /> AI Status
+			</div>
+			<div className="widget-ai-status">
+				<span
+					className={ `widget-ai-dot ${
+						ready ? 'ready' : 'missing'
+					}` }
+				/>
+				<span
+					style={ {
+						color: ready
+							? 'var(--color-success)'
+							: 'var(--color-warning)',
+						fontWeight: 500,
+						fontSize: 'var(--text-xs)',
+					} }
+				>
+					{ ready ? 'Provider ready' : 'Not configured' }
+				</span>
+			</div>
+			{ ! ready && (
+				<div
+					style={ {
+						padding: '0 var(--sp-14) var(--sp-10)',
+						fontSize: 'var(--text-xs)',
+						color: 'var(--gray-400)',
+						lineHeight: 1.5,
+					} }
+				>
+					Configure an AI provider in{ ' ' }
+					<a
+						href={ cfg.connectorsUrl }
+						style={ { color: 'var(--ai-from)' } }
+					>
+						Settings → Connectors
+					</a>
+					.
+				</div>
+			) }
+		</div>
+	);
+}
+
 function GeneralTab( { settings, onChange, onSave, saving } ) {
 	function set( key, value ) {
 		onChange( ( prev ) => ( { ...prev, [ key ]: value } ) );
@@ -136,10 +254,10 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 
 	return (
 		<>
-			<div className="settings-section">
-				<h2 className="settings-section-title">
-					<i className="ti ti-layout" /> General
-				</h2>
+			<div className="settings-card">
+				<div className="settings-card-head">
+					<i className="ti ti-photo" /> Media Library
+				</div>
 
 				<div className="settings-row">
 					<div className="settings-row-info">
@@ -153,24 +271,29 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 						</p>
 					</div>
 					<div className="settings-row-control">
-						{ [
-							[ 'grid', 'ti-layout-grid', 'Grid' ],
-							[ 'list', 'ti-list', 'List' ],
-						].map( ( [ val, icon, lbl ] ) => (
-							// eslint-disable-next-line jsx-a11y/label-has-associated-control
-							<label key={ val } className="smm-radio-label">
-								<input
-									type="radio"
-									name="default_view"
-									value={ val }
-									checked={ settings.default_view === val }
-									onChange={ () =>
-										set( 'default_view', val )
-									}
-								/>
-								<i className={ `ti ${ icon }` } /> { lbl }
-							</label>
-						) ) }
+						<div className="smm-radio-group">
+							{ [
+								[ 'grid', 'ti-layout-grid', 'Grid' ],
+								[ 'list', 'ti-list', 'List' ],
+							].map( ( [ val, icon, lbl ] ) => (
+								// eslint-disable-next-line jsx-a11y/label-has-associated-control
+								<label key={ val } className="smm-radio-label">
+									<input
+										type="radio"
+										name="default_view"
+										value={ val }
+										checked={
+											settings.default_view === val
+										}
+										onChange={ () =>
+											set( 'default_view', val )
+										}
+									/>
+									<i className={ `ti ${ icon }` } />
+									{ lbl }
+								</label>
+							) ) }
+						</div>
 					</div>
 				</div>
 
@@ -178,32 +301,36 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 					<div className="settings-row-info">
 						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
 						<label className="settings-row-label">
-							Default Thumbnail Size
+							Thumbnail Size
 						</label>
 						<p className="settings-row-desc">
-							Default thumbnail size in the grid view.
+							Default thumbnail size in grid view.
 						</p>
 					</div>
 					<div className="settings-row-control">
-						{ [
-							[ 'small', 'Small' ],
-							[ 'medium', 'Medium' ],
-							[ 'large', 'Large' ],
-						].map( ( [ val, lbl ] ) => (
-							// eslint-disable-next-line jsx-a11y/label-has-associated-control
-							<label key={ val } className="smm-radio-label">
-								<input
-									type="radio"
-									name="thumbnail_size"
-									value={ val }
-									checked={ settings.thumbnail_size === val }
-									onChange={ () =>
-										set( 'thumbnail_size', val )
-									}
-								/>
-								{ lbl }
-							</label>
-						) ) }
+						<div className="smm-radio-group">
+							{ [
+								[ 'small', 'Small' ],
+								[ 'medium', 'Medium' ],
+								[ 'large', 'Large' ],
+							].map( ( [ val, lbl ] ) => (
+								// eslint-disable-next-line jsx-a11y/label-has-associated-control
+								<label key={ val } className="smm-radio-label">
+									<input
+										type="radio"
+										name="thumbnail_size"
+										value={ val }
+										checked={
+											settings.thumbnail_size === val
+										}
+										onChange={ () =>
+											set( 'thumbnail_size', val )
+										}
+									/>
+									{ lbl }
+								</label>
+							) ) }
+						</div>
 					</div>
 				</div>
 
@@ -230,7 +357,7 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 						>
 							{ [ 20, 40, 60, 100 ].map( ( n ) => (
 								<option key={ n } value={ n }>
-									{ n }
+									{ n } items
 								</option>
 							) ) }
 						</select>
@@ -259,88 +386,61 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 	);
 }
 
-/* ── AI tab ──────────────────────────────────────────────────── */
 function AiTab() {
 	const aiConfigured = cfg.aiConfigured;
 	const connectorsUrl = cfg.connectorsUrl || '';
 
 	return (
-		<div className="settings-section">
-			<h2 className="settings-section-title">
-				<i className="ti ti-sparkles" /> AI
-			</h2>
+		<>
+			<div className="settings-card">
+				<div className="settings-card-head">
+					<i className="ti ti-sparkles" /> AI Configuration
+				</div>
 
-			<div className="smm-notice smm-notice-info">
-				<i className="ti ti-info-circle" />
-				<div>
-					<strong>AI powered by WordPress Core</strong>
-					<br />
-					AI alt text uses the WordPress AI Client introduced in
-					WordPress 7.0. Configure your AI provider once in{ ' ' }
-					<a href={ connectorsUrl }>Settings → Connectors</a> and it
-					will be available to all compatible plugins automatically.
+				<div className="settings-row">
+					<div className="settings-row-info">
+						<label className="settings-row-label">
+							WordPress Core AI
+						</label>
+						<p className="settings-row-desc">
+							Alt text generation uses the WordPress AI Client (WP
+							7.0+). Configure your provider once in{ ' ' }
+							<a href={ connectorsUrl }>Settings → Connectors</a>{ ' ' }
+							and it is available to all compatible plugins.
+						</p>
+					</div>
+				</div>
+
+				<div className="settings-row">
+					<div className="settings-row-info">
+						<label className="settings-row-label">
+							Provider Status
+						</label>
+						<p className="settings-row-desc">
+							{ aiConfigured
+								? 'Your AI provider is connected and ready.'
+								: 'No AI provider configured yet.' }
+						</p>
+					</div>
+					<div className="settings-row-control">
+						{ aiConfigured ? (
+							<span
+								className="smm-notice smm-notice-success"
+								style={ { padding: '4px 12px' } }
+							>
+								<i className="ti ti-circle-check" /> Ready
+							</span>
+						) : (
+							<a
+								href={ connectorsUrl }
+								className="btn btn-sm btn-default"
+							>
+								<i className="ti ti-plug" /> Configure
+							</a>
+						) }
+					</div>
 				</div>
 			</div>
-
-			{ aiConfigured ? (
-				<div className="smm-notice smm-notice-success">
-					<i className="ti ti-circle-check" /> AI provider is
-					configured and ready.
-				</div>
-			) : (
-				<div className="smm-notice smm-notice-warning">
-					<i className="ti ti-alert-triangle" />
-					No AI provider configured. Visit{ ' ' }
-					<a href={ connectorsUrl }>Settings → Connectors</a> to
-					connect an AI provider.
-				</div>
-			) }
-		</div>
-	);
-}
-
-/* ── License tab ─────────────────────────────────────────────── */
-function LicenseTab() {
-	return (
-		<div className="settings-section">
-			<h2 className="settings-section-title">
-				<i className="ti ti-crown" /> Pro License
-			</h2>
-
-			<div className="pro-upgrade-card">
-				<div className="pro-upgrade-icon">
-					<i className="ti ti-crown" />
-				</div>
-				<h3>Unlock Pro Features</h3>
-				<p>
-					Upgrade to NHR Smart Media Manager Pro to unlock bulk AI
-					processing, cloud storage offload, duplicate detection,
-					unused media finder, role-based access, and more.
-				</p>
-				<ul className="pro-feature-list">
-					{ [
-						'Bulk AI alt text & auto-tagging',
-						'Cloud storage (S3, R2, GCS)',
-						'Duplicate media detector',
-						'Unused media finder & cleanup',
-						'Role-based folder access',
-						'Bulk image compression',
-						'Media audit CSV export',
-					].map( ( feature ) => (
-						<li key={ feature }>
-							<i className="ti ti-check" /> { feature }
-						</li>
-					) ) }
-				</ul>
-				<a
-					href="https://profiles.wordpress.org/nhrrob/"
-					target="_blank"
-					rel="noopener noreferrer"
-					className="btn btn-primary"
-				>
-					<i className="ti ti-arrow-right" /> Learn More About Pro
-				</a>
-			</div>
-		</div>
+		</>
 	);
 }

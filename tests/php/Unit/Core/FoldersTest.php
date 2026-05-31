@@ -16,9 +16,36 @@ class FoldersTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->folders = new Folders();
+
+		global $wpdb;
+		$wpdb                    = Mockery::mock( 'stdClass' );
+		$wpdb->term_relationships = 'wp_term_relationships';
+		$wpdb->term_taxonomy      = 'wp_term_taxonomy';
+		$wpdb->posts              = 'wp_posts';
+		$wpdb->shouldReceive( 'get_results' )->andReturn( [] );
+		$wpdb->shouldReceive( 'get_var' )->andReturn( '0' );
 	}
 
-	public function test_get_tree_returns_empty_when_get_terms_returns_wp_error(): void {
+	protected function tearDown(): void {
+		global $wpdb;
+		$wpdb = null;
+		parent::tearDown();
+	}
+
+	public function test_get_tree_always_returns_tree_and_uncategorized_keys(): void {
+		Functions\expect( 'get_terms' )->once()->andReturn( [] );
+		Functions\expect( 'is_wp_error' )->once()->andReturn( false );
+
+		$result = $this->folders->get_tree();
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'tree', $result );
+		$this->assertArrayHasKey( 'uncategorized', $result );
+		$this->assertIsArray( $result['tree'] );
+		$this->assertIsInt( $result['uncategorized'] );
+	}
+
+	public function test_get_tree_returns_empty_tree_when_get_terms_returns_wp_error(): void {
 		$error = Mockery::mock( 'WP_Error' );
 
 		Functions\expect( 'get_terms' )->once()->andReturn( $error );
@@ -26,11 +53,21 @@ class FoldersTest extends TestCase {
 
 		$result = $this->folders->get_tree();
 
-		$this->assertSame( [], $result );
+		$this->assertSame( [], $result['tree'] );
+		$this->assertSame( 0, $result['uncategorized'] );
+	}
+
+	public function test_get_tree_returns_empty_tree_when_no_terms(): void {
+		Functions\expect( 'get_terms' )->once()->andReturn( [] );
+		Functions\expect( 'is_wp_error' )->once()->andReturn( false );
+
+		$result = $this->folders->get_tree();
+
+		$this->assertSame( [], $result['tree'] );
 	}
 
 	public function test_get_tree_returns_flat_root_terms_as_tree(): void {
-		$term         = new \stdClass();
+		$term          = new \stdClass();
 		$term->term_id = 1;
 		$term->name    = 'Photos';
 		$term->slug    = 'photos';
@@ -41,25 +78,25 @@ class FoldersTest extends TestCase {
 		Functions\expect( 'is_wp_error' )->once()->andReturn( false );
 
 		$result = $this->folders->get_tree();
+		$tree   = $result['tree'];
 
-		$this->assertCount( 1, $result );
-		$this->assertSame( 1, $result[0]['id'] );
-		$this->assertSame( 'Photos', $result[0]['name'] );
-		$this->assertSame( 'photos', $result[0]['slug'] );
-		$this->assertSame( 0, $result[0]['parent'] );
-		$this->assertSame( 3, $result[0]['count'] );
-		$this->assertSame( [], $result[0]['children'] );
+		$this->assertCount( 1, $tree );
+		$this->assertSame( 1, $tree[0]['id'] );
+		$this->assertSame( 'Photos', $tree[0]['name'] );
+		$this->assertSame( 'photos', $tree[0]['slug'] );
+		$this->assertSame( 0, $tree[0]['parent'] );
+		$this->assertSame( [], $tree[0]['children'] );
 	}
 
 	public function test_get_tree_nests_children_under_parent(): void {
-		$parent         = new \stdClass();
+		$parent          = new \stdClass();
 		$parent->term_id = 1;
 		$parent->name    = 'Media';
 		$parent->slug    = 'media';
 		$parent->parent  = 0;
 		$parent->count   = 0;
 
-		$child         = new \stdClass();
+		$child          = new \stdClass();
 		$child->term_id = 2;
 		$child->name    = 'Videos';
 		$child->slug    = 'videos';
@@ -70,11 +107,39 @@ class FoldersTest extends TestCase {
 		Functions\expect( 'is_wp_error' )->once()->andReturn( false );
 
 		$result = $this->folders->get_tree();
+		$tree   = $result['tree'];
 
-		$this->assertCount( 1, $result );
-		$this->assertCount( 1, $result[0]['children'] );
-		$this->assertSame( 2, $result[0]['children'][0]['id'] );
-		$this->assertSame( 'Videos', $result[0]['children'][0]['name'] );
+		$this->assertCount( 1, $tree );
+		$this->assertCount( 1, $tree[0]['children'] );
+		$this->assertSame( 2, $tree[0]['children'][0]['id'] );
+		$this->assertSame( 'Videos', $tree[0]['children'][0]['name'] );
+	}
+
+	public function test_get_tree_uses_direct_db_count_over_term_count(): void {
+		$term          = new \stdClass();
+		$term->term_id = 7;
+		$term->name    = 'Docs';
+		$term->slug    = 'docs';
+		$term->parent  = 0;
+		$term->count   = 0;
+
+		global $wpdb;
+		$row              = new \stdClass();
+		$row->term_id     = 7;
+		$row->c           = 4;
+		$wpdb                     = Mockery::mock( 'stdClass' );
+		$wpdb->term_relationships = 'wp_term_relationships';
+		$wpdb->term_taxonomy      = 'wp_term_taxonomy';
+		$wpdb->posts              = 'wp_posts';
+		$wpdb->shouldReceive( 'get_results' )->andReturn( [ $row ] );
+		$wpdb->shouldReceive( 'get_var' )->andReturn( '0' );
+
+		Functions\expect( 'get_terms' )->once()->andReturn( [ $term ] );
+		Functions\expect( 'is_wp_error' )->once()->andReturn( false );
+
+		$result = $this->folders->get_tree();
+
+		$this->assertSame( 4, $result['tree'][0]['count'] );
 	}
 
 	public function test_create_returns_wp_error_for_empty_name(): void {
@@ -87,7 +152,7 @@ class FoldersTest extends TestCase {
 	}
 
 	public function test_create_returns_folder_array_on_success(): void {
-		$term         = new \stdClass();
+		$term          = new \stdClass();
 		$term->term_id = 10;
 		$term->name    = 'New Folder';
 		$term->slug    = 'new-folder';
