@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: NHR Smart Media Manager 1.0.0\n"
+"Project-Id-Version: NHR Smart Media Manager 1.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/nhrrob-smart-media-manager\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-31T18:50:13+00:00\n"
+"POT-Creation-Date: 2026-06-19T17:00:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: nhrrob-smart-media-manager\n"
@@ -41,6 +41,7 @@ msgid "https://profiles.wordpress.org/nhrrob/"
 msgstr ""
 
 #: includes/Admin/MediaPage.php:36
+#: includes/App.php:64
 msgid "Smart Library"
 msgstr ""
 
@@ -82,11 +83,16 @@ msgstr ""
 msgid "No file IDs provided."
 msgstr ""
 
-#: includes/App.php:65
+#: includes/App.php:63
+#: admin/src/components/Topbar.js:128
+msgid "Settings"
+msgstr ""
+
+#: includes/App.php:80
 msgid "Media Folders"
 msgstr ""
 
-#: includes/App.php:66
+#: includes/App.php:81
 msgid "Media Folder"
 msgstr ""
 
@@ -767,10 +773,6 @@ msgstr ""
 
 #: admin/src/components/Topbar.js:123
 msgid "Upload"
-msgstr ""
-
-#: admin/src/components/Topbar.js:128
-msgid "Settings"
 msgstr ""
 
 #: admin/src/components/UploadModal.js:88
