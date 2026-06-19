@@ -4,7 +4,7 @@ Tags: media library, media manager, folder, ai, alt text
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -66,7 +66,17 @@ Yes. The plugin only modifies the admin media library page. The native WordPress
 4. Upload modal with folder assignment
 5. Settings page — display preferences and AI connector status
 
+== Source Code ==
+
+Full source code, including JavaScript source files and build tools, is available at:
+https://github.com/nhrrob/nhrrob-smart-media-manager
+
+To rebuild the JavaScript assets: `npm install && npm run build`
+
 == Changelog ==
+
+= 1.0.1 =
+* Minor bug fixes and improvements.
 
 = 1.0.0 =
 * Initial release
