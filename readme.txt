@@ -4,7 +4,7 @@ Tags: media library, media manager, folder, ai, alt text
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,9 @@ https://github.com/nhrrob/nhrrob-smart-media-manager
 To rebuild the JavaScript assets: `npm install && npm run build`
 
 == Changelog ==
+
+= 1.0.1 =
+* Minor bug fixes and improvements.
 
 = 1.0.0 =
 * Initial release
