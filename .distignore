@@ -1,6 +1,3 @@
-# React source (admin/build/ ships to WP.org; source does not)
-admin/src
-
 # Node version pin
 .nvmrc
 

@@ -66,6 +66,13 @@ Yes. The plugin only modifies the admin media library page. The native WordPress
 4. Upload modal with folder assignment
 5. Settings page — display preferences and AI connector status
 
+== Source Code ==
+
+Full source code, including JavaScript source files and build tools, is available at:
+https://github.com/nhrrob/nhrrob-smart-media-manager
+
+To rebuild the JavaScript assets: `npm install && npm run build`
+
 == Changelog ==
 
 = 1.0.0 =
