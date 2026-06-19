@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Activator {
 
 	/**
-	 * Seeds default settings and the Uncategorized folder, then flushes rewrite rules.
+	 * Seeds default settings and flushes rewrite rules.
 	 *
 	 * @return void
 	 */
@@ -47,18 +47,6 @@ class Activator {
 				'update_count_callback' => '_update_generic_term_count',
 			]
 		);
-
-		// Ensure the "Uncategorized" default folder exists.
-		if ( ! term_exists( 'Uncategorized', 'nhrsmm_media_folder' ) ) {
-			wp_insert_term(
-				'Uncategorized',
-				'nhrsmm_media_folder',
-				[
-					'slug'   => 'uncategorized',
-					'parent' => 0,
-				]
-			);
-		}
 
 		flush_rewrite_rules();
 	}
