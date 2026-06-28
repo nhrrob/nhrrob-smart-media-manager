@@ -56,12 +56,21 @@ class RestAi {
 	}
 
 	/**
-	 * Returns true when the current user can upload files.
+	 * Returns true when the current user can upload files and edit the requested attachment.
 	 *
+	 * @param \WP_REST_Request $request REST request.
 	 * @return bool
 	 */
-	public function check_permission(): bool {
-		return current_user_can( 'upload_files' );
+	public function check_permission( \WP_REST_Request $request ): bool {
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return false;
+		}
+		$params        = $request->get_json_params() ?? [];
+		$attachment_id = absint( $params['attachment_id'] ?? 0 );
+		if ( $attachment_id ) {
+			return current_user_can( 'edit_post', $attachment_id );
+		}
+		return true;
 	}
 
 	/**

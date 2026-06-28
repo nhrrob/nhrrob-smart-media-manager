@@ -4,7 +4,7 @@ Tags: media library, media manager, folder, ai, alt text
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,9 +27,15 @@ NHR Smart Media Manager adds a powerful Smart Library page to your WordPress adm
 
 == External Services ==
 
-This plugin does **not** connect to any external service directly. AI features (alt text and caption generation) use the WordPress core AI Client (`wp_ai_client_prompt()`), which routes requests through whichever AI provider connector you install and configure at **Settings → Connectors** in your WordPress admin.
+This plugin does **not** connect to any external service directly.
 
-The external service used — and any data sent to it — depends entirely on which AI connector plugin you activate. Please refer to that connector plugin's documentation for its privacy policy, terms of service, and data handling details.
+AI features (alt text and caption generation) are optional. When you trigger them, this plugin reads the image file from your server and passes it to the **WordPress core AI Client** (`wp_ai_client_prompt()`). The AI Client then transmits the image data to whichever external AI provider you have installed and configured at **Settings → Connectors** in your WordPress admin (for example, the official Anthropic or OpenAI connector plugins).
+
+**What data is sent:** the image file and a short text prompt describing the task (e.g. "write alt text for this image").
+
+**When data is sent:** only when you explicitly click "Generate Alt Text" or "Generate Caption" on an individual file. No data is sent automatically.
+
+**Where data goes:** to the external AI service you configure. This plugin has no control over, and takes no responsibility for, that service's data handling. Please refer to the connector plugin's documentation for its privacy policy and terms of service.
 
 No image data is stored by NHR Smart Media Manager beyond what is already in your WordPress media library.
 
@@ -74,6 +80,9 @@ https://github.com/nhrrob/nhrrob-smart-media-manager
 To rebuild the JavaScript assets: `npm install && npm run build`
 
 == Changelog ==
+
+= 1.0.2 =
+* Security: Added per-attachment permission checks on AI alt text, AI caption, and media usage REST API endpoints.
 
 = 1.0.1 =
 * Minor bug fixes and improvements.

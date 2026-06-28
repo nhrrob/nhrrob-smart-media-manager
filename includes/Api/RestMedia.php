@@ -74,7 +74,7 @@ class RestMedia {
 				[
 					'methods'             => 'GET',
 					'callback'            => [ $this, 'get_single' ],
-					'permission_callback' => [ $this, 'check_permission' ],
+					'permission_callback' => [ $this, 'check_item_permission' ],
 				],
 				[
 					'methods'             => 'PUT',
@@ -103,7 +103,7 @@ class RestMedia {
 				[
 					'methods'             => 'GET',
 					'callback'            => [ $this, 'get_usage' ],
-					'permission_callback' => [ $this, 'check_permission' ],
+					'permission_callback' => [ $this, 'check_item_permission' ],
 				],
 			]
 		);
@@ -116,6 +116,21 @@ class RestMedia {
 	 */
 	public function check_permission(): bool {
 		return current_user_can( 'upload_files' );
+	}
+
+	/**
+	 * Returns true when the current user can upload files and edit the requested attachment.
+	 * Used for single-item read routes to prevent arbitrary ID enumeration.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return bool
+	 */
+	public function check_item_permission( \WP_REST_Request $request ): bool {
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return false;
+		}
+		$id = absint( $request->get_param( 'id' ) );
+		return $id ? current_user_can( 'edit_post', $id ) : false;
 	}
 
 	/**
