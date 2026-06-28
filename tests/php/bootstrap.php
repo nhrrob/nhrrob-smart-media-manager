@@ -18,6 +18,15 @@ if ( ! defined( 'NHRSMM_VERSION' ) ) {
 require_once dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 
 // Never define WP functions here — Patchwork cannot intercept functions defined before Brain Monkey setUp().
+// Class stubs are safe here; WP function stubs must go inside individual test methods via Functions\when().
+if ( ! class_exists( 'WP_REST_Request' ) ) {
+	// phpcs:ignore Generic.Files.OneClassPerFile.MultipleFound
+	class WP_REST_Request {
+		public function get_json_params(): array { return []; }
+		public function get_param( string $key ) { return null; }
+	}
+}
+
 if ( ! class_exists( 'WP_Error' ) ) {
 	// phpcs:ignore Generic.Files.OneClassPerFile.MultipleFound
 	class WP_Error {

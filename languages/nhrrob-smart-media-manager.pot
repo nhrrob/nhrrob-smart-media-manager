@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-19T17:00:12+00:00\n"
+"POT-Creation-Date: 2026-06-28T03:15:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: nhrrob-smart-media-manager\n"
@@ -63,23 +63,23 @@ msgstr ""
 msgid "NHR Smart Media Settings"
 msgstr ""
 
-#: includes/Api/RestAi.php:78
-#: includes/Api/RestAi.php:104
+#: includes/Api/RestAi.php:87
+#: includes/Api/RestAi.php:113
 msgid "attachment_id is required."
 msgstr ""
 
-#: includes/Api/RestMedia.php:157
+#: includes/Api/RestMedia.php:171
 #: includes/Core/Media.php:180
 msgid "Attachment not found."
 msgstr ""
 
-#: includes/Api/RestMedia.php:171
-#: includes/Api/RestMedia.php:191
+#: includes/Api/RestMedia.php:185
+#: includes/Api/RestMedia.php:205
 msgid "You cannot edit this attachment."
 msgstr ""
 
-#: includes/Api/RestMedia.php:218
-#: includes/Api/RestMedia.php:235
+#: includes/Api/RestMedia.php:232
+#: includes/Api/RestMedia.php:249
 msgid "No file IDs provided."
 msgstr ""
 

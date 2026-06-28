@@ -103,7 +103,7 @@ class RestMedia {
 				[
 					'methods'             => 'GET',
 					'callback'            => [ $this, 'get_usage' ],
-					'permission_callback' => [ $this, 'check_permission' ],
+					'permission_callback' => [ $this, 'check_usage_permission' ],
 				],
 			]
 		);
@@ -116,6 +116,20 @@ class RestMedia {
 	 */
 	public function check_permission(): bool {
 		return current_user_can( 'upload_files' );
+	}
+
+	/**
+	 * Returns true when the current user can upload files and edit the requested attachment.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return bool
+	 */
+	public function check_usage_permission( \WP_REST_Request $request ): bool {
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return false;
+		}
+		$id = absint( $request->get_param( 'id' ) );
+		return $id ? current_user_can( 'edit_post', $id ) : false;
 	}
 
 	/**
