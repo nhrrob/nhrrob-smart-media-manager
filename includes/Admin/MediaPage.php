@@ -34,7 +34,7 @@ class MediaPage {
 		add_media_page(
 			__( 'NHR Smart Media Manager', 'nhrrob-smart-media-manager' ),
 			__( 'Smart Library', 'nhrrob-smart-media-manager' ),
-			'upload_files',
+			'manage_categories',
 			'nhrsmm-media-library',
 			[ $this, 'render_page' ]
 		);
@@ -46,7 +46,7 @@ class MediaPage {
 	 * @return void
 	 */
 	public function render_page(): void {
-		if ( ! current_user_can( 'upload_files' ) ) {
+		if ( ! current_user_can( 'manage_categories' ) ) {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'nhrrob-smart-media-manager' ) );
 		}
 		echo '<div class="wrap">'

@@ -16,14 +16,7 @@ use Nhrsmm\SmartMediaManager\Core\Folders;
 /**
  * Handles REST routes for folder CRUD and move operations.
  */
-class RestFolders {
-
-	/**
-	 * REST API namespace.
-	 *
-	 * @var string
-	 */
-	protected string $namespace = 'nhrsmm/v1';
+class RestFolders extends RestController {
 
 	/**
 	 * Registers all folder REST routes.
@@ -76,15 +69,6 @@ class RestFolders {
 				],
 			]
 		);
-	}
-
-	/**
-	 * Returns true when the current user can upload files.
-	 *
-	 * @return bool
-	 */
-	public function check_permission(): bool {
-		return current_user_can( 'upload_files' );
 	}
 
 	/**

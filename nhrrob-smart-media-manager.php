@@ -5,7 +5,7 @@
  * Description: AI-powered WordPress media manager with virtual folders, smart search, and one-click alt text generation.
  * Author: Nazmul Hasan Robin
  * Author URI: https://profiles.wordpress.org/nhrrob/
- * Version: 1.0.2
+ * Version: 1.0.3
  * Requires at least: 7.0
  * Requires PHP: 7.4
  * Text Domain: nhrrob-smart-media-manager
@@ -31,7 +31,7 @@ final class Nhrsmm_Smart_Media_Manager {
 	 *
 	 * @var string
 	 */
-	const VERSION = '1.0.2';
+	const VERSION = '1.0.3';
 
 	/**
 	 * Registers activation/deactivation hooks and defers boot to plugins_loaded.

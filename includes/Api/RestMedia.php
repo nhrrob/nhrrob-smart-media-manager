@@ -16,14 +16,7 @@ use Nhrsmm\SmartMediaManager\Core\Media;
 /**
  * Handles REST routes for media listing, retrieval, update, move, bulk operations, and usage.
  */
-class RestMedia {
-
-	/**
-	 * REST API namespace.
-	 *
-	 * @var string
-	 */
-	protected string $namespace = 'nhrsmm/v1';
+class RestMedia extends RestController {
 
 	/**
 	 * Registers all media REST routes.
@@ -74,7 +67,7 @@ class RestMedia {
 				[
 					'methods'             => 'GET',
 					'callback'            => [ $this, 'get_single' ],
-					'permission_callback' => [ $this, 'check_item_permission' ],
+					'permission_callback' => [ $this, 'check_permission' ],
 				],
 				[
 					'methods'             => 'PUT',
@@ -103,34 +96,10 @@ class RestMedia {
 				[
 					'methods'             => 'GET',
 					'callback'            => [ $this, 'get_usage' ],
-					'permission_callback' => [ $this, 'check_item_permission' ],
+					'permission_callback' => [ $this, 'check_permission' ],
 				],
 			]
 		);
-	}
-
-	/**
-	 * Returns true when the current user can upload files.
-	 *
-	 * @return bool
-	 */
-	public function check_permission(): bool {
-		return current_user_can( 'upload_files' );
-	}
-
-	/**
-	 * Returns true when the current user can upload files and edit the requested attachment.
-	 * Used for single-item read routes to prevent arbitrary ID enumeration.
-	 *
-	 * @param \WP_REST_Request $request REST request.
-	 * @return bool
-	 */
-	public function check_item_permission( \WP_REST_Request $request ): bool {
-		if ( ! current_user_can( 'upload_files' ) ) {
-			return false;
-		}
-		$id = absint( $request->get_param( 'id' ) );
-		return $id ? current_user_can( 'edit_post', $id ) : false;
 	}
 
 	/**
@@ -165,7 +134,10 @@ class RestMedia {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function get_single( \WP_REST_Request $request ) {
-		$id     = absint( $request->get_param( 'id' ) );
+		$id = absint( $request->get_param( 'id' ) );
+		if ( ! current_user_can( 'edit_post', $id ) ) {
+			return new \WP_Error( 'forbidden', __( 'You cannot view this attachment.', 'nhrrob-smart-media-manager' ), [ 'status' => 403 ] );
+		}
 		$media  = new Media();
 		$result = $media->get_single( $id );
 		if ( ! $result ) {
@@ -258,10 +230,13 @@ class RestMedia {
 	 * Returns a list of posts that use the given attachment.
 	 *
 	 * @param \WP_REST_Request $request REST request.
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function get_usage( \WP_REST_Request $request ): \WP_REST_Response {
-		$id    = absint( $request->get_param( 'id' ) );
+	public function get_usage( \WP_REST_Request $request ) {
+		$id = absint( $request->get_param( 'id' ) );
+		if ( ! current_user_can( 'edit_post', $id ) ) {
+			return new \WP_Error( 'forbidden', __( 'You cannot view this attachment.', 'nhrrob-smart-media-manager' ), [ 'status' => 403 ] );
+		}
 		$media = new Media();
 		return rest_ensure_response( $media->get_usage( $id ) );
 	}

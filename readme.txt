@@ -4,7 +4,7 @@ Tags: media library, media manager, folder, ai, alt text
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,10 @@ https://github.com/nhrrob/nhrrob-smart-media-manager
 To rebuild the JavaScript assets: `npm install && npm run build`
 
 == Changelog ==
+
+= 1.0.3 =
+* Security: All plugin routes now require Editor+ (manage_categories). Folders are shared taxonomy terms — restricting to upload_files allowed any uploader to modify the global folder structure.
+
 
 = 1.0.2 =
 * Security: Added per-attachment permission checks on AI alt text, AI caption, and media usage REST API endpoints.

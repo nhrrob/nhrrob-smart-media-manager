@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: NHR Smart Media Manager 1.0.2\n"
+"Project-Id-Version: NHR Smart Media Manager 1.0.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/nhrrob-smart-media-manager\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-28T03:45:27+00:00\n"
+"POT-Creation-Date: 2026-06-28T17:38:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: nhrrob-smart-media-manager\n"
@@ -63,23 +63,30 @@ msgstr ""
 msgid "NHR Smart Media Settings"
 msgstr ""
 
-#: includes/Api/RestAi.php:87
-#: includes/Api/RestAi.php:113
+#: includes/Api/RestAi.php:62
+#: includes/Api/RestAi.php:92
 msgid "attachment_id is required."
 msgstr ""
 
-#: includes/Api/RestMedia.php:172
+#: includes/Api/RestAi.php:66
+#: includes/Api/RestAi.php:96
+#: includes/Api/RestMedia.php:158
+#: includes/Api/RestMedia.php:178
+msgid "You cannot edit this attachment."
+msgstr ""
+
+#: includes/Api/RestMedia.php:139
+#: includes/Api/RestMedia.php:238
+msgid "You cannot view this attachment."
+msgstr ""
+
+#: includes/Api/RestMedia.php:144
 #: includes/Core/Media.php:180
 msgid "Attachment not found."
 msgstr ""
 
-#: includes/Api/RestMedia.php:186
-#: includes/Api/RestMedia.php:206
-msgid "You cannot edit this attachment."
-msgstr ""
-
-#: includes/Api/RestMedia.php:233
-#: includes/Api/RestMedia.php:250
+#: includes/Api/RestMedia.php:205
+#: includes/Api/RestMedia.php:222
 msgid "No file IDs provided."
 msgstr ""
 

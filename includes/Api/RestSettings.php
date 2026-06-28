@@ -14,14 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Handles REST GET and POST routes for plugin settings.
  */
-class RestSettings {
-
-	/**
-	 * REST API namespace.
-	 *
-	 * @var string
-	 */
-	protected string $namespace = 'nhrsmm/v1';
+class RestSettings extends RestController {
 
 	/**
 	 * Registers the settings REST routes.
