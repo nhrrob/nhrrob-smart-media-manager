@@ -17,13 +17,13 @@ class RestFoldersTest extends TestCase {
 		$this->controller = new RestFolders();
 	}
 
-	public function test_check_permission_returns_false_without_upload_files(): void {
+	public function test_check_permission_returns_false_without_manage_categories(): void {
 		Functions\when( 'current_user_can' )->justReturn( false );
 
 		$this->assertFalse( $this->controller->check_permission() );
 	}
 
-	public function test_check_permission_returns_true_with_upload_files(): void {
+	public function test_check_permission_returns_true_with_manage_categories(): void {
 		Functions\when( 'current_user_can' )->justReturn( true );
 
 		$this->assertTrue( $this->controller->check_permission() );

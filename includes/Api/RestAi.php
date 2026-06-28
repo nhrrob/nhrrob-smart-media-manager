@@ -16,14 +16,7 @@ use Nhrsmm\SmartMediaManager\Core\Ai;
 /**
  * Handles the REST route for generating alt text via the WordPress AI client.
  */
-class RestAi {
-
-	/**
-	 * REST API namespace.
-	 *
-	 * @var string
-	 */
-	protected string $namespace = 'nhrsmm/v1';
+class RestAi extends RestController {
 
 	/**
 	 * Registers the AI alt text REST route.
@@ -56,24 +49,6 @@ class RestAi {
 	}
 
 	/**
-	 * Returns true when the current user can upload files and edit the requested attachment.
-	 *
-	 * @param \WP_REST_Request $request REST request.
-	 * @return bool
-	 */
-	public function check_permission( \WP_REST_Request $request ): bool {
-		if ( ! current_user_can( 'upload_files' ) ) {
-			return false;
-		}
-		$params        = $request->get_json_params() ?? [];
-		$attachment_id = absint( $params['attachment_id'] ?? 0 );
-		if ( $attachment_id ) {
-			return current_user_can( 'edit_post', $attachment_id );
-		}
-		return true;
-	}
-
-	/**
 	 * Generates alt text for the given attachment via the AI provider.
 	 *
 	 * @param \WP_REST_Request $request REST request.
@@ -85,6 +60,10 @@ class RestAi {
 
 		if ( ! $attachment_id ) {
 			return new \WP_Error( 'missing_id', __( 'attachment_id is required.', 'nhrrob-smart-media-manager' ), [ 'status' => 400 ] );
+		}
+
+		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new \WP_Error( 'forbidden', __( 'You cannot edit this attachment.', 'nhrrob-smart-media-manager' ), [ 'status' => 403 ] );
 		}
 
 		$ai     = new Ai();
@@ -111,6 +90,10 @@ class RestAi {
 
 		if ( ! $attachment_id ) {
 			return new \WP_Error( 'missing_id', __( 'attachment_id is required.', 'nhrrob-smart-media-manager' ), [ 'status' => 400 ] );
+		}
+
+		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new \WP_Error( 'forbidden', __( 'You cannot edit this attachment.', 'nhrrob-smart-media-manager' ), [ 'status' => 403 ] );
 		}
 
 		$ai     = new Ai();
