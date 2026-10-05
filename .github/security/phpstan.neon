@@ -10,6 +10,8 @@ parameters:
         - ../../uninstall.php
     excludePaths:
         # WP-CLI commands only load inside WP-CLI; its stubs don't support WP 7 stubs yet.
-        - ../../includes/Cli.php
+        # "analyse" skips the file's own errors but still lets App.php find the Cli class.
+        analyse:
+            - ../../includes/Cli.php
     ignoreErrors:
         - '#unknown class WP_CLI#'
