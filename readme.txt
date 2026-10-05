@@ -4,7 +4,7 @@ Tags: media library folders, media folders, gallery, alt text, ai
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -130,6 +130,15 @@ To rebuild the JavaScript assets: `npm install && npm run build`
 
 == Changelog ==
 
+= 1.2.0 =
+* New: Light and dark theme for the Smart Library and its settings page. Follows your system setting, with a toggle in the top bar.
+* New: Preferred AI model setting.
+* New: AI button next to the Alt Text and Caption fields in the details panel.
+* Improved: Folder dropdowns, media lists, the ZIP file listing, and the unused files scan run fewer database queries.
+* Improved: Larger folder names, and larger folder import and export buttons that stay visible at the bottom of the sidebar.
+* Improved: Clearer message when no AI provider is connected.
+* Fix: Sorting by size no longer hides files whose size was not calculated yet.
+
 = 1.1.0 =
 * New: Folder tree in the media modal and folder dropdown in Media → Library (grid and list), with upload into the selected folder.
 * New: Import folders from FileBird, Real Media Library, CatFolders, Folders, Enhanced Media Library, Wicked Folders, Media Library Organizer, Mediamatic, HappyFiles, and WP Media Folder.
@@ -170,6 +179,9 @@ To rebuild the JavaScript assets: `npm install && npm run build`
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Dark theme, a preferred AI model setting, faster folder dropdowns and media lists, and a fix for sorting by size.
 
 = 1.1.0 =
 Folders in the media modal and Media Library, import from other folder plugins, trash, bulk editing, and bulk AI alt text. Deleting a file now moves it to the trash first.
