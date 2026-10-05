@@ -61,6 +61,8 @@ git push origin dev
 # Create PR to main via GitHub CLI or Web UI
 ```
 
+The PR runs three checks, the same as the Database Cleaner plugin: **Run Plugin Check**, **Semgrep + PHPStan** and **Endpoint authorization probe** (the last two are the jobs of the Security Review workflow). All three must be green before merging (`gh pr checks <number> --watch`).
+
 ## Step 3: Approval and merge
 
 **Wait for explicit user approval before proceeding.** Do NOT merge until the user says "yes" or "proceed".

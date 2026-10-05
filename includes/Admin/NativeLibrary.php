@@ -108,10 +108,13 @@ class NativeLibrary {
 		echo '<label for="nhrsmm-folder-filter" class="screen-reader-text">' . esc_html__( 'Filter by folder', 'nhrrob-smart-media-manager' ) . '</label>';
 		echo '<select name="nhrsmm_folder" id="nhrsmm-folder-filter">';
 		echo '<option value="">' . esc_html__( 'All folders', 'nhrrob-smart-media-manager' ) . '</option>';
-		echo '<option value="none"' . selected( $selected, 'none', false ) . '>' . esc_html__( 'Uncategorized', 'nhrrob-smart-media-manager' ) . '</option>';
+		echo '<option value="none"';
+		selected( $selected, 'none' );
+		echo '>' . esc_html__( 'Uncategorized', 'nhrrob-smart-media-manager' ) . '</option>';
 		foreach ( ( new Folders() )->flat() as $folder ) {
-			echo '<option value="' . esc_attr( $folder['id'] ) . '"' . selected( $selected, (string) $folder['id'], false ) . '>'
-				. esc_html( str_repeat( '— ', $folder['depth'] ) . $folder['name'] ) . '</option>';
+			echo '<option value="' . esc_attr( $folder['id'] ) . '"';
+			selected( $selected, (string) $folder['id'] );
+			echo '>' . esc_html( str_repeat( '— ', $folder['depth'] ) . $folder['name'] ) . '</option>';
 		}
 		echo '</select>';
 	}
