@@ -30,6 +30,7 @@ class Options {
 			'default_upload_folder' => 0,
 			'auto_alt'              => false,
 			'ai_language'           => '',
+			'ai_model'              => '',
 			'ai_alt_length'         => 125,
 			'ai_prompt'             => '',
 			'ai_context'            => false,
@@ -87,6 +88,10 @@ class Options {
 		}
 		if ( isset( $params['ai_language'] ) ) {
 			$current['ai_language'] = mb_substr( sanitize_text_field( $params['ai_language'] ), 0, 40 );
+		}
+		if ( isset( $params['ai_model'] ) ) {
+			// A model ID such as claude-sonnet-4-5; anything outside the usual ID characters is dropped.
+			$current['ai_model'] = substr( (string) preg_replace( '/[^A-Za-z0-9._:\/-]/', '', sanitize_text_field( (string) $params['ai_model'] ) ), 0, 80 );
 		}
 		if ( isset( $params['ai_alt_length'] ) ) {
 			$current['ai_alt_length'] = min( 300, max( 50, absint( $params['ai_alt_length'] ) ) );

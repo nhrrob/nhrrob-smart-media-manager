@@ -61,7 +61,7 @@ class Ai {
 		}
 		$start = microtime( true );
 
-		$result = wp_ai_client_prompt()
+		$result = $this->prompt()
 			->using_system_instruction( 'You are an accessibility expert.' )
 			->with_file( $image_path, $mime )
 			->with_text( 'Write a concise alt text under ' . (int) Options::get()['ai_alt_length'] . ' characters for this image. Return only the alt text, nothing else.' . $this->prompt_extras( $attachment_id ) )
@@ -70,7 +70,7 @@ class Ai {
 		$latency = (int) round( ( microtime( true ) - $start ) * 1000 );
 
 		if ( is_wp_error( $result ) ) {
-			return $result;
+			return $this->explain( $result );
 		}
 
 		$text = trim( $result );
@@ -105,7 +105,7 @@ class Ai {
 				return new \WP_Error( 'no_file', __( 'Could not retrieve image file.', 'nhrrob-smart-media-manager' ) );
 			}
 			$mime   = get_post_mime_type( $attachment_id ) ? get_post_mime_type( $attachment_id ) : 'image/jpeg';
-			$result = wp_ai_client_prompt()
+			$result = $this->prompt()
 				->using_system_instruction( 'You are a content writer for a website.' )
 				->with_file( $image_path, $mime )
 				->with_text( 'Write a short, engaging caption for this image suitable for use below the image on a webpage. Under 150 characters. Return only the caption text, nothing else.' . $this->prompt_extras( $attachment_id ) )
@@ -117,7 +117,7 @@ class Ai {
 				$file  = get_attached_file( $attachment_id );
 				$label = basename( $file ? $file : '' );
 			}
-			$result = wp_ai_client_prompt()
+			$result = $this->prompt()
 				->using_system_instruction( 'You are a content writer for a website.' )
 				->with_text( 'Write a short, descriptive caption for a file named "' . $label . '". Under 100 characters. Return only the caption text, nothing else.' )
 				->generate_text();
@@ -126,7 +126,7 @@ class Ai {
 		$latency = (int) round( ( microtime( true ) - $start ) * 1000 );
 
 		if ( is_wp_error( $result ) ) {
-			return $result;
+			return $this->explain( $result );
 		}
 
 		$text = trim( $result );
@@ -158,7 +158,7 @@ class Ai {
 			? 'Write a short, descriptive title of at most 60 characters'
 			: 'Write a one or two sentence description for a media library';
 
-		$builder = wp_ai_client_prompt()->using_system_instruction( 'You are a content writer for a website.' );
+		$builder = $this->prompt()->using_system_instruction( 'You are a content writer for a website.' );
 
 		if ( wp_attachment_is_image( $attachment_id ) ) {
 			$image_path = get_attached_file( $attachment_id );
@@ -178,7 +178,7 @@ class Ai {
 			->generate_text();
 
 		if ( is_wp_error( $result ) ) {
-			return $result;
+			return $this->explain( $result );
 		}
 
 		$text = trim( $result );
@@ -244,6 +244,41 @@ class Ai {
 			return;
 		}
 		$this->generate( $attachment_id, 'alt', true );
+	}
+
+	/**
+	 * Starts a prompt, asking for the model chosen in the settings when there is one.
+	 *
+	 * The AI client treats this as a preference: if no connected provider offers that model,
+	 * it uses the provider's default.
+	 *
+	 * @return object The WordPress AI client prompt builder.
+	 */
+	private function prompt() {
+		$builder = wp_ai_client_prompt();
+		$model   = (string) Options::get()['ai_model'];
+		if ( '' !== $model ) {
+			try {
+				$builder = $builder->using_model_preference( $model );
+			} catch ( \Throwable $e ) {
+				// An ID the client rejects is ignored; the provider default is used.
+				unset( $e );
+			}
+		}
+		return $builder;
+	}
+
+	/**
+	 * Replaces a provider error with a clear message when no AI connector is set up.
+	 *
+	 * @param \WP_Error $error Error returned by the AI client.
+	 * @return \WP_Error
+	 */
+	private function explain( \WP_Error $error ): \WP_Error {
+		if ( self::is_available() ) {
+			return $error;
+		}
+		return new \WP_Error( 'no_ai_provider', __( 'No AI provider is connected. Install and connect one under Settings → Connectors, then try again.', 'nhrrob-smart-media-manager' ), [ 'status' => 400 ] );
 	}
 
 	/**

@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: NHR Smart Media Manager – Media Library Folders & AI Alt Text 1.1.0\n"
+"Project-Id-Version: NHR Smart Media Manager – Media Library Folders & AI Alt Text 1.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/nhrrob-smart-media-manager\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-05T18:16:47+00:00\n"
+"POT-Creation-Date: 2026-10-05T19:19:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: nhrrob-smart-media-manager\n"
@@ -63,11 +63,11 @@ msgid "All folders"
 msgstr ""
 
 #: includes/Admin/NativeLibrary.php:75
-#: includes/Admin/NativeLibrary.php:111
-#: admin/src/components/DetailsPanel.js:751
+#: includes/Admin/NativeLibrary.php:113
+#: admin/src/components/DetailsPanel.js:759
 #: admin/src/components/MainArea.js:132
-#: admin/src/components/SettingsApp.js:481
-#: admin/src/components/SettingsApp.js:517
+#: admin/src/components/SettingsApp.js:483
+#: admin/src/components/SettingsApp.js:519
 #: admin/src/components/Sidebar.js:521
 #: admin/src/components/UploadModal.js:320
 msgid "Uncategorized"
@@ -107,7 +107,7 @@ msgid "You cannot view this attachment."
 msgstr ""
 
 #: includes/Api/RestMedia.php:158
-#: includes/Core/Media.php:264
+#: includes/Core/Media.php:284
 msgid "Attachment not found."
 msgstr ""
 
@@ -121,7 +121,7 @@ msgid "No file was uploaded."
 msgstr ""
 
 #: includes/App.php:70
-#: admin/src/components/Topbar.js:145
+#: admin/src/components/Topbar.js:147
 msgid "Settings"
 msgstr ""
 
@@ -159,24 +159,28 @@ msgstr ""
 msgid "Unknown field."
 msgstr ""
 
-#: includes/Core/Folders.php:210
-#: includes/Core/Folders.php:244
+#: includes/Core/Ai.php:281
+msgid "No AI provider is connected. Install and connect one under Settings → Connectors, then try again."
+msgstr ""
+
+#: includes/Core/Folders.php:221
+#: includes/Core/Folders.php:255
 msgid "Folder name cannot be empty."
 msgstr ""
 
-#: includes/Core/Folders.php:222
+#: includes/Core/Folders.php:233
 msgid "Could not retrieve created folder."
 msgstr ""
 
-#: includes/Core/Folders.php:254
+#: includes/Core/Folders.php:265
 msgid "Could not retrieve renamed folder."
 msgstr ""
 
-#: includes/Core/Folders.php:302
+#: includes/Core/Folders.php:306
 msgid "Cannot move a folder into its own descendant."
 msgstr ""
 
-#: includes/Core/Folders.php:312
+#: includes/Core/Folders.php:316
 msgid "Could not retrieve moved folder."
 msgstr ""
 
@@ -188,23 +192,23 @@ msgstr ""
 msgid "Nothing to import, or the import expired. Please start again."
 msgstr ""
 
-#: includes/Core/Media.php:284
+#: includes/Core/Media.php:304
 msgid "Folder not found."
 msgstr ""
 
-#: includes/Core/Media.php:452
+#: includes/Core/Media.php:472
 msgid "Could not retrieve the file to replace."
 msgstr ""
 
-#: includes/Core/Media.php:457
+#: includes/Core/Media.php:477
 msgid "The new file must be the same type as the current file."
 msgstr ""
 
-#: includes/Core/Media.php:468
+#: includes/Core/Media.php:488
 msgid "Could not access the filesystem."
 msgstr ""
 
-#: includes/Core/Media.php:490
+#: includes/Core/Media.php:510
 msgid "Could not write the new file."
 msgstr ""
 
@@ -212,7 +216,7 @@ msgstr ""
 msgid "(no title)"
 msgstr ""
 
-#: includes/Core/Usage.php:126
+#: includes/Core/Usage.php:133
 msgid "Site icon / logo"
 msgstr ""
 
@@ -221,7 +225,7 @@ msgid "Select a folder…"
 msgstr ""
 
 #: admin/src/block.js:29
-#: admin/src/components/DetailsPanel.js:741
+#: admin/src/components/DetailsPanel.js:749
 #: admin/src/components/MainArea.js:957
 msgid "Folder"
 msgstr ""
@@ -305,7 +309,7 @@ msgstr[1] ""
 
 #: admin/src/components/App.js:218
 #: admin/src/components/App.js:222
-#: admin/src/components/DetailsPanel.js:951
+#: admin/src/components/DetailsPanel.js:959
 #: admin/src/components/Modals.js:346
 msgid "Move to Trash"
 msgstr ""
@@ -327,13 +331,13 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: admin/src/components/BulkBar.js:102
-#: admin/src/components/DetailsPanel.js:938
+#: admin/src/components/DetailsPanel.js:946
 #: admin/src/components/Modals.js:294
 msgid "Restore"
 msgstr ""
 
 #: admin/src/components/BulkBar.js:109
-#: admin/src/components/DetailsPanel.js:947
+#: admin/src/components/DetailsPanel.js:955
 #: admin/src/components/Modals.js:302
 msgid "Delete Permanently"
 msgstr ""
@@ -355,8 +359,8 @@ msgid "Add"
 msgstr ""
 
 #: admin/src/components/BulkBar.js:162
-#: admin/src/components/DetailsPanel.js:530
-#: admin/src/components/DetailsPanel.js:674
+#: admin/src/components/DetailsPanel.js:534
+#: admin/src/components/DetailsPanel.js:682
 msgid "Edit"
 msgstr ""
 
@@ -387,7 +391,7 @@ msgstr ""
 #: admin/src/components/DetailsPanel.js:146
 #: admin/src/components/DetailsPanel.js:220
 #: admin/src/components/DetailsPanel.js:270
-#: admin/src/components/Topbar.js:28
+#: admin/src/components/Topbar.js:29
 msgid "No AI provider configured. Go to Settings → Connectors."
 msgstr ""
 
@@ -405,8 +409,8 @@ msgstr ""
 
 #: admin/src/components/DetailsPanel.js:368
 #: admin/src/components/DetailsPanel.js:380
-#: admin/src/components/DetailsPanel.js:455
-#: admin/src/components/DetailsPanel.js:599
+#: admin/src/components/DetailsPanel.js:459
+#: admin/src/components/DetailsPanel.js:607
 msgid "Generating…"
 msgstr ""
 
@@ -436,105 +440,105 @@ msgstr ""
 msgid "Alt Text"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:481
-#: admin/src/components/DetailsPanel.js:623
+#: admin/src/components/DetailsPanel.js:485
+#: admin/src/components/DetailsPanel.js:631
 msgid "AI Suggestion"
 msgstr ""
 
 #. translators: %d: character count
-#: admin/src/components/DetailsPanel.js:502
-#: admin/src/components/DetailsPanel.js:644
+#: admin/src/components/DetailsPanel.js:506
+#: admin/src/components/DetailsPanel.js:652
 #, js-format
 msgid "%d chars"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:520
-#: admin/src/components/DetailsPanel.js:664
+#: admin/src/components/DetailsPanel.js:524
+#: admin/src/components/DetailsPanel.js:672
 msgid "Accept"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:540
-#: admin/src/components/DetailsPanel.js:686
+#: admin/src/components/DetailsPanel.js:544
+#: admin/src/components/DetailsPanel.js:694
 msgid "Reject"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:573
+#: admin/src/components/DetailsPanel.js:577
 #: admin/src/components/Tools.js:190
 msgid "Title"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:592
+#: admin/src/components/DetailsPanel.js:596
 #: admin/src/components/Tools.js:192
 msgid "Caption"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:709
+#: admin/src/components/DetailsPanel.js:717
 msgid "Optional caption…"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:722
+#: admin/src/components/DetailsPanel.js:730
 #: admin/src/components/Tools.js:193
 msgid "Description"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:786
+#: admin/src/components/DetailsPanel.js:794
 msgid "Also add to folder…"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:798
+#: admin/src/components/DetailsPanel.js:806
 msgid "Used In"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:808
+#: admin/src/components/DetailsPanel.js:816
 #: admin/src/components/Modals.js:420
 msgid "Loading…"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:813
+#: admin/src/components/DetailsPanel.js:821
 msgid "Not used anywhere."
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:839
+#: admin/src/components/DetailsPanel.js:847
 #: admin/src/components/MainArea.js:375
 msgid "Uploaded"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:848
+#: admin/src/components/DetailsPanel.js:856
 msgid "File URL"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:877
+#: admin/src/components/DetailsPanel.js:885
 #: admin/src/components/Modals.js:247
 msgid "URL copied!"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:886
+#: admin/src/components/DetailsPanel.js:894
 #: admin/src/components/Modals.js:320
 msgid "Copy URL"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:894
+#: admin/src/components/DetailsPanel.js:902
 #: admin/src/components/Modals.js:330
 msgid "Download"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:906
+#: admin/src/components/DetailsPanel.js:914
 msgid "Edit Media"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:918
+#: admin/src/components/DetailsPanel.js:926
 msgid "Upload a new file of the same type. The URL and every place the file is used stay the same."
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:926
+#: admin/src/components/DetailsPanel.js:934
 msgid "Replacing…"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:927
+#: admin/src/components/DetailsPanel.js:935
 msgid "Replace File"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:970
+#: admin/src/components/DetailsPanel.js:978
 msgid "Generate with AI"
 msgstr ""
 
@@ -559,7 +563,7 @@ msgid "Starred"
 msgstr ""
 
 #: admin/src/components/MainArea.js:127
-#: admin/src/components/SettingsApp.js:469
+#: admin/src/components/SettingsApp.js:471
 #: admin/src/components/Sidebar.js:341
 msgid "All Files"
 msgstr ""
@@ -807,241 +811,249 @@ msgstr ""
 
 #. translators: %s: AI provider name
 #: admin/src/components/Modals.js:449
-#: admin/src/components/Topbar.js:86
+#: admin/src/components/Topbar.js:87
 #, js-format
 msgid "%s Connected"
 msgstr ""
 
 #: admin/src/components/Modals.js:451
-#: admin/src/components/SettingsApp.js:14
-#: admin/src/components/Topbar.js:91
+#: admin/src/components/SettingsApp.js:15
+#: admin/src/components/Topbar.js:92
 msgid "AI"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:9
+#: admin/src/components/SettingsApp.js:10
 msgid "General"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:105
-#: admin/src/components/SettingsApp.js:171
-#: admin/src/components/SettingsApp.js:319
+#: admin/src/components/SettingsApp.js:107
+#: admin/src/components/SettingsApp.js:173
+#: admin/src/components/SettingsApp.js:321
 msgid "Media Library"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:113
+#: admin/src/components/SettingsApp.js:115
 msgid "Settings saved successfully."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:122
+#: admin/src/components/SettingsApp.js:124
 msgid "Could not save settings. Please try again."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:166
+#: admin/src/components/SettingsApp.js:168
 msgid "Quick Links"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:175
+#: admin/src/components/SettingsApp.js:177
 msgid "WP Media"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:179
+#: admin/src/components/SettingsApp.js:181
 msgid "AI Connectors"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:188
+#: admin/src/components/SettingsApp.js:190
 msgid "Rate Plugin"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:200
+#: admin/src/components/SettingsApp.js:202
 msgid "About"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:207
+#: admin/src/components/SettingsApp.js:209
 msgid "Smart Media Manager by"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:219
+#: admin/src/components/SettingsApp.js:221
 msgid "Available on"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:243
+#: admin/src/components/SettingsApp.js:245
 msgid "AI Status"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:261
+#: admin/src/components/SettingsApp.js:263
 msgid "Provider ready"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:262
+#: admin/src/components/SettingsApp.js:264
 msgid "Not configured"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:274
+#: admin/src/components/SettingsApp.js:276
 msgid "Configure an AI provider in"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:282
-#: admin/src/components/SettingsApp.js:589
+#: admin/src/components/SettingsApp.js:284
+#: admin/src/components/SettingsApp.js:591
 msgid "Settings → Connectors"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:303
+#: admin/src/components/SettingsApp.js:305
 msgid "Grid"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:305
+#: admin/src/components/SettingsApp.js:307
 msgid "List"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:309
+#: admin/src/components/SettingsApp.js:311
 msgid "Small"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:310
+#: admin/src/components/SettingsApp.js:312
 msgid "Medium"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:311
+#: admin/src/components/SettingsApp.js:313
 msgid "Large"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:326
+#: admin/src/components/SettingsApp.js:328
 msgid "Default View"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:332
+#: admin/src/components/SettingsApp.js:334
 msgid "How files are displayed when you open the media library."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:366
+#: admin/src/components/SettingsApp.js:368
 msgid "Thumbnail Size"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:372
+#: admin/src/components/SettingsApp.js:374
 msgid "Default thumbnail size in grid view."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:405
+#: admin/src/components/SettingsApp.js:407
 msgid "Items Per Page"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:411
+#: admin/src/components/SettingsApp.js:413
 msgid "Number of files loaded per page."
 msgstr ""
 
 #. translators: %d: number of items per page
-#: admin/src/components/SettingsApp.js:432
+#: admin/src/components/SettingsApp.js:434
 #, js-format
 msgid "%d items"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:448
+#: admin/src/components/SettingsApp.js:450
 msgid "Startup Folder"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:454
+#: admin/src/components/SettingsApp.js:456
 msgid "Which folder opens first in the Smart Library."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:475
+#: admin/src/components/SettingsApp.js:477
 msgid "Last opened folder"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:493
+#: admin/src/components/SettingsApp.js:495
 msgid "Default Upload Folder"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:499
+#: admin/src/components/SettingsApp.js:501
 msgid "New uploads go here unless a folder is chosen in the uploader."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:541
-#: admin/src/components/SettingsApp.js:801
+#: admin/src/components/SettingsApp.js:543
+#: admin/src/components/SettingsApp.js:827
 msgid "Saving…"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:546
-#: admin/src/components/SettingsApp.js:806
+#: admin/src/components/SettingsApp.js:548
+#: admin/src/components/SettingsApp.js:832
 msgid "Save Settings"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:571
+#: admin/src/components/SettingsApp.js:573
 msgid "AI Configuration"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:578
+#: admin/src/components/SettingsApp.js:580
 msgid "WordPress Core AI"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:584
+#: admin/src/components/SettingsApp.js:586
 msgid "Alt text generation uses the WordPress AI Client (WP 7.0+). Configure your provider once in"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:594
+#: admin/src/components/SettingsApp.js:596
 msgid "and it is available to all compatible plugins."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:606
+#: admin/src/components/SettingsApp.js:608
 msgid "Provider Status"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:613
+#: admin/src/components/SettingsApp.js:615
 msgid "Your AI provider is connected and ready."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:617
+#: admin/src/components/SettingsApp.js:619
 msgid "No AI provider configured yet."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:630
+#: admin/src/components/SettingsApp.js:632
 msgid "Ready"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:638
+#: admin/src/components/SettingsApp.js:640
 msgid "Configure"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:651
+#: admin/src/components/SettingsApp.js:653
 msgid "Generation Options"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:658
+#: admin/src/components/SettingsApp.js:660
 msgid "Alt Text on Upload"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:664
+#: admin/src/components/SettingsApp.js:666
 msgid "Write alt text automatically for every newly uploaded image. Each new image is sent to your AI provider in the background."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:684
+#: admin/src/components/SettingsApp.js:686
 msgid "Language"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:687
+#: admin/src/components/SettingsApp.js:689
 msgid "Language for generated text, for example French. Leave empty to let the AI decide."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:708
+#: admin/src/components/SettingsApp.js:710
+msgid "Model"
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:713
+msgid "Model ID to prefer, exactly as your AI provider names it. Leave empty to use the provider default. If the model is not available, the default is used."
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:734
 msgid "Alt Text Length"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:714
+#: admin/src/components/SettingsApp.js:740
 msgid "Maximum number of characters for generated alt text."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:740
+#: admin/src/components/SettingsApp.js:766
 msgid "Use Page Context"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:746
+#: admin/src/components/SettingsApp.js:772
 msgid "Include the title of the page a file is attached to, and its focus keyphrase from Yoast SEO, Rank Math or SEOPress."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:766
+#: admin/src/components/SettingsApp.js:792
 msgid "Extra Instructions"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:772
+#: admin/src/components/SettingsApp.js:798
 msgid "Added to every AI request, for example a tone of voice or words to avoid."
 msgstr ""
 
@@ -1215,27 +1227,27 @@ msgstr[1] ""
 msgid "Scanning library…"
 msgstr ""
 
-#: admin/src/components/Topbar.js:53
+#: admin/src/components/Topbar.js:54
 msgid "Search files…"
 msgstr ""
 
-#: admin/src/components/Topbar.js:70
+#: admin/src/components/Topbar.js:71
 msgid "AI Tools"
 msgstr ""
 
-#: admin/src/components/Topbar.js:96
+#: admin/src/components/Topbar.js:97
 msgid "Select a file and use the details panel to generate alt text or captions with AI."
 msgstr ""
 
-#: admin/src/components/Topbar.js:115
+#: admin/src/components/Topbar.js:116
 msgid "Alt text for all images missing it"
 msgstr ""
 
-#: admin/src/components/Topbar.js:125
+#: admin/src/components/Topbar.js:126
 msgid "AI Connector Settings"
 msgstr ""
 
-#: admin/src/components/Topbar.js:140
+#: admin/src/components/Topbar.js:141
 msgid "Upload"
 msgstr ""
 
@@ -1291,4 +1303,12 @@ msgstr[1] ""
 
 #: admin/src/components/UploadModal.js:438
 msgid "Done"
+msgstr ""
+
+#: admin/src/theme.js:43
+msgid "Switch to light theme"
+msgstr ""
+
+#: admin/src/theme.js:44
+msgid "Switch to dark theme"
 msgstr ""

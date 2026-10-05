@@ -1,5 +1,6 @@
 import { useState, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { ThemeToggle } from '../theme';
 
 const cfg = window.nhrsmmSettingsConfig || {};
 
@@ -97,6 +98,7 @@ export default function SettingsApp() {
 
 					<div className="topbar-spacer" />
 
+					<ThemeToggle />
 					<a
 						href={ cfg.mediaLibraryUrl }
 						className="btn btn-sm btn-default"
@@ -697,6 +699,30 @@ function AiTab( { settings, onChange, onSave, saving } ) {
 							value={ settings.ai_language }
 							onChange={ ( e ) =>
 								set( 'ai_language', e.target.value )
+							}
+						/>
+					</div>
+				</div>
+				<div className="settings-row">
+					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
+						<label className="settings-row-label">
+							{ __( 'Model', 'nhrrob-smart-media-manager' ) }
+						</label>
+						<p className="settings-row-desc">
+							{ __(
+								'Model ID to prefer, exactly as your AI provider names it. Leave empty to use the provider default. If the model is not available, the default is used.',
+								'nhrrob-smart-media-manager'
+							) }
+						</p>
+					</div>
+					<div className="settings-row-control">
+						<input
+							type="text"
+							className="details-input"
+							value={ settings.ai_model || '' }
+							onChange={ ( e ) =>
+								set( 'ai_model', e.target.value )
 							}
 						/>
 					</div>

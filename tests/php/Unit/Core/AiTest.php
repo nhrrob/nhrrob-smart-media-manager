@@ -153,6 +153,27 @@ class AiTest extends TestCase {
 		$this->assertIsArray( $result );
 	}
 
+	public function test_generate_alt_text_explains_a_missing_provider(): void {
+		$builder = Mockery::mock();
+		$builder->shouldReceive( 'using_system_instruction' )->andReturn( $builder );
+		$builder->shouldReceive( 'with_file' )->andReturn( $builder );
+		$builder->shouldReceive( 'with_text' )->andReturn( $builder );
+		$builder->shouldReceive( 'generate_text' )->andReturn( new \WP_Error( 'prompt_builder_error', 'No models found' ) );
+		$builder->shouldReceive( 'is_supported_for_text_generation' )->andReturn( false );
+
+		Functions\when( 'wp_attachment_is_image' )->justReturn( true );
+		Functions\when( 'wp_supports_ai' )->justReturn( true );
+		Functions\when( 'wp_ai_client_prompt' )->justReturn( $builder );
+		Functions\when( 'get_attached_file' )->justReturn( '/uploads/photo.jpg' );
+		Functions\when( 'get_post_mime_type' )->justReturn( 'image/jpeg' );
+		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
+		Functions\when( '__' )->returnArg();
+
+		$result = $this->ai->generate_alt_text( 42 );
+
+		$this->assertSame( 'no_ai_provider', $result->get_error_code() );
+	}
+
 	public function test_generate_alt_text_propagates_wp_error_from_builder(): void {
 		$api_error = new \WP_Error( 'api_error', 'Provider request failed' );
 
@@ -161,6 +182,8 @@ class AiTest extends TestCase {
 		$builder->shouldReceive( 'with_file' )->andReturn( $builder );
 		$builder->shouldReceive( 'with_text' )->andReturn( $builder );
 		$builder->shouldReceive( 'generate_text' )->andReturn( $api_error );
+		// A provider is connected, so its own error is passed through unchanged.
+		$builder->shouldReceive( 'is_supported_for_text_generation' )->andReturn( true );
 
 		Functions\when( 'wp_attachment_is_image' )->justReturn( true );
 		Functions\when( 'wp_supports_ai' )->justReturn( true );
@@ -326,6 +349,8 @@ class AiTest extends TestCase {
 		$builder->shouldReceive( 'with_file' )->andReturn( $builder );
 		$builder->shouldReceive( 'with_text' )->andReturn( $builder );
 		$builder->shouldReceive( 'generate_text' )->andReturn( $api_error );
+		// A provider is connected, so its own error is passed through unchanged.
+		$builder->shouldReceive( 'is_supported_for_text_generation' )->andReturn( true );
 
 		Functions\when( 'wp_supports_ai' )->justReturn( true );
 		Functions\when( 'wp_attachment_is_image' )->justReturn( true );
