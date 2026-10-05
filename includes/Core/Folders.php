@@ -22,6 +22,25 @@ class Folders {
 	 * @return array
 	 */
 	public function get_tree(): array {
+		return [
+			'tree'          => $this->tree( true ),
+			'uncategorized' => $this->get_uncategorized_count(),
+			'total'         => $this->get_status_count( 'inherit' ),
+			'missing_alt'   => $this->get_missing_alt_count(),
+			'trash'         => $this->get_trash_count(),
+		];
+	}
+
+	/**
+	 * Returns the nested folder list on its own, without the library-wide totals.
+	 *
+	 * The folder dropdowns load on every editor screen, so they must not run the count
+	 * queries that get_tree() needs for the Smart Library sidebar.
+	 *
+	 * @param bool $with_counts Count the files in each folder (one extra query).
+	 * @return array
+	 */
+	private function tree( bool $with_counts ): array {
 		$terms = get_terms(
 			[
 				'taxonomy'   => 'nhrsmm_media_folder',
@@ -31,19 +50,11 @@ class Folders {
 			]
 		);
 
-		$tree = [];
-		if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
-			$counts = $this->get_counts( $terms );
-			$tree   = $this->build_tree( $terms, 0, $counts );
+		if ( is_wp_error( $terms ) || empty( $terms ) ) {
+			return [];
 		}
 
-		return [
-			'tree'          => $tree,
-			'uncategorized' => $this->get_uncategorized_count(),
-			'total'         => $this->get_status_count( 'inherit' ),
-			'missing_alt'   => $this->get_missing_alt_count(),
-			'trash'         => $this->get_trash_count(),
-		];
+		return $this->build_tree( $terms, 0, $with_counts ? $this->get_counts( $terms ) : [] );
 	}
 
 	/**
@@ -269,14 +280,6 @@ class Folders {
 	 * @return bool|\WP_Error
 	 */
 	public function delete( int $term_id ) {
-		// Move files to Uncategorized (remove from this folder, not delete them).
-		$attachments = get_objects_in_term( $term_id, 'nhrsmm_media_folder' );
-		if ( ! is_wp_error( $attachments ) ) {
-			foreach ( $attachments as $att_id ) {
-				wp_remove_object_terms( $att_id, $term_id, 'nhrsmm_media_folder' );
-			}
-		}
-
 		$children = get_term_children( $term_id, 'nhrsmm_media_folder' );
 		if ( ! is_wp_error( $children ) ) {
 			foreach ( $children as $child_id ) {
@@ -284,6 +287,7 @@ class Folders {
 			}
 		}
 
+		// wp_delete_term() takes the files out of the folder itself; the files are kept.
 		$result = wp_delete_term( $term_id, 'nhrsmm_media_folder' );
 		return is_wp_error( $result ) ? $result : (bool) $result;
 	}
@@ -397,7 +401,7 @@ class Folders {
 	 */
 	public function export( $tree = null ): array {
 		if ( null === $tree ) {
-			$tree = $this->get_tree()['tree'];
+			$tree = $this->tree( false );
 		}
 		$out = [];
 		foreach ( $tree as $node ) {
@@ -451,7 +455,7 @@ class Folders {
 	 */
 	public function flat( $tree = null, int $depth = 0 ): array {
 		if ( null === $tree ) {
-			$tree = $this->get_tree()['tree'];
+			$tree = $this->tree( false );
 		}
 		$out = [];
 		foreach ( $tree as $node ) {
@@ -471,25 +475,44 @@ class Folders {
 	 * @param int    $term_id Folder term ID.
 	 * @param string $prefix  Path prefix for nested folders.
 	 * @param int    $depth   Current nesting depth.
+	 * @param int    $limit   Maximum number of files to return.
 	 * @return array List of url/path pairs, capped at 2000 files.
 	 */
-	public function files( int $term_id, string $prefix = '', int $depth = 0 ): array {
+	public function files( int $term_id, string $prefix = '', int $depth = 0, int $limit = 2000 ): array {
 		$term = get_term( $term_id, 'nhrsmm_media_folder' );
-		if ( ! $term || is_wp_error( $term ) || $depth > 10 ) {
+		if ( ! $term || is_wp_error( $term ) || $depth > 10 || $limit < 1 ) {
 			return [];
 		}
 
 		$path  = $prefix . sanitize_file_name( $term->name ) . '/';
 		$files = [];
 		$ids   = get_objects_in_term( $term_id, 'nhrsmm_media_folder' );
-		foreach ( is_wp_error( $ids ) ? [] : $ids as $id ) {
-			$file = get_attached_file( (int) $id );
-			$url  = wp_get_attachment_url( (int) $id );
-			if ( $file && $url && 'inherit' === get_post_field( 'post_status', (int) $id ) ) {
-				$files[] = [
-					'url'  => $url,
-					'path' => $path . basename( $file ),
-				];
+		$ids   = is_wp_error( $ids ) ? [] : array_map( 'intval', $ids );
+
+		// Load posts and their meta a chunk at a time (not one query per file), and stop at the cap.
+		foreach ( array_chunk( $ids, 200 ) as $chunk ) {
+			$posts = get_posts(
+				[
+					'post_type'              => 'attachment',
+					'post_status'            => 'inherit',
+					'post__in'               => $chunk,
+					'posts_per_page'         => count( $chunk ),
+					'orderby'                => 'post__in',
+					'update_post_term_cache' => false,
+				]
+			);
+			foreach ( $posts as $post ) {
+				$file = get_attached_file( $post->ID );
+				$url  = wp_get_attachment_url( $post->ID );
+				if ( $file && $url ) {
+					$files[] = [
+						'url'  => $url,
+						'path' => $path . basename( $file ),
+					];
+					if ( count( $files ) >= $limit ) {
+						return $files;
+					}
+				}
 			}
 		}
 
@@ -502,9 +525,12 @@ class Folders {
 			]
 		);
 		foreach ( is_wp_error( $children ) ? [] : $children as $child ) {
-			$files = array_merge( $files, $this->files( (int) $child, $path, $depth + 1 ) );
+			$files = array_merge( $files, $this->files( (int) $child, $path, $depth + 1, $limit - count( $files ) ) );
+			if ( count( $files ) >= $limit ) {
+				break;
+			}
 		}
 
-		return array_slice( $files, 0, 2000 );
+		return $files;
 	}
 }
