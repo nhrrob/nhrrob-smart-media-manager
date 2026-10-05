@@ -125,7 +125,7 @@ class Assets {
 			$this->enqueue_common();
 			wp_enqueue_script( 'nhrsmm-app' );
 
-			$settings = get_option( 'nhrsmm_settings', [] );
+			$settings = Core\Options::get();
 			wp_localize_script(
 				'nhrsmm-app',
 				'nhrsmmConfig',
@@ -141,9 +141,12 @@ class Assets {
 					'thumbSize'        => sanitize_key( $settings['thumbnail_size'] ?? 'medium' ),
 					'perPage'          => absint( $settings['items_per_page'] ?? 40 ),
 					'version'          => NHRSMM_VERSION,
-					'aiConfigured'     => function_exists( 'wp_supports_ai' ) && wp_supports_ai(),
+					'aiConfigured'     => Core\Ai::is_available(),
 					'aiProvider'       => $this->get_ai_provider_label(),
 					'currentUserId'    => get_current_user_id(),
+					'startupFolder'    => sanitize_key( $settings['startup_folder'] ),
+					'starredIds'       => array_values( array_filter( array_map( 'absint', (array) get_user_meta( get_current_user_id(), 'nhrsmm_starred', true ) ) ) ),
+					'recentIds'        => array_values( array_filter( array_map( 'absint', (array) get_user_meta( get_current_user_id(), 'nhrsmm_recent', true ) ) ) ),
 				]
 			);
 		}
@@ -152,7 +155,7 @@ class Assets {
 			$this->enqueue_common();
 			wp_enqueue_script( 'nhrsmm-settings' );
 
-			$settings = get_option( 'nhrsmm_settings', [] );
+			$settings = Core\Options::get();
 			wp_localize_script(
 				'nhrsmm-settings',
 				'nhrsmmSettingsConfig',
@@ -163,12 +166,9 @@ class Assets {
 					'connectorsUrl'   => esc_url( admin_url( 'options-connectors.php' ) ),
 					'wpMediaUrl'      => esc_url( admin_url( 'upload.php' ) ),
 					'version'         => NHRSMM_VERSION,
-					'aiConfigured'    => function_exists( 'wp_supports_ai' ) && wp_supports_ai(),
-					'settings'        => [
-						'default_view'   => sanitize_key( $settings['default_view'] ?? 'grid' ),
-						'thumbnail_size' => sanitize_key( $settings['thumbnail_size'] ?? 'medium' ),
-						'items_per_page' => absint( $settings['items_per_page'] ?? 40 ),
-					],
+					'aiConfigured'    => Core\Ai::is_available(),
+					'settings'        => $settings,
+					'folders'         => ( new Core\Folders() )->flat(),
 				]
 			);
 		}

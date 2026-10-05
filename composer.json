@@ -1,6 +1,6 @@
 {
     "name": "nhrsmm/smart-media-manager",
-    "description": "AI-powered WordPress media manager with virtual folders, smart search, and one-click alt text generation.",
+    "description": "Media library folders with a folder tree in the media modal, bulk editing, trash, and AI alt text through your own WordPress AI connector.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "authors": [

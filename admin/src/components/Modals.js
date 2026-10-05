@@ -1,8 +1,9 @@
 import { useEffect, useRef, createPortal } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useApp } from '../context';
-import { del } from '../api';
-import { copyToClipboard } from '../utils';
+import { del, post, put } from '../api';
+import { copyToClipboard, findFolder } from '../utils';
+import { FOLDER_COLORS } from './MainArea';
 
 export function ConfirmModal() {
 	const { state, dispatch } = useApp();
@@ -38,10 +39,11 @@ export function ConfirmModal() {
 							style={ { color: 'var(--color-danger)' } }
 						>
 							<i className="ti ti-alert-circle" />{ ' ' }
-							{ __(
-								'Confirm Delete',
-								'nhrrob-smart-media-manager'
-							) }
+							{ confirmModal?.title ||
+								__(
+									'Confirm Delete',
+									'nhrrob-smart-media-manager'
+								) }
 						</span>
 					</div>
 					<div className="modal-body">
@@ -55,7 +57,8 @@ export function ConfirmModal() {
 							className="btn btn-danger-solid"
 							onClick={ confirm }
 						>
-							{ __( 'Delete', 'nhrrob-smart-media-manager' ) }
+							{ confirmModal?.okLabel ||
+								__( 'Delete', 'nhrrob-smart-media-manager' ) }
 						</button>
 					</div>
 				</div>
@@ -113,6 +116,15 @@ function FolderCtxMenu( { id, style } ) {
 			document.dispatchEvent(
 				new CustomEvent( 'nhrsmm:start-subfolder', { detail: id } )
 			);
+		} else if ( action === 'zip' ) {
+			dispatch( {
+				type: 'OPEN_MODAL',
+				modal: {
+					kind: 'zip',
+					folderId: id,
+					name: findFolder( state.folders, id )?.name,
+				},
+			} );
 		} else if ( action === 'delete' ) {
 			showConfirm(
 				__(
@@ -135,6 +147,16 @@ function FolderCtxMenu( { id, style } ) {
 		}
 	}
 
+	async function setColor( color ) {
+		close();
+		try {
+			await put( `/folders/${ id }`, { color } );
+			await loadFolders();
+		} catch ( e ) {
+			showToast( e.message, 'danger' );
+		}
+	}
+
 	return (
 		// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
 		<div
@@ -142,6 +164,31 @@ function FolderCtxMenu( { id, style } ) {
 			style={ style }
 			onClick={ ( e ) => e.stopPropagation() }
 		>
+			<div className="ctx-colors">
+				{ FOLDER_COLORS.map( ( color ) => (
+					<button
+						key={ color }
+						className="ctx-color"
+						style={ { background: color } }
+						title={ __(
+							'Set folder color',
+							'nhrrob-smart-media-manager'
+						) }
+						onClick={ () => setColor( color ) }
+					/>
+				) ) }
+				<button
+					className="ctx-color ctx-color-none"
+					title={ __(
+						'Default color',
+						'nhrrob-smart-media-manager'
+					) }
+					onClick={ () => setColor( '' ) }
+				>
+					<i className="ti ti-x" />
+				</button>
+			</div>
+			<div className="ctx-sep" />
 			<button
 				className="ctx-item"
 				onClick={ () => handleAction( 'rename' ) }
@@ -156,6 +203,13 @@ function FolderCtxMenu( { id, style } ) {
 				<i className="ti ti-folder-plus" />{ ' ' }
 				{ __( 'New Subfolder', 'nhrrob-smart-media-manager' ) }
 			</button>
+			<button
+				className="ctx-item"
+				onClick={ () => handleAction( 'zip' ) }
+			>
+				<i className="ti ti-file-zip" />{ ' ' }
+				{ __( 'Download as ZIP', 'nhrrob-smart-media-manager' ) }
+			</button>
 			<div className="ctx-sep" />
 			<button
 				className="ctx-item ctx-danger"
@@ -169,8 +223,16 @@ function FolderCtxMenu( { id, style } ) {
 }
 
 function FileCtxMenu( { id, style } ) {
-	const { dispatch, showToast, showConfirm, loadFolders, loadMedia, state } =
-		useApp();
+	const {
+		dispatch,
+		showToast,
+		loadFolders,
+		loadMedia,
+		deleteSelected,
+		state,
+	} = useApp();
+	const file = state.files.find( ( f ) => f.id === id );
+	const inTrash = state.specialView === 'trash';
 
 	function close() {
 		dispatch( { type: 'HIDE_CONTEXT_MENUS' } );
@@ -179,7 +241,6 @@ function FileCtxMenu( { id, style } ) {
 	async function handleAction( action ) {
 		close();
 		if ( action === 'copy-url' ) {
-			const file = state.files.find( ( f ) => f.id === id );
 			if ( file ) {
 				await copyToClipboard( file.url );
 				showToast(
@@ -188,26 +249,18 @@ function FileCtxMenu( { id, style } ) {
 				);
 			}
 		} else if ( action === 'delete' ) {
-			showConfirm(
-				__(
-					'Delete this file? This cannot be undone.',
-					'nhrrob-smart-media-manager'
-				),
-				async () => {
-					try {
-						await del( '/media/bulk-delete', { ids: [ id ] } );
-						showToast(
-							__( 'File deleted.', 'nhrrob-smart-media-manager' ),
-							'success'
-						);
-						dispatch( { type: 'CLEAR_SELECTION' } );
-						await loadFolders();
-						loadMedia();
-					} catch ( e ) {
-						showToast( e.message, 'danger' );
-					}
-				}
-			);
+			deleteSelected();
+		} else if ( action === 'restore' ) {
+			try {
+				await post( '/media/bulk-restore', {
+					ids: [ ...state.selection ],
+				} );
+				dispatch( { type: 'CLEAR_SELECTION' } );
+				await loadFolders();
+				loadMedia();
+			} catch ( e ) {
+				showToast( e.message, 'danger' );
+			}
 		} else if ( action === 'move' ) {
 			// Don't re-select: SELECT_FILE(single) toggles off when already selected (reducer clears sel.size===1).
 			setTimeout( () => {
@@ -225,6 +278,33 @@ function FileCtxMenu( { id, style } ) {
 		}
 	}
 
+	if ( inTrash ) {
+		return (
+			// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+			<div
+				className="smm-context-menu"
+				style={ style }
+				onClick={ ( e ) => e.stopPropagation() }
+			>
+				<button
+					className="ctx-item"
+					onClick={ () => handleAction( 'restore' ) }
+				>
+					<i className="ti ti-restore" />{ ' ' }
+					{ __( 'Restore', 'nhrrob-smart-media-manager' ) }
+				</button>
+				<div className="ctx-sep" />
+				<button
+					className="ctx-item ctx-danger"
+					onClick={ () => handleAction( 'delete' ) }
+				>
+					<i className="ti ti-trash" />{ ' ' }
+					{ __( 'Delete Permanently', 'nhrrob-smart-media-manager' ) }
+				</button>
+			</div>
+		);
+	}
+
 	return (
 		// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
 		<div
@@ -239,6 +319,17 @@ function FileCtxMenu( { id, style } ) {
 				<i className="ti ti-copy" />{ ' ' }
 				{ __( 'Copy URL', 'nhrrob-smart-media-manager' ) }
 			</button>
+			{ file && (
+				<a
+					className="ctx-item"
+					href={ file.url }
+					download
+					onClick={ close }
+				>
+					<i className="ti ti-download" />{ ' ' }
+					{ __( 'Download', 'nhrrob-smart-media-manager' ) }
+				</a>
+			) }
 			<button
 				className="ctx-item"
 				onClick={ () => handleAction( 'move' ) }
@@ -252,7 +343,7 @@ function FileCtxMenu( { id, style } ) {
 				onClick={ () => handleAction( 'delete' ) }
 			>
 				<i className="ti ti-trash" />{ ' ' }
-				{ __( 'Delete', 'nhrrob-smart-media-manager' ) }
+				{ __( 'Move to Trash', 'nhrrob-smart-media-manager' ) }
 			</button>
 		</div>
 	);

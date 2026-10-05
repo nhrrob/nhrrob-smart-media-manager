@@ -17,11 +17,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Deactivator {
 
 	/**
-	 * Flushes rewrite rules on deactivation.
+	 * Clears scheduled events and flushes rewrite rules on deactivation.
 	 *
 	 * @return void
 	 */
 	public static function run() {
+		wp_unschedule_hook( 'nhrsmm_auto_alt' );
 		flush_rewrite_rules();
 	}
 }

@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Nhrsmm\SmartMediaManager\Core\Options;
+
 /**
  * Handles REST GET and POST routes for plugin settings.
  */
@@ -55,7 +57,7 @@ class RestSettings extends RestController {
 	 * @return \WP_REST_Response
 	 */
 	public function get_settings(): \WP_REST_Response {
-		return rest_ensure_response( $this->defaults() );
+		return rest_ensure_response( Options::get() );
 	}
 
 	/**
@@ -65,40 +67,6 @@ class RestSettings extends RestController {
 	 * @return \WP_REST_Response
 	 */
 	public function save_settings( \WP_REST_Request $request ) {
-		$params  = $request->get_json_params() ?? [];
-		$current = get_option( 'nhrsmm_settings', [] );
-
-		if ( isset( $params['default_view'] ) ) {
-			$current['default_view'] = in_array( $params['default_view'], [ 'grid', 'list' ], true )
-				? sanitize_key( $params['default_view'] ) : 'grid';
-		}
-		if ( isset( $params['thumbnail_size'] ) ) {
-			$current['thumbnail_size'] = in_array( $params['thumbnail_size'], [ 'small', 'medium', 'large' ], true )
-				? sanitize_key( $params['thumbnail_size'] ) : 'medium';
-		}
-		if ( isset( $params['items_per_page'] ) ) {
-			$current['items_per_page'] = in_array( absint( $params['items_per_page'] ), [ 20, 40, 60, 100 ], true )
-				? absint( $params['items_per_page'] ) : 40;
-		}
-
-		update_option( 'nhrsmm_settings', $current, false );
-
-		return rest_ensure_response( $this->defaults() );
-	}
-
-	/**
-	 * Returns plugin settings merged with hard-coded defaults.
-	 *
-	 * @return array
-	 */
-	private function defaults(): array {
-		return array_merge(
-			[
-				'default_view'   => 'grid',
-				'thumbnail_size' => 'medium',
-				'items_per_page' => 40,
-			],
-			get_option( 'nhrsmm_settings', [] )
-		);
+		return rest_ensure_response( Options::save( $request->get_json_params() ?? [] ) );
 	}
 }

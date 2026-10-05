@@ -2,22 +2,21 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: NHR Smart Media Manager 1.0.3\n"
+"Project-Id-Version: NHR Smart Media Manager – Media Library Folders & AI Alt Text 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/nhrrob-smart-media-manager\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-25T13:09:46+00:00\n"
+"POT-Creation-Date: 2026-10-05T17:31:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: nhrrob-smart-media-manager\n"
 
 #. Plugin Name of the plugin
 #: nhrrob-smart-media-manager.php
-#: includes/Admin/MediaPage.php:35
-msgid "NHR Smart Media Manager"
+msgid "NHR Smart Media Manager – Media Library Folders & AI Alt Text"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -27,7 +26,7 @@ msgstr ""
 
 #. Description of the plugin
 #: nhrrob-smart-media-manager.php
-msgid "AI-powered WordPress media manager with virtual folders, smart search, and one-click alt text generation."
+msgid "Media library folders with a folder tree in the media modal, bulk editing, trash, and AI alt text through your own WordPress AI connector."
 msgstr ""
 
 #. Author of the plugin
@@ -40,8 +39,12 @@ msgstr ""
 msgid "https://profiles.wordpress.org/nhrrob/"
 msgstr ""
 
+#: includes/Admin/MediaPage.php:35
+msgid "NHR Smart Media Manager"
+msgstr ""
+
 #: includes/Admin/MediaPage.php:36
-#: includes/App.php:64
+#: includes/App.php:71
 msgid "Smart Library"
 msgstr ""
 
@@ -54,6 +57,27 @@ msgstr ""
 msgid "NHR Smart Media Library"
 msgstr ""
 
+#: includes/Admin/NativeLibrary.php:74
+#: includes/Admin/NativeLibrary.php:110
+msgid "All folders"
+msgstr ""
+
+#: includes/Admin/NativeLibrary.php:75
+#: includes/Admin/NativeLibrary.php:111
+#: admin/src/components/DetailsPanel.js:751
+#: admin/src/components/MainArea.js:132
+#: admin/src/components/SettingsApp.js:481
+#: admin/src/components/SettingsApp.js:517
+#: admin/src/components/Sidebar.js:521
+#: admin/src/components/UploadModal.js:320
+msgid "Uncategorized"
+msgstr ""
+
+#: includes/Admin/NativeLibrary.php:76
+#: includes/Admin/NativeLibrary.php:108
+msgid "Filter by folder"
+msgstr ""
+
 #: includes/Admin/Settings.php:35
 #: includes/Admin/Settings.php:36
 msgid "NHR Smart Media"
@@ -63,117 +87,231 @@ msgstr ""
 msgid "NHR Smart Media Settings"
 msgstr ""
 
-#: includes/Api/RestAi.php:62
-#: includes/Api/RestAi.php:92
+#: includes/Api/RestAi.php:63
+#: includes/Api/RestAi.php:93
 msgid "attachment_id is required."
 msgstr ""
 
-#: includes/Api/RestAi.php:66
-#: includes/Api/RestAi.php:96
-#: includes/Api/RestMedia.php:158
-#: includes/Api/RestMedia.php:178
+#: includes/Api/RestAi.php:67
+#: includes/Api/RestAi.php:97
+#: includes/Api/RestAi.php:123
+#: includes/Api/RestMedia.php:172
+#: includes/Api/RestMedia.php:192
+#: includes/Api/RestMedia.php:315
 msgid "You cannot edit this attachment."
 msgstr ""
 
-#: includes/Api/RestMedia.php:139
-#: includes/Api/RestMedia.php:238
+#: includes/Api/RestMedia.php:153
+#: includes/Api/RestMedia.php:253
 msgid "You cannot view this attachment."
 msgstr ""
 
-#: includes/Api/RestMedia.php:144
-#: includes/Core/Media.php:180
+#: includes/Api/RestMedia.php:158
+#: includes/Core/Media.php:264
 msgid "Attachment not found."
 msgstr ""
 
-#: includes/Api/RestMedia.php:205
-#: includes/Api/RestMedia.php:222
+#: includes/Api/RestMedia.php:219
+#: includes/Api/RestMedia.php:237
 msgid "No file IDs provided."
 msgstr ""
 
-#: includes/App.php:63
-#: admin/src/components/Topbar.js:128
+#: includes/Api/RestMedia.php:318
+msgid "No file was uploaded."
+msgstr ""
+
+#: includes/App.php:70
+#: admin/src/components/Topbar.js:145
 msgid "Settings"
 msgstr ""
 
-#: includes/App.php:80
+#: includes/App.php:87
 msgid "Media Folders"
 msgstr ""
 
-#: includes/App.php:81
+#: includes/App.php:88
 msgid "Media Folder"
 msgstr ""
 
-#: includes/Core/Ai.php:27
+#: includes/Core/Ai.php:46
 msgid "Alt text generation is only available for image files."
 msgstr ""
 
-#: includes/Core/Ai.php:31
-#: includes/Core/Ai.php:78
+#: includes/Core/Ai.php:50
+#: includes/Core/Ai.php:97
+#: includes/Core/Ai.php:154
 msgid "No AI provider configured. Go to Settings → Connectors to set up an AI provider."
 msgstr ""
 
-#: includes/Core/Ai.php:36
-#: includes/Core/Ai.php:86
+#: includes/Core/Ai.php:55
+#: includes/Core/Ai.php:105
+#: includes/Core/Ai.php:166
 msgid "Could not retrieve image file."
 msgstr ""
 
-#: includes/Core/Ai.php:59
-#: includes/Core/Ai.php:115
+#: includes/Core/Ai.php:78
+#: includes/Core/Ai.php:134
+#: includes/Core/Ai.php:186
 msgid "AI returned an empty response."
 msgstr ""
 
-#: includes/Core/Folders.php:148
-#: includes/Core/Folders.php:182
+#: includes/Core/Ai.php:211
+msgid "Unknown field."
+msgstr ""
+
+#: includes/Core/Folders.php:210
+#: includes/Core/Folders.php:244
 msgid "Folder name cannot be empty."
 msgstr ""
 
-#: includes/Core/Folders.php:160
+#: includes/Core/Folders.php:222
 msgid "Could not retrieve created folder."
 msgstr ""
 
-#: includes/Core/Folders.php:192
+#: includes/Core/Folders.php:254
 msgid "Could not retrieve renamed folder."
 msgstr ""
 
-#: includes/Core/Folders.php:240
+#: includes/Core/Folders.php:302
 msgid "Cannot move a folder into its own descendant."
 msgstr ""
 
-#: includes/Core/Folders.php:250
+#: includes/Core/Folders.php:312
 msgid "Could not retrieve moved folder."
 msgstr ""
 
-#: includes/Core/Media.php:199
+#: includes/Core/Importer.php:110
+msgid "Unknown import source."
+msgstr ""
+
+#: includes/Core/Importer.php:125
+msgid "Nothing to import, or the import expired. Please start again."
+msgstr ""
+
+#: includes/Core/Media.php:284
 msgid "Folder not found."
 msgstr ""
 
-#: includes/Core/Media.php:291
-#: includes/Core/Media.php:313
+#: includes/Core/Media.php:452
+msgid "Could not retrieve the file to replace."
+msgstr ""
+
+#: includes/Core/Media.php:457
+msgid "The new file must be the same type as the current file."
+msgstr ""
+
+#: includes/Core/Media.php:468
+msgid "Could not access the filesystem."
+msgstr ""
+
+#: includes/Core/Media.php:490
+msgid "Could not write the new file."
+msgstr ""
+
+#: includes/Core/Usage.php:41
 msgid "(no title)"
 msgstr ""
 
-#: admin/src/components/App.js:95
+#: includes/Core/Usage.php:126
+msgid "Site icon / logo"
+msgstr ""
+
+#: admin/src/block.js:17
+msgid "Select a folder…"
+msgstr ""
+
+#: admin/src/block.js:29
+#: admin/src/components/DetailsPanel.js:741
+#: admin/src/components/MainArea.js:957
+msgid "Folder"
+msgstr ""
+
+#: admin/src/block.js:43
+msgid "Gallery"
+msgstr ""
+
+#: admin/src/block.js:47
+msgid "Columns"
+msgstr ""
+
+#: admin/src/block.js:57
+msgid "Maximum images"
+msgstr ""
+
+#: admin/src/block.js:70
+msgid "Image size"
+msgstr ""
+
+#: admin/src/block.js:87
+msgid "Link to"
+msgstr ""
+
+#: admin/src/block.js:92
+msgid "Media file"
+msgstr ""
+
+#: admin/src/block.js:99
+msgid "Attachment page"
+msgstr ""
+
+#: admin/src/block.js:106
+msgid "None"
+msgstr ""
+
+#: admin/src/block.js:127
+#: admin/src/block.js:141
+msgid "Folder Gallery"
+msgstr ""
+
+#: admin/src/block.js:142
+msgid "Shows the images of one media folder as a gallery."
+msgstr ""
+
+#: admin/src/components/App.js:118
 msgid "Failed to load media."
 msgstr ""
 
 #. translators: %d: number of files to delete
-#: admin/src/components/App.js:131
+#: admin/src/components/App.js:159
 #, js-format
-msgid "Delete %d file? This cannot be undone."
-msgid_plural "Delete %d files? This cannot be undone."
+msgid "Permanently delete %d file? This cannot be undone."
+msgid_plural "Permanently delete %d files? This cannot be undone."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of files to move to the trash
+#: admin/src/components/App.js:169
+#, js-format
+msgid "Move %d file to the trash?"
+msgid_plural "Move %d files to the trash?"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of deleted files
-#: admin/src/components/App.js:146
+#: admin/src/components/App.js:188
 #, js-format
 msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
 msgstr[0] ""
 msgstr[1] ""
 
+#. translators: %d: number of trashed files
+#: admin/src/components/App.js:198
+#, js-format
+msgid "Moved %d file to the trash."
+msgid_plural "Moved %d files to the trash."
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/src/components/App.js:218
+#: admin/src/components/App.js:222
+#: admin/src/components/DetailsPanel.js:951
+#: admin/src/components/Modals.js:346
+msgid "Move to Trash"
+msgstr ""
+
 #. translators: %d: number of moved files
-#: admin/src/components/BulkBar.js:32
+#: admin/src/components/BulkBar.js:50
 #, js-format
 msgid "Moved %d file."
 msgid_plural "Moved %d files."
@@ -181,361 +319,480 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of selected files
-#: admin/src/components/BulkBar.js:67
+#: admin/src/components/BulkBar.js:85
 #, js-format
 msgid "%d file selected"
 msgid_plural "%d files selected"
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin/src/components/BulkBar.js:84
-msgid "Move to folder…"
+#: admin/src/components/BulkBar.js:102
+#: admin/src/components/DetailsPanel.js:938
+#: admin/src/components/Modals.js:294
+msgid "Restore"
 msgstr ""
 
-#: admin/src/components/BulkBar.js:98
+#: admin/src/components/BulkBar.js:109
+#: admin/src/components/DetailsPanel.js:947
+#: admin/src/components/Modals.js:302
+msgid "Delete Permanently"
+msgstr ""
+
+#: admin/src/components/BulkBar.js:125
+msgid "Folder…"
+msgstr ""
+
+#: admin/src/components/BulkBar.js:136
 msgid "Move"
 msgstr ""
 
-#: admin/src/components/BulkBar.js:106
-#: admin/src/components/Modals.js:58
-#: admin/src/components/Modals.js:165
-#: admin/src/components/Modals.js:255
-msgid "Delete"
+#: admin/src/components/BulkBar.js:142
+msgid "Add to this folder and keep the current ones"
+msgstr ""
+
+#: admin/src/components/BulkBar.js:149
+msgid "Add"
+msgstr ""
+
+#: admin/src/components/BulkBar.js:162
+#: admin/src/components/DetailsPanel.js:530
+#: admin/src/components/DetailsPanel.js:674
+msgid "Edit"
+msgstr ""
+
+#: admin/src/components/BulkBar.js:182
+msgid "Alt text"
+msgstr ""
+
+#: admin/src/components/BulkBar.js:201
+msgid "ZIP"
+msgstr ""
+
+#: admin/src/components/BulkBar.js:209
+#: admin/src/components/MainArea.js:100
+#: admin/src/components/Sidebar.js:289
+msgid "Trash"
 msgstr ""
 
 #. translators: %s: error message
-#: admin/src/components/DetailsPanel.js:83
+#: admin/src/components/DetailsPanel.js:96
 #, js-format
 msgid "Save failed: %s"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:100
+#: admin/src/components/DetailsPanel.js:114
 msgid "Moved to folder."
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:110
-#: admin/src/components/Modals.js:192
-msgid "Delete this file? This cannot be undone."
-msgstr ""
-
-#: admin/src/components/DetailsPanel.js:121
-#: admin/src/components/Modals.js:200
-msgid "File deleted."
-msgstr ""
-
-#: admin/src/components/DetailsPanel.js:134
-#: admin/src/components/DetailsPanel.js:184
+#: admin/src/components/DetailsPanel.js:146
+#: admin/src/components/DetailsPanel.js:220
+#: admin/src/components/DetailsPanel.js:270
 #: admin/src/components/Topbar.js:28
 msgid "No AI provider configured. Go to Settings → Connectors."
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:164
+#: admin/src/components/DetailsPanel.js:197
+msgid "File replaced."
+msgstr ""
+
+#: admin/src/components/DetailsPanel.js:250
 msgid "Alt text accepted and saved."
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:214
+#: admin/src/components/DetailsPanel.js:300
 msgid "Caption accepted and saved."
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:282
-#: admin/src/components/DetailsPanel.js:294
-#: admin/src/components/DetailsPanel.js:369
-#: admin/src/components/DetailsPanel.js:509
+#: admin/src/components/DetailsPanel.js:368
+#: admin/src/components/DetailsPanel.js:380
+#: admin/src/components/DetailsPanel.js:455
+#: admin/src/components/DetailsPanel.js:599
 msgid "Generating…"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:284
+#: admin/src/components/DetailsPanel.js:370
 msgid "Re-generate Alt Text"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:289
+#: admin/src/components/DetailsPanel.js:375
 msgid "Generate Alt Text"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:296
+#: admin/src/components/DetailsPanel.js:382
 msgid "Re-generate Caption"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:301
+#: admin/src/components/DetailsPanel.js:387
 msgid "Generate Caption"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:320
+#: admin/src/components/DetailsPanel.js:406
+#: admin/src/components/Tools.js:379
 msgid "Close"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:362
+#: admin/src/components/DetailsPanel.js:448
+#: admin/src/components/Tools.js:191
 msgid "Alt Text"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:395
-#: admin/src/components/DetailsPanel.js:533
+#: admin/src/components/DetailsPanel.js:481
+#: admin/src/components/DetailsPanel.js:623
 msgid "AI Suggestion"
 msgstr ""
 
 #. translators: %d: character count
-#: admin/src/components/DetailsPanel.js:416
-#: admin/src/components/DetailsPanel.js:554
+#: admin/src/components/DetailsPanel.js:502
+#: admin/src/components/DetailsPanel.js:644
 #, js-format
 msgid "%d chars"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:434
-#: admin/src/components/DetailsPanel.js:574
+#: admin/src/components/DetailsPanel.js:520
+#: admin/src/components/DetailsPanel.js:664
 msgid "Accept"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:444
-#: admin/src/components/DetailsPanel.js:584
-msgid "Edit"
-msgstr ""
-
-#: admin/src/components/DetailsPanel.js:454
-#: admin/src/components/DetailsPanel.js:596
+#: admin/src/components/DetailsPanel.js:540
+#: admin/src/components/DetailsPanel.js:686
 msgid "Reject"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:487
+#: admin/src/components/DetailsPanel.js:573
+#: admin/src/components/Tools.js:190
 msgid "Title"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:502
+#: admin/src/components/DetailsPanel.js:592
+#: admin/src/components/Tools.js:192
 msgid "Caption"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:619
+#: admin/src/components/DetailsPanel.js:709
 msgid "Optional caption…"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:632
-#: admin/src/components/MainArea.js:691
-msgid "Folder"
+#: admin/src/components/DetailsPanel.js:722
+#: admin/src/components/Tools.js:193
+msgid "Description"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:642
-#: admin/src/components/MainArea.js:94
-#: admin/src/components/Sidebar.js:325
-#: admin/src/components/UploadModal.js:241
-msgid "Uncategorized"
+#: admin/src/components/DetailsPanel.js:786
+msgid "Also add to folder…"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:653
+#: admin/src/components/DetailsPanel.js:798
 msgid "Used In"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:663
-#: admin/src/components/Modals.js:329
+#: admin/src/components/DetailsPanel.js:808
+#: admin/src/components/Modals.js:420
 msgid "Loading…"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:668
+#: admin/src/components/DetailsPanel.js:813
 msgid "Not used anywhere."
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:694
+#: admin/src/components/DetailsPanel.js:839
+#: admin/src/components/MainArea.js:375
 msgid "Uploaded"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:703
+#: admin/src/components/DetailsPanel.js:848
 msgid "File URL"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:732
-#: admin/src/components/Modals.js:186
+#: admin/src/components/DetailsPanel.js:877
+#: admin/src/components/Modals.js:247
 msgid "URL copied!"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:741
-#: admin/src/components/Modals.js:240
+#: admin/src/components/DetailsPanel.js:886
+#: admin/src/components/Modals.js:320
 msgid "Copy URL"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:754
-#: admin/src/components/DetailsPanel.js:779
-msgid "Edit Media"
-msgstr ""
-
-#: admin/src/components/DetailsPanel.js:764
+#: admin/src/components/DetailsPanel.js:894
+#: admin/src/components/Modals.js:330
 msgid "Download"
 msgstr ""
 
-#: admin/src/components/DetailsPanel.js:791
-msgid "Delete File"
+#: admin/src/components/DetailsPanel.js:906
+msgid "Edit Media"
 msgstr ""
 
-#: admin/src/components/MainArea.js:88
-#: admin/src/components/Sidebar.js:188
-msgid "Recent"
+#: admin/src/components/DetailsPanel.js:918
+msgid "Upload a new file of the same type. The URL and every place the file is used stay the same."
 msgstr ""
 
-#: admin/src/components/MainArea.js:91
-#: admin/src/components/Sidebar.js:176
-msgid "All Files"
+#: admin/src/components/DetailsPanel.js:926
+msgid "Replacing…"
 msgstr ""
 
-#: admin/src/components/MainArea.js:119
-msgid "Date Added"
+#: admin/src/components/DetailsPanel.js:927
+msgid "Replace File"
+msgstr ""
+
+#: admin/src/components/DetailsPanel.js:970
+msgid "Generate with AI"
+msgstr ""
+
+#: admin/src/components/MainArea.js:98
+#: admin/src/components/Sidebar.js:277
+msgid "Missing alt text"
+msgstr ""
+
+#: admin/src/components/MainArea.js:99
+#: admin/src/components/Sidebar.js:283
+msgid "Unused"
 msgstr ""
 
 #: admin/src/components/MainArea.js:120
-#: admin/src/components/MainArea.js:664
-msgid "Name"
+#: admin/src/components/Sidebar.js:353
+msgid "Recent"
 msgstr ""
 
-#: admin/src/components/MainArea.js:121
-#: admin/src/components/MainArea.js:674
-msgid "Size"
-msgstr ""
-
-#: admin/src/components/MainArea.js:125
-msgid "All Types"
-msgstr ""
-
-#: admin/src/components/MainArea.js:126
-msgid "Images"
+#: admin/src/components/MainArea.js:123
+#: admin/src/components/Sidebar.js:376
+msgid "Starred"
 msgstr ""
 
 #: admin/src/components/MainArea.js:127
+#: admin/src/components/SettingsApp.js:469
+#: admin/src/components/Sidebar.js:341
+msgid "All Files"
+msgstr ""
+
+#: admin/src/components/MainArea.js:164
+msgid "Date Added"
+msgstr ""
+
+#: admin/src/components/MainArea.js:165
+msgid "Date Modified"
+msgstr ""
+
+#: admin/src/components/MainArea.js:166
+#: admin/src/components/MainArea.js:930
+msgid "Name"
+msgstr ""
+
+#: admin/src/components/MainArea.js:167
+#: admin/src/components/MainArea.js:940
+msgid "Size"
+msgstr ""
+
+#: admin/src/components/MainArea.js:168
+msgid "Uploaded By"
+msgstr ""
+
+#: admin/src/components/MainArea.js:169
+msgid "Custom Order"
+msgstr ""
+
+#: admin/src/components/MainArea.js:173
+msgid "All Types"
+msgstr ""
+
+#: admin/src/components/MainArea.js:174
+msgid "Images"
+msgstr ""
+
+#: admin/src/components/MainArea.js:175
 msgid "Video"
 msgstr ""
 
-#: admin/src/components/MainArea.js:128
+#: admin/src/components/MainArea.js:176
 msgid "Audio"
 msgstr ""
 
-#: admin/src/components/MainArea.js:129
+#: admin/src/components/MainArea.js:177
 msgid "Documents"
 msgstr ""
 
-#: admin/src/components/MainArea.js:132
+#: admin/src/components/MainArea.js:180
 msgid "Spreadsheets & CSV"
 msgstr ""
 
-#: admin/src/components/MainArea.js:134
+#: admin/src/components/MainArea.js:182
 msgid "Other"
 msgstr ""
 
-#: admin/src/components/MainArea.js:143
+#: admin/src/components/MainArea.js:191
 msgid "Select all"
 msgstr ""
 
-#: admin/src/components/MainArea.js:201
+#: admin/src/components/MainArea.js:246
+msgid "Mine"
+msgstr ""
+
+#: admin/src/components/MainArea.js:286
 msgid "Sort"
 msgstr ""
 
-#: admin/src/components/MainArea.js:259
+#: admin/src/components/MainArea.js:344
 msgid "Filter"
 msgstr ""
 
-#: admin/src/components/MainArea.js:269
+#: admin/src/components/MainArea.js:354
 msgid "File Type"
 msgstr ""
 
-#: admin/src/components/MainArea.js:297
+#: admin/src/components/MainArea.js:391
+msgid "Only my uploads"
+msgstr ""
+
+#: admin/src/components/MainArea.js:400
+msgid "Uploaded from"
+msgstr ""
+
+#: admin/src/components/MainArea.js:413
+msgid "Uploaded until"
+msgstr ""
+
+#: admin/src/components/MainArea.js:432
 msgid "Grid view"
 msgstr ""
 
-#: admin/src/components/MainArea.js:306
+#: admin/src/components/MainArea.js:441
 msgid "List view"
 msgstr ""
 
-#: admin/src/components/MainArea.js:325
+#: admin/src/components/MainArea.js:460
 msgid "Thumbnail size"
 msgstr ""
 
-#: admin/src/components/MainArea.js:377
+#: admin/src/components/MainArea.js:515
+msgid "These images have no alt text."
+msgstr ""
+
+#: admin/src/components/MainArea.js:530
+msgid "Generate for all"
+msgstr ""
+
+#: admin/src/components/MainArea.js:540
+msgid "Files with no reference found in post content, featured images, custom fields, page builder data, product galleries or the site logo. Files used only in theme files or CSS are not detected, so review before deleting."
+msgstr ""
+
+#: admin/src/components/MainArea.js:555
+msgid "Scan library"
+msgstr ""
+
+#: admin/src/components/MainArea.js:565
+msgid "Trashed files are deleted permanently by WordPress after 30 days unless your site changes that period."
+msgstr ""
+
+#: admin/src/components/MainArea.js:618
 msgid "Loading media…"
 msgstr ""
 
-#: admin/src/components/MainArea.js:399
+#: admin/src/components/MainArea.js:640
 msgid "No recently accessed files"
 msgstr ""
 
-#: admin/src/components/MainArea.js:405
+#: admin/src/components/MainArea.js:646
 msgid "Click any file to add it to Recent."
 msgstr ""
 
-#: admin/src/components/MainArea.js:423
+#: admin/src/components/MainArea.js:664
 msgid "Browse All Files"
 msgstr ""
 
-#: admin/src/components/MainArea.js:437
+#: admin/src/components/MainArea.js:678
 msgid "No files here"
 msgstr ""
 
-#: admin/src/components/MainArea.js:440
+#: admin/src/components/MainArea.js:681
 msgid "Upload files or move some here from another folder."
 msgstr ""
 
-#: admin/src/components/MainArea.js:450
-#: admin/src/components/UploadModal.js:156
+#: admin/src/components/MainArea.js:691
+#: admin/src/components/UploadModal.js:203
 msgid "Upload Files"
 msgstr ""
 
-#: admin/src/components/MainArea.js:507
+#: admin/src/components/MainArea.js:755
 msgid "1 file"
 msgstr ""
 
-#: admin/src/components/MainArea.js:576
-#: admin/src/components/MainArea.js:813
+#: admin/src/components/MainArea.js:842
+#: admin/src/components/MainArea.js:1079
 msgid "Unstar"
 msgstr ""
 
-#: admin/src/components/MainArea.js:577
-#: admin/src/components/MainArea.js:814
+#: admin/src/components/MainArea.js:843
+#: admin/src/components/MainArea.js:1080
 msgid "Star"
 msgstr ""
 
-#: admin/src/components/MainArea.js:658
+#: admin/src/components/MainArea.js:924
 msgid "File"
 msgstr ""
 
-#: admin/src/components/MainArea.js:668
+#: admin/src/components/MainArea.js:934
 msgid "Type"
 msgstr ""
 
-#: admin/src/components/MainArea.js:678
+#: admin/src/components/MainArea.js:944
 msgid "Dimensions"
 msgstr ""
 
-#: admin/src/components/MainArea.js:684
+#: admin/src/components/MainArea.js:950
 msgid "Date"
 msgstr ""
 
-#: admin/src/components/MainArea.js:688
+#: admin/src/components/MainArea.js:954
 msgid "Alt"
 msgstr ""
 
-#: admin/src/components/MainArea.js:724
+#: admin/src/components/MainArea.js:990
 msgid "No files found."
 msgstr ""
 
-#: admin/src/components/Modals.js:41
+#: admin/src/components/Modals.js:43
 msgid "Confirm Delete"
 msgstr ""
 
-#: admin/src/components/Modals.js:52
+#: admin/src/components/Modals.js:54
+#: admin/src/components/Tools.js:241
 msgid "Cancel"
 msgstr ""
 
-#: admin/src/components/Modals.js:118
+#: admin/src/components/Modals.js:61
+#: admin/src/components/Modals.js:219
+msgid "Delete"
+msgstr ""
+
+#: admin/src/components/Modals.js:130
 msgid "Delete this folder? Files inside will become Uncategorized."
 msgstr ""
 
-#: admin/src/components/Modals.js:150
+#: admin/src/components/Modals.js:173
+msgid "Set folder color"
+msgstr ""
+
+#: admin/src/components/Modals.js:182
+msgid "Default color"
+msgstr ""
+
+#: admin/src/components/Modals.js:197
 msgid "Rename"
 msgstr ""
 
-#: admin/src/components/Modals.js:157
+#: admin/src/components/Modals.js:204
 msgid "New Subfolder"
 msgstr ""
 
-#: admin/src/components/Modals.js:247
+#: admin/src/components/Modals.js:211
+msgid "Download as ZIP"
+msgstr ""
+
+#: admin/src/components/Modals.js:338
 msgid "Move to Folder"
 msgstr ""
 
 #. translators: %d: total number of files
-#: admin/src/components/Modals.js:332
+#: admin/src/components/Modals.js:423
 #, js-format
 msgid "%d file"
 msgid_plural "%d files"
@@ -543,19 +800,19 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of selected files
-#: admin/src/components/Modals.js:347
+#: admin/src/components/Modals.js:438
 #, js-format
 msgid "%d selected"
 msgstr ""
 
 #. translators: %s: AI provider name
-#: admin/src/components/Modals.js:358
+#: admin/src/components/Modals.js:449
 #: admin/src/components/Topbar.js:86
 #, js-format
 msgid "%s Connected"
 msgstr ""
 
-#: admin/src/components/Modals.js:360
+#: admin/src/components/Modals.js:451
 #: admin/src/components/SettingsApp.js:14
 #: admin/src/components/Topbar.js:91
 msgid "AI"
@@ -566,8 +823,8 @@ msgid "General"
 msgstr ""
 
 #: admin/src/components/SettingsApp.js:105
-#: admin/src/components/SettingsApp.js:164
-#: admin/src/components/SettingsApp.js:312
+#: admin/src/components/SettingsApp.js:171
+#: admin/src/components/SettingsApp.js:319
 msgid "Media Library"
 msgstr ""
 
@@ -579,188 +836,384 @@ msgstr ""
 msgid "Could not save settings. Please try again."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:159
+#: admin/src/components/SettingsApp.js:166
 msgid "Quick Links"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:168
+#: admin/src/components/SettingsApp.js:175
 msgid "WP Media"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:172
+#: admin/src/components/SettingsApp.js:179
 msgid "AI Connectors"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:181
+#: admin/src/components/SettingsApp.js:188
 msgid "Rate Plugin"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:193
+#: admin/src/components/SettingsApp.js:200
 msgid "About"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:200
+#: admin/src/components/SettingsApp.js:207
 msgid "Smart Media Manager by"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:212
+#: admin/src/components/SettingsApp.js:219
 msgid "Available on"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:236
+#: admin/src/components/SettingsApp.js:243
 msgid "AI Status"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:254
+#: admin/src/components/SettingsApp.js:261
 msgid "Provider ready"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:255
+#: admin/src/components/SettingsApp.js:262
 msgid "Not configured"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:267
+#: admin/src/components/SettingsApp.js:274
 msgid "Configure an AI provider in"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:275
-#: admin/src/components/SettingsApp.js:491
+#: admin/src/components/SettingsApp.js:282
+#: admin/src/components/SettingsApp.js:589
 msgid "Settings → Connectors"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:296
+#: admin/src/components/SettingsApp.js:303
 msgid "Grid"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:298
+#: admin/src/components/SettingsApp.js:305
 msgid "List"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:302
+#: admin/src/components/SettingsApp.js:309
 msgid "Small"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:303
+#: admin/src/components/SettingsApp.js:310
 msgid "Medium"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:304
+#: admin/src/components/SettingsApp.js:311
 msgid "Large"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:319
+#: admin/src/components/SettingsApp.js:326
 msgid "Default View"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:325
+#: admin/src/components/SettingsApp.js:332
 msgid "How files are displayed when you open the media library."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:359
+#: admin/src/components/SettingsApp.js:366
 msgid "Thumbnail Size"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:365
+#: admin/src/components/SettingsApp.js:372
 msgid "Default thumbnail size in grid view."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:398
+#: admin/src/components/SettingsApp.js:405
 msgid "Items Per Page"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:404
+#: admin/src/components/SettingsApp.js:411
 msgid "Number of files loaded per page."
 msgstr ""
 
 #. translators: %d: number of items per page
-#: admin/src/components/SettingsApp.js:425
+#: admin/src/components/SettingsApp.js:432
 #, js-format
 msgid "%d items"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:447
+#: admin/src/components/SettingsApp.js:448
+msgid "Startup Folder"
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:454
+msgid "Which folder opens first in the Smart Library."
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:475
+msgid "Last opened folder"
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:493
+msgid "Default Upload Folder"
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:499
+msgid "New uploads go here unless a folder is chosen in the uploader."
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:541
+#: admin/src/components/SettingsApp.js:801
 msgid "Saving…"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:452
+#: admin/src/components/SettingsApp.js:546
+#: admin/src/components/SettingsApp.js:806
 msgid "Save Settings"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:473
+#: admin/src/components/SettingsApp.js:571
 msgid "AI Configuration"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:480
+#: admin/src/components/SettingsApp.js:578
 msgid "WordPress Core AI"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:486
+#: admin/src/components/SettingsApp.js:584
 msgid "Alt text generation uses the WordPress AI Client (WP 7.0+). Configure your provider once in"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:496
+#: admin/src/components/SettingsApp.js:594
 msgid "and it is available to all compatible plugins."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:508
+#: admin/src/components/SettingsApp.js:606
 msgid "Provider Status"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:515
+#: admin/src/components/SettingsApp.js:613
 msgid "Your AI provider is connected and ready."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:519
+#: admin/src/components/SettingsApp.js:617
 msgid "No AI provider configured yet."
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:532
+#: admin/src/components/SettingsApp.js:630
 msgid "Ready"
 msgstr ""
 
-#: admin/src/components/SettingsApp.js:540
+#: admin/src/components/SettingsApp.js:638
 msgid "Configure"
 msgstr ""
 
-#: admin/src/components/Sidebar.js:162
+#: admin/src/components/SettingsApp.js:651
+msgid "Generation Options"
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:658
+msgid "Alt Text on Upload"
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:664
+msgid "Write alt text automatically for every newly uploaded image. Each new image is sent to your AI provider in the background."
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:684
+msgid "Language"
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:687
+msgid "Language for generated text, for example French. Leave empty to let the AI decide."
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:708
+msgid "Alt Text Length"
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:714
+msgid "Maximum number of characters for generated alt text."
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:740
+msgid "Use Page Context"
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:746
+msgid "Include the title of the page a file is attached to, and its focus keyphrase from Yoast SEO, Rank Math or SEOPress."
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:766
+msgid "Extra Instructions"
+msgstr ""
+
+#: admin/src/components/SettingsApp.js:772
+msgid "Added to every AI request, for example a tone of voice or words to avoid."
+msgstr ""
+
+#. translators: %d: number of imported folders
+#: admin/src/components/Sidebar.js:139
+#, js-format
+msgid "Imported %d folder."
+msgid_plural "Imported %d folders."
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/src/components/Sidebar.js:259
+msgid "Show folders"
+msgstr ""
+
+#: admin/src/components/Sidebar.js:309
 msgid "Library"
 msgstr ""
 
-#: admin/src/components/Sidebar.js:193
+#: admin/src/components/Sidebar.js:312
+msgid "Hide folders"
+msgstr ""
+
+#: admin/src/components/Sidebar.js:358
 msgid "Clear recent"
 msgstr ""
 
-#: admin/src/components/Sidebar.js:211
-msgid "Starred"
-msgstr ""
-
-#: admin/src/components/Sidebar.js:216
+#: admin/src/components/Sidebar.js:381
 msgid "Clear starred"
 msgstr ""
 
-#: admin/src/components/Sidebar.js:248
+#: admin/src/components/Sidebar.js:430
 msgid "Folders"
 msgstr ""
 
-#: admin/src/components/Sidebar.js:252
+#: admin/src/components/Sidebar.js:434
 msgid "New folder"
 msgstr ""
 
-#: admin/src/components/Sidebar.js:285
+#: admin/src/components/Sidebar.js:456
+msgid "Search folders…"
+msgstr ""
+
+#: admin/src/components/Sidebar.js:480
 msgid "No folders yet"
 msgstr ""
 
-#: admin/src/components/Sidebar.js:350
+#: admin/src/components/Sidebar.js:532
+msgid "Export folder structure"
+msgstr ""
+
+#: admin/src/components/Sidebar.js:542
+msgid "Import folder structure"
+msgstr ""
+
+#: admin/src/components/Sidebar.js:552
+msgid "Import folders from another plugin"
+msgstr ""
+
+#: admin/src/components/Sidebar.js:591
 msgid "Folder name"
 msgstr ""
 
 #. translators: %d: number of moved files
-#: admin/src/components/Sidebar.js:477
+#: admin/src/components/Sidebar.js:757
 #, js-format
 msgid "Moved %d file to folder."
 msgid_plural "Moved %d files to folder."
 msgstr[0] ""
 msgstr[1] ""
+
+#. translators: %d: number of files assigned to folders
+#: admin/src/components/Tools.js:101
+#, js-format
+msgid "Import finished: %d file assigned."
+msgid_plural "Import finished: %d files assigned."
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/src/components/Tools.js:119
+msgid "Import from another plugin"
+msgstr ""
+
+#: admin/src/components/Tools.js:126
+msgid "Copies the folder structure and file assignments of another media folder plugin. The other plugin’s data is not changed, and existing folders with the same name are reused."
+msgstr ""
+
+#: admin/src/components/Tools.js:134
+msgid "No folders from other plugins were found on this site."
+msgstr ""
+
+#. translators: %d: number of folders
+#: admin/src/components/Tools.js:147
+#, js-format
+msgid "%d folder"
+msgid_plural "%d folders"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of files processed so far
+#: admin/src/components/Tools.js:165
+#, js-format
+msgid "%d files…"
+msgstr ""
+
+#: admin/src/components/Tools.js:171
+msgid "Import"
+msgstr ""
+
+#. translators: %d: number of updated files
+#: admin/src/components/Tools.js:203
+#, js-format
+msgid "Updated %d file."
+msgid_plural "Updated %d files."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of selected files
+#: admin/src/components/Tools.js:226
+#, js-format
+msgid "Edit %d file"
+msgid_plural "Edit %d files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/src/components/Tools.js:251
+msgid "Apply"
+msgstr ""
+
+#: admin/src/components/Tools.js:257
+msgid "Fields you leave empty are not changed. Alt text is applied to images only."
+msgstr ""
+
+#: admin/src/components/Tools.js:373
+msgid "Generate alt text"
+msgstr ""
+
+#: admin/src/components/Tools.js:380
+msgid "Stop"
+msgstr ""
+
+#: admin/src/components/Tools.js:385
+msgid "Each image is sent to your configured AI provider and the result is saved as its alt text. Keep this window open until it finishes."
+msgstr ""
+
+#. translators: %d: number of images that could not be processed
+#: admin/src/components/Tools.js:399
+#, js-format
+msgid "%d image failed."
+msgid_plural "%d images failed."
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/src/components/Tools.js:436
+msgid "There are no files to download."
+msgstr ""
+
+#: admin/src/components/Tools.js:456
+msgid "Preparing ZIP…"
+msgstr ""
+
+#. translators: %d: number of files with no known use
+#: admin/src/components/Tools.js:496
+#, js-format
+msgid "Scan finished: %d file looks unused."
+msgid_plural "Scan finished: %d files look unused."
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/src/components/Tools.js:516
+msgid "Scanning library…"
+msgstr ""
 
 #: admin/src/components/Topbar.js:53
 msgid "Search files…"
@@ -774,56 +1227,68 @@ msgstr ""
 msgid "Select a file and use the details panel to generate alt text or captions with AI."
 msgstr ""
 
-#: admin/src/components/Topbar.js:108
+#: admin/src/components/Topbar.js:115
+msgid "Alt text for all images missing it"
+msgstr ""
+
+#: admin/src/components/Topbar.js:125
 msgid "AI Connector Settings"
 msgstr ""
 
-#: admin/src/components/Topbar.js:123
+#: admin/src/components/Topbar.js:140
 msgid "Upload"
 msgstr ""
 
-#: admin/src/components/UploadModal.js:88
+#: admin/src/components/UploadModal.js:146
 msgid "Upload failed"
 msgstr ""
 
-#: admin/src/components/UploadModal.js:115
+#: admin/src/components/UploadModal.js:161
 msgid "Network error"
 msgstr ""
 
-#: admin/src/components/UploadModal.js:186
-msgid "Drop files here"
+#: admin/src/components/UploadModal.js:235
+msgid "Drop files or folders here"
 msgstr ""
 
-#: admin/src/components/UploadModal.js:192
+#: admin/src/components/UploadModal.js:241
 msgid "or click to browse"
 msgstr ""
 
-#: admin/src/components/UploadModal.js:217
+#: admin/src/components/UploadModal.js:266
 msgid "Browse Files"
 msgstr ""
 
-#: admin/src/components/UploadModal.js:231
+#: admin/src/components/UploadModal.js:285
+msgid "Upload a folder and keep its subfolders"
+msgstr ""
+
+#: admin/src/components/UploadModal.js:295
+msgid "Upload Folder"
+msgstr ""
+
+#: admin/src/components/UploadModal.js:309
 msgid "Upload to folder"
 msgstr ""
 
-#: admin/src/components/UploadModal.js:302
+#: admin/src/components/UploadModal.js:381
 msgid "Waiting…"
 msgstr ""
 
 #. translators: %1$d: uploaded count, %2$d: failed count
-#: admin/src/components/UploadModal.js:329
+#: admin/src/components/UploadModal.js:408
 #, js-format
 msgid "%1$d uploaded, %2$d failed"
 msgstr ""
 
 #. translators: %d: number of uploaded files
-#: admin/src/components/UploadModal.js:347
+#: admin/src/components/UploadModal.js:426
 #, js-format
 msgid "%d file uploaded successfully"
 msgid_plural "%d files uploaded successfully"
 msgstr[0] ""
 msgstr[1] ""
 
-#: admin/src/components/UploadModal.js:359
+#: admin/src/components/UploadModal.js:438
 msgid "Done"
 msgstr ""

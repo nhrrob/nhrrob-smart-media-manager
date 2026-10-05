@@ -22,9 +22,13 @@ class FoldersTest extends TestCase {
 		$wpdb->term_relationships = 'wp_term_relationships';
 		$wpdb->term_taxonomy      = 'wp_term_taxonomy';
 		$wpdb->posts              = 'wp_posts';
+		$wpdb->postmeta           = 'wp_postmeta';
 		$wpdb->shouldReceive( 'get_results' )->andReturn( [] );
 		$wpdb->shouldReceive( 'get_var' )->andReturn( '0' );
 		$wpdb->shouldReceive( 'prepare' )->andReturnArg( 0 );
+
+		// Folder colour and manual order are stored as term meta.
+		Functions\when( 'get_term_meta' )->justReturn( '' );
 	}
 
 	protected function tearDown(): void {
@@ -132,6 +136,7 @@ class FoldersTest extends TestCase {
 		$wpdb->term_relationships = 'wp_term_relationships';
 		$wpdb->term_taxonomy      = 'wp_term_taxonomy';
 		$wpdb->posts              = 'wp_posts';
+		$wpdb->postmeta           = 'wp_postmeta';
 		$wpdb->shouldReceive( 'get_results' )->andReturn( [ $row ] );
 		$wpdb->shouldReceive( 'get_var' )->andReturn( '0' );
 		$wpdb->shouldReceive( 'prepare' )->andReturnArg( 0 );
@@ -292,5 +297,119 @@ class FoldersTest extends TestCase {
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'term_error', $result->get_error_code() );
+	}
+
+	public function test_ensure_path_reuses_existing_folders_and_creates_missing_ones(): void {
+		Functions\when( 'sanitize_text_field' )->returnArg();
+		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
+		// "Clients" exists under the root; "2026" does not exist under it yet.
+		Functions\expect( 'term_exists' )->twice()->andReturn( [ 'term_id' => '5' ], null );
+		Functions\expect( 'wp_insert_term' )
+			->once()
+			->with( '2026', 'nhrsmm_media_folder', [ 'parent' => 5 ] )
+			->andReturn( [ 'term_id' => 9 ] );
+
+		$this->assertSame( 9, $this->folders->ensure_path( [ 'Clients', '', '2026' ] ) );
+	}
+
+	public function test_ensure_path_returns_the_error_when_a_folder_cannot_be_created(): void {
+		$error = new \WP_Error( 'term_exists', 'nope' );
+		Functions\when( 'sanitize_text_field' )->returnArg();
+		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
+		Functions\when( 'term_exists' )->justReturn( null );
+		Functions\when( 'wp_insert_term' )->justReturn( $error );
+
+		$this->assertSame( $error, $this->folders->ensure_path( [ 'A' ] ) );
+	}
+
+	public function test_export_keeps_only_name_color_and_children(): void {
+		$tree = [
+			[
+				'id'       => 1,
+				'name'     => 'Brand',
+				'count'    => 4,
+				'color'    => '#e07c4b',
+				'children' => [
+					[
+						'id'       => 2,
+						'name'     => 'Logos',
+						'count'    => 1,
+						'color'    => '',
+						'children' => [],
+					],
+				],
+			],
+		];
+
+		$this->assertSame(
+			[
+				[
+					'name'     => 'Brand',
+					'color'    => '#e07c4b',
+					'children' => [
+						[
+							'name'     => 'Logos',
+							'color'    => '',
+							'children' => [],
+						],
+					],
+				],
+			],
+			$this->folders->export( $tree )
+		);
+	}
+
+	public function test_flat_lists_folders_depth_first_with_depth(): void {
+		$tree = [
+			[
+				'id'       => 1,
+				'name'     => 'A',
+				'children' => [
+					[
+						'id'       => 2,
+						'name'     => 'A1',
+						'children' => [],
+					],
+				],
+			],
+			[
+				'id'       => 3,
+				'name'     => 'B',
+				'children' => [],
+			],
+		];
+
+		$this->assertSame(
+			[
+				[ 'id' => 1, 'name' => 'A', 'depth' => 0 ],
+				[ 'id' => 2, 'name' => 'A1', 'depth' => 1 ],
+				[ 'id' => 3, 'name' => 'B', 'depth' => 0 ],
+			],
+			$this->folders->flat( $tree )
+		);
+	}
+
+	public function test_get_tree_sorts_by_manual_order_before_name(): void {
+		$a = (object) [ 'term_id' => 1, 'name' => 'Alpha', 'slug' => 'alpha', 'parent' => 0, 'count' => 0 ];
+		$z = (object) [ 'term_id' => 2, 'name' => 'Zulu', 'slug' => 'zulu', 'parent' => 0, 'count' => 0 ];
+
+		Functions\when( 'get_terms' )->justReturn( [ $a, $z ] );
+		Functions\when( 'is_wp_error' )->justReturn( false );
+		// Zulu was dragged to position 1, Alpha to position 2.
+		Functions\when( 'get_term_meta' )->alias(
+			fn( $id, $key ) => 'nhrsmm_order' === $key ? ( 2 === $id ? 1 : 2 ) : ''
+		);
+
+		$tree = $this->folders->get_tree()['tree'];
+
+		$this->assertSame( [ 'Zulu', 'Alpha' ], array_column( $tree, 'name' ) );
+	}
+
+	public function test_set_color_clears_the_meta_for_an_invalid_color(): void {
+		Functions\when( 'sanitize_hex_color' )->justReturn( null );
+		Functions\expect( 'delete_term_meta' )->once()->with( 3, 'nhrsmm_color' );
+		Functions\expect( 'update_term_meta' )->never();
+
+		$this->assertTrue( $this->folders->set_color( 3, 'javascript:alert(1)' ) );
 	}
 }

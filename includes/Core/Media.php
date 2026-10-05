@@ -23,8 +23,8 @@ class Media {
 	 * @return array
 	 */
 	public function get_list( array $params ): array {
-		$settings  = get_option( 'nhrsmm_settings', [] );
-		$per_page  = absint( $params['per_page'] ?? $settings['items_per_page'] ?? 40 );
+		$settings  = Options::get();
+		$per_page  = min( 200, max( 1, absint( $params['per_page'] ?? $settings['items_per_page'] ) ) );
 		$page      = max( 1, absint( $params['page'] ?? 1 ) );
 		$folder    = isset( $params['folder'] ) ? absint( $params['folder'] ) : null;
 		$search    = sanitize_text_field( $params['search'] ?? '' );
@@ -32,6 +32,7 @@ class Media {
 		$orderby   = sanitize_key( $params['orderby'] ?? 'date' );
 		$order     = 'ASC' === strtoupper( sanitize_key( $params['order'] ?? 'DESC' ) ) ? 'ASC' : 'DESC';
 		$ids       = isset( $params['ids'] ) ? array_filter( array_map( 'absint', (array) $params['ids'] ) ) : [];
+		$trash     = 'trash' === ( $params['status'] ?? '' );
 
 		if ( ! empty( $ids ) ) {
 			$args  = [
@@ -59,7 +60,7 @@ class Media {
 
 		$args = [
 			'post_type'      => 'attachment',
-			'post_status'    => 'inherit',
+			'post_status'    => $trash ? 'trash' : 'inherit',
 			'posts_per_page' => $per_page,
 			'paged'          => $page,
 			'order'          => $order,
@@ -69,15 +70,64 @@ class Media {
 			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			$args['meta_key'] = '_nhrsmm_filesize';
 			$args['orderby']  = 'meta_value_num';
+		} elseif ( 'menu_order' === $orderby ) {
+			$args['orderby'] = [
+				'menu_order' => 'ASC',
+				'date'       => 'DESC',
+			];
 		} else {
-			$args['orderby'] = in_array( $orderby, [ 'date', 'title', 'name' ], true ) ? $orderby : 'date';
+			$args['orderby'] = in_array( $orderby, [ 'date', 'modified', 'title', 'name', 'author' ], true ) ? $orderby : 'date';
 		}
 
 		if ( ! empty( $search ) ) {
 			$args['s'] = $search;
 		}
 
-		if ( null !== $folder ) {
+		if ( ! empty( $params['author'] ) ) {
+			$args['author'] = absint( $params['author'] );
+		}
+
+		$date_query = [];
+		foreach ( [
+			'date_from' => 'after',
+			'date_to'   => 'before',
+		] as $param => $key ) {
+			if ( ! empty( $params[ $param ] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $params[ $param ] ) ) {
+				$date_query[ $key ] = $params[ $param ];
+			}
+		}
+		if ( $date_query ) {
+			$date_query['inclusive'] = true;
+			$args['date_query']      = [ $date_query ];
+		}
+
+		$meta_query = [];
+		if ( 'missing' === ( $params['alt'] ?? '' ) ) {
+			$file_type    = 'image';
+			$meta_query[] = [
+				'relation' => 'OR',
+				[
+					'key'     => '_wp_attachment_image_alt',
+					'compare' => 'NOT EXISTS',
+				],
+				[
+					'key'   => '_wp_attachment_image_alt',
+					'value' => '',
+				],
+			];
+		}
+		if ( ! empty( $params['unused'] ) ) {
+			$meta_query[] = [
+				'key'   => '_nhrsmm_unused',
+				'value' => '1',
+			];
+		}
+		if ( $meta_query ) {
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			$args['meta_query'] = $meta_query;
+		}
+
+		if ( null !== $folder && ! $trash ) {
 			if ( 0 === $folder ) {
 				// Uncategorized: no folder term assigned.
 				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
@@ -114,9 +164,19 @@ class Media {
 			}
 		}
 
-		$query = new \WP_Query( $args );
-		$items = [];
+		$search_filter = null;
+		if ( ! empty( $search ) ) {
+			$search_filter = $this->search_filter( $search );
+			add_filter( 'posts_search', $search_filter );
+		}
 
+		$query = new \WP_Query( $args );
+
+		if ( $search_filter ) {
+			remove_filter( 'posts_search', $search_filter );
+		}
+
+		$items = [];
 		foreach ( $query->posts as $post ) {
 			$items[] = $this->format_attachment( $post );
 		}
@@ -128,6 +188,30 @@ class Media {
 			'page'     => $page,
 			'per_page' => $per_page,
 		];
+	}
+
+	/**
+	 * Builds a posts_search filter that also matches alt text and the file name.
+	 *
+	 * @param string $search Search term.
+	 * @return \Closure
+	 */
+	private function search_filter( string $search ): \Closure {
+		return static function ( $sql ) use ( $search ) {
+			global $wpdb;
+			if ( '' === trim( (string) $sql ) ) {
+				return $sql;
+			}
+			$extra = $wpdb->prepare(
+				" OR EXISTS ( SELECT 1 FROM {$wpdb->postmeta} nhrsmm_pm
+				 WHERE nhrsmm_pm.post_id = {$wpdb->posts}.ID
+				 AND nhrsmm_pm.meta_key IN ( '_wp_attachment_image_alt', '_wp_attached_file' )
+				 AND nhrsmm_pm.meta_value LIKE %s )",
+				'%' . $wpdb->esc_like( $search ) . '%'
+			);
+			// Core emits " AND ((…))"; widen it to " AND ( ((…)) OR EXISTS (…) )".
+			return preg_replace( '/^\s*AND\s*/', ' AND ( ', $sql, 1 ) . $extra . ' ) ';
+		};
 	}
 
 	/**
@@ -185,11 +269,12 @@ class Media {
 	/**
 	 * Assigns an attachment to a folder, or removes all folder assignments when folder_id is 0.
 	 *
-	 * @param int $attachment_id Attachment post ID.
-	 * @param int $folder_id     Target folder term ID (0 = uncategorised).
+	 * @param int  $attachment_id Attachment post ID.
+	 * @param int  $folder_id     Target folder term ID (0 = uncategorised).
+	 * @param bool $append        Keep existing folders and add this one.
 	 * @return bool|\WP_Error
 	 */
-	public function move_to_folder( int $attachment_id, int $folder_id ) {
+	public function move_to_folder( int $attachment_id, int $folder_id, bool $append = false ) {
 		if ( 0 === $folder_id ) {
 			wp_delete_object_term_relationships( $attachment_id, 'nhrsmm_media_folder' );
 			return true;
@@ -199,18 +284,19 @@ class Media {
 			return new \WP_Error( 'invalid_folder', __( 'Folder not found.', 'nhrrob-smart-media-manager' ) );
 		}
 
-		$result = wp_set_object_terms( $attachment_id, $folder_id, 'nhrsmm_media_folder' );
+		$result = wp_set_object_terms( $attachment_id, $folder_id, 'nhrsmm_media_folder', $append );
 		return is_wp_error( $result ) ? $result : true;
 	}
 
 	/**
-	 * Moves multiple attachments to a folder in bulk.
+	 * Moves, adds, or removes multiple attachments to or from a folder.
 	 *
-	 * @param array $ids       Attachment post IDs.
-	 * @param int   $folder_id Target folder term ID.
+	 * @param array  $ids       Attachment post IDs.
+	 * @param int    $folder_id Target folder term ID.
+	 * @param string $mode      One of move, add, remove.
 	 * @return array
 	 */
-	public function bulk_move( array $ids, int $folder_id ): array {
+	public function bulk_move( array $ids, int $folder_id, string $mode = 'move' ): array {
 		$moved  = 0;
 		$errors = [];
 		foreach ( $ids as $id ) {
@@ -219,8 +305,12 @@ class Media {
 				$errors[] = $id;
 				continue;
 			}
-			$result = $this->move_to_folder( $id, $folder_id );
-			if ( is_wp_error( $result ) ) {
+			if ( 'remove' === $mode ) {
+				$result = wp_remove_object_terms( $id, $folder_id, 'nhrsmm_media_folder' );
+			} else {
+				$result = $this->move_to_folder( $id, $folder_id, 'add' === $mode );
+			}
+			if ( is_wp_error( $result ) || false === $result ) {
 				$errors[] = $id;
 			} else {
 				++$moved;
@@ -234,12 +324,13 @@ class Media {
 	}
 
 	/**
-	 * Permanently deletes multiple attachments.
+	 * Moves multiple attachments to the trash, or deletes them permanently.
 	 *
-	 * @param array $ids Attachment post IDs.
+	 * @param array $ids   Attachment post IDs.
+	 * @param bool  $force Delete permanently instead of trashing.
 	 * @return array
 	 */
-	public function bulk_delete( array $ids ): array {
+	public function bulk_delete( array $ids, bool $force = false ): array {
 		$deleted = 0;
 		$errors  = [];
 		foreach ( $ids as $id ) {
@@ -248,7 +339,8 @@ class Media {
 				$errors[] = $id;
 				continue;
 			}
-			$result = wp_delete_attachment( $id, true );
+			// wp_trash_post() itself deletes permanently when EMPTY_TRASH_DAYS is 0.
+			$result = $force ? wp_delete_attachment( $id, true ) : wp_trash_post( $id );
 			if ( false === $result || null === $result ) {
 				$errors[] = $id;
 			} else {
@@ -263,62 +355,147 @@ class Media {
 	}
 
 	/**
-	 * Returns a list of posts that reference the given attachment (featured image or content).
+	 * Restores multiple attachments from the trash.
 	 *
-	 * @param int $attachment_id Attachment post ID.
+	 * @param array $ids Attachment post IDs.
 	 * @return array
 	 */
-	public function get_usage( int $attachment_id ): array {
-		global $wpdb;
-
-		$url    = wp_get_attachment_url( $attachment_id );
-		$usages = [];
-
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$featured_in = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT p.ID, p.post_title, p.post_type, p.post_status FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-             WHERE pm.meta_key = '_thumbnail_id' AND pm.meta_value = %d AND p.post_status != 'trash'",
-				$attachment_id
-			)
-		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-
-		foreach ( $featured_in as $row ) {
-			$usages[] = [
-				'id'    => (int) $row->ID,
-				'title' => ( '' !== $row->post_title ) ? $row->post_title : __( '(no title)', 'nhrrob-smart-media-manager' ),
-				'type'  => $row->post_type,
-				'url'   => get_permalink( $row->ID ),
-				'via'   => 'featured_image',
-			];
+	public function bulk_restore( array $ids ): array {
+		$restored = 0;
+		foreach ( $ids as $id ) {
+			$id = absint( $id );
+			if ( current_user_can( 'delete_post', $id ) && wp_untrash_post( $id ) ) {
+				++$restored;
+			}
 		}
+		return [
+			'restored' => $restored,
+			'failed'   => count( $ids ) - $restored,
+		];
+	}
 
-		if ( $url ) {
-			$like = $wpdb->esc_like( $url );
-			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$posts_with_url = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT ID, post_title, post_type FROM {$wpdb->posts}
-                 WHERE post_content LIKE %s AND post_status != 'trash' AND post_type != 'attachment'
-                 LIMIT 20",
-					'%' . $like . '%'
-				)
-			);
-			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			foreach ( $posts_with_url as $row ) {
-				$usages[] = [
-					'id'    => (int) $row->ID,
-					'title' => ( '' !== $row->post_title ) ? $row->post_title : __( '(no title)', 'nhrrob-smart-media-manager' ),
-					'type'  => $row->post_type,
-					'url'   => get_permalink( $row->ID ),
-					'via'   => 'content',
-				];
+	/**
+	 * Applies the same field values to multiple attachments. Empty values are skipped.
+	 *
+	 * @param array $ids  Attachment post IDs.
+	 * @param array $data Map of fields to set (title, alt, caption, description).
+	 * @return array
+	 */
+	public function bulk_update( array $ids, array $data ): array {
+		$fields = [];
+		foreach ( [ 'title', 'alt', 'caption', 'description' ] as $key ) {
+			if ( isset( $data[ $key ] ) && is_string( $data[ $key ] ) && '' !== trim( $data[ $key ] ) ) {
+				$fields[ $key ] = $data[ $key ];
 			}
 		}
 
-		return $usages;
+		$updated = 0;
+		foreach ( $ids as $id ) {
+			$id = absint( $id );
+			if ( ! $fields || ! current_user_can( 'edit_post', $id ) ) {
+				continue;
+			}
+			$apply = $fields;
+			if ( isset( $apply['alt'] ) && ! wp_attachment_is_image( $id ) ) {
+				unset( $apply['alt'] );
+			}
+			if ( ! is_wp_error( $this->update( $id, $apply ) ) ) {
+				++$updated;
+			}
+		}
+		return [
+			'updated' => $updated,
+			'failed'  => count( $ids ) - $updated,
+		];
+	}
+
+	/**
+	 * Saves a manual file order (used by the "Custom order" sort).
+	 *
+	 * @param array $ids    Attachment post IDs in display order.
+	 * @param int   $offset Position of the first ID (for paginated lists).
+	 * @return int Number of attachments updated.
+	 */
+	public function reorder( array $ids, int $offset = 0 ): int {
+		$updated = 0;
+		foreach ( array_values( $ids ) as $index => $id ) {
+			$id = absint( $id );
+			if ( ! current_user_can( 'edit_post', $id ) ) {
+				continue;
+			}
+			$result = wp_update_post(
+				[
+					'ID'         => $id,
+					'menu_order' => $offset + $index + 1,
+				]
+			);
+			if ( $result && ! is_wp_error( $result ) ) {
+				++$updated;
+			}
+		}
+		return $updated;
+	}
+
+	/**
+	 * Replaces the file behind an attachment, keeping its ID and URL.
+	 *
+	 * @param int   $id   Attachment post ID.
+	 * @param array $file Uploaded file entry from $_FILES.
+	 * @return array|\WP_Error
+	 */
+	public function replace_file( int $id, array $file ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$old_path = get_attached_file( $id, true );
+		if ( ! $old_path || empty( $file['tmp_name'] ) || empty( $file['name'] ) ) {
+			return new \WP_Error( 'no_file', __( 'Could not retrieve the file to replace.', 'nhrrob-smart-media-manager' ), [ 'status' => 400 ] );
+		}
+
+		$check = wp_check_filetype_and_ext( $file['tmp_name'], $file['name'] );
+		if ( empty( $check['type'] ) || get_post_mime_type( $id ) !== $check['type'] ) {
+			return new \WP_Error( 'type_mismatch', __( 'The new file must be the same type as the current file.', 'nhrrob-smart-media-manager' ), [ 'status' => 400 ] );
+		}
+
+		$upload = wp_handle_upload( $file, [ 'test_form' => false ] );
+		if ( isset( $upload['error'] ) ) {
+			return new \WP_Error( 'upload_error', $upload['error'], [ 'status' => 400 ] );
+		}
+
+		global $wp_filesystem;
+		if ( ! WP_Filesystem() || ! $wp_filesystem ) {
+			wp_delete_file( $upload['file'] );
+			return new \WP_Error( 'fs_error', __( 'Could not access the filesystem.', 'nhrrob-smart-media-manager' ), [ 'status' => 500 ] );
+		}
+
+		$meta   = wp_get_attachment_metadata( $id );
+		$dir    = trailingslashit( dirname( $old_path ) );
+		$target = $old_path;
+
+		if ( is_array( $meta ) ) {
+			foreach ( (array) ( $meta['sizes'] ?? [] ) as $size ) {
+				if ( ! empty( $size['file'] ) ) {
+					wp_delete_file( $dir . $size['file'] );
+				}
+			}
+			// Big images are stored as "-scaled"; put the new upload where the original was.
+			if ( ! empty( $meta['original_image'] ) ) {
+				wp_delete_file( $old_path );
+				$target = $dir . $meta['original_image'];
+			}
+		}
+
+		if ( ! $wp_filesystem->move( $upload['file'], $target, true ) ) {
+			wp_delete_file( $upload['file'] );
+			return new \WP_Error( 'fs_error', __( 'Could not write the new file.', 'nhrrob-smart-media-manager' ), [ 'status' => 500 ] );
+		}
+
+		update_attached_file( $id, $target );
+		wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $target ) );
+		delete_post_meta( $id, '_nhrsmm_filesize' );
+		clean_post_cache( $id );
+
+		return $this->get_single( $id );
 	}
 
 	/**
@@ -351,22 +528,25 @@ class Media {
 		}
 
 		$folder_terms = wp_get_object_terms( $post->ID, 'nhrsmm_media_folder', [ 'fields' => 'ids' ] );
-		$folder_id    = ! empty( $folder_terms ) && ! is_wp_error( $folder_terms ) ? (int) $folder_terms[0] : 0;
+		$folder_ids   = ! empty( $folder_terms ) && ! is_wp_error( $folder_terms ) ? array_map( 'intval', $folder_terms ) : [];
+		$folder_id    = $folder_ids ? $folder_ids[0] : 0;
 
 		$item = [
-			'id'        => $post->ID,
-			'title'     => $post->post_title,
-			'filename'  => basename( false !== $file_path ? $file_path : '' ),
-			'url'       => $url,
-			'thumb'     => $thumb,
-			'thumb_md'  => $thumb_md,
-			'mime'      => $mime,
-			'type'      => $this->mime_to_type( $mime ),
-			'size'      => $file_size,
-			'date'      => $post->post_date,
-			'folder_id' => $folder_id,
-			'author'    => get_the_author_meta( 'display_name', $post->post_author ),
-			'has_alt'   => 0 === strpos( $mime, 'image' )
+			'id'         => $post->ID,
+			'title'      => $post->post_title,
+			'filename'   => basename( false !== $file_path ? $file_path : '' ),
+			'url'        => $url,
+			'thumb'      => $thumb,
+			'thumb_md'   => $thumb_md,
+			'mime'       => $mime,
+			'type'       => $this->mime_to_type( $mime ),
+			'size'       => $file_size,
+			'date'       => $post->post_date,
+			'modified'   => $post->post_modified,
+			'folder_id'  => $folder_id,
+			'folder_ids' => $folder_ids,
+			'author'     => get_the_author_meta( 'display_name', $post->post_author ),
+			'has_alt'    => 0 === strpos( $mime, 'image' )
 							? '' !== get_post_meta( $post->ID, '_wp_attachment_image_alt', true )
 							: null,
 		];

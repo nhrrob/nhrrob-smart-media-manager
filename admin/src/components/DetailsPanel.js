@@ -1,21 +1,33 @@
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useApp } from '../context';
-import { get, put, post, del } from '../api';
+import { get, put, post, upload } from '../api';
 import {
 	formatBytes,
 	formatDate,
 	typeToIcon,
 	mimeToLabel,
 	copyToClipboard,
+	getFolderName,
 } from '../utils';
 
 const cfg = window.nhrsmmConfig || {};
 
 export default function DetailsPanel( { fileId } ) {
-	const { dispatch, state, loadMedia, loadFolders, showToast, showConfirm } =
-		useApp();
+	const {
+		dispatch,
+		state,
+		loadMedia,
+		loadFolders,
+		showToast,
+		deleteSelected,
+	} = useApp();
 	const { folders } = state;
+	const inTrash = state.specialView === 'trash';
+	const replaceRef = useRef( null );
+	const [ folderIds, setFolderIds ] = useState( [] );
+	const [ fieldAi, setFieldAi ] = useState( null );
+	const [ replacing, setReplacing ] = useState( false );
 	const scrollRef = useRef( null );
 
 	const [ file, setFile ] = useState( null );
@@ -26,7 +38,7 @@ export default function DetailsPanel( { fileId } ) {
 	const [ title, setTitle ] = useState( '' );
 	const [ alt, setAlt ] = useState( '' );
 	const [ caption, setCaption ] = useState( '' );
-	const [ desc, setDesc ] = useState( '' ); // kept for save round-trip; not shown
+	const [ desc, setDesc ] = useState( '' );
 	const [ folder, setFolder ] = useState( 0 );
 
 	const [ aiState, setAiState ] = useState( null );
@@ -50,6 +62,7 @@ export default function DetailsPanel( { fileId } ) {
 				setCaption( data.caption || '' );
 				setDesc( data.description || '' );
 				setFolder( data.folder_id || 0 );
+				setFolderIds( data.folder_ids || [] );
 				setLoading( false );
 			} )
 			.catch( ( e ) => {
@@ -92,6 +105,7 @@ export default function DetailsPanel( { fileId } ) {
 	async function onFolderChange( val ) {
 		const folderId = parseInt( val );
 		setFolder( folderId );
+		setFolderIds( folderId ? [ folderId ] : [] );
 		try {
 			await post( `/media/${ fileId }/move`, { folder_id: folderId } );
 			await loadFolders();
@@ -105,27 +119,99 @@ export default function DetailsPanel( { fileId } ) {
 		}
 	}
 
-	function deleteFile() {
-		showConfirm(
-			__(
-				'Delete this file? This cannot be undone.',
-				'nhrrob-smart-media-manager'
-			),
-			async () => {
-				try {
-					await del( '/media/bulk-delete', { ids: [ fileId ] } );
-					dispatch( { type: 'CLEAR_SELECTION' } );
-					await loadFolders();
-					loadMedia();
-					showToast(
-						__( 'File deleted.', 'nhrrob-smart-media-manager' ),
-						'success'
-					);
-				} catch ( e ) {
-					showToast( e.message, 'danger' );
-				}
+	// Adds the file to another folder, or removes it from one, keeping the rest.
+	async function changeFolders( folderId, mode ) {
+		try {
+			await post( '/media/bulk-move', {
+				ids: [ fileId ],
+				folder_id: folderId,
+				mode,
+			} );
+			const next =
+				mode === 'add'
+					? [ ...new Set( [ ...folderIds, folderId ] ) ]
+					: folderIds.filter( ( id ) => id !== folderId );
+			setFolderIds( next );
+			setFolder( next[ 0 ] || 0 );
+			await loadFolders();
+			loadMedia();
+		} catch ( e ) {
+			showToast( e.message, 'danger' );
+		}
+	}
+
+	async function generateField( field ) {
+		if ( ! cfg.aiConfigured ) {
+			showToast(
+				__(
+					'No AI provider configured. Go to Settings → Connectors.',
+					'nhrrob-smart-media-manager'
+				),
+				'warning'
+			);
+			return;
+		}
+		setFieldAi( field );
+		try {
+			const res = await post( '/ai/generate', {
+				attachment_id: fileId,
+				field,
+				save: true,
+			} );
+			if ( field === 'title' ) {
+				setTitle( res.text );
+				dispatch( {
+					type: 'PATCH_FILE',
+					id: fileId,
+					patch: { title: res.text },
+				} );
+			} else {
+				setDesc( res.text );
 			}
-		);
+		} catch ( e ) {
+			showToast( e.message, 'danger' );
+		}
+		setFieldAi( null );
+	}
+
+	async function replaceFile( e ) {
+		const picked = e.target.files[ 0 ];
+		e.target.value = '';
+		if ( ! picked ) {
+			return;
+		}
+		setReplacing( true );
+		try {
+			const body = new FormData();
+			body.append( 'file', picked );
+			const data = await upload( `/media/${ fileId }/replace`, body );
+			// Same URL, new content: bust the browser cache for the preview.
+			const bust = '?v=' + Date.now();
+			setFile( {
+				...data,
+				thumb: data.thumb ? data.thumb + bust : data.thumb,
+				full_url: data.full_url ? data.full_url + bust : data.full_url,
+			} );
+			loadMedia();
+			showToast(
+				__( 'File replaced.', 'nhrrob-smart-media-manager' ),
+				'success'
+			);
+		} catch ( err ) {
+			showToast( err.message, 'danger' );
+		}
+		setReplacing( false );
+	}
+
+	async function restoreFile() {
+		try {
+			await post( '/media/bulk-restore', { ids: [ fileId ] } );
+			dispatch( { type: 'CLEAR_SELECTION' } );
+			await loadFolders();
+			loadMedia();
+		} catch ( e ) {
+			showToast( e.message, 'danger' );
+		}
 	}
 
 	async function generateAlt() {
@@ -485,6 +571,10 @@ export default function DetailsPanel( { fileId } ) {
 				<div className="details-section">
 					<div className="details-section-label">
 						{ __( 'Title', 'nhrrob-smart-media-manager' ) }
+						<FieldAiButton
+							busy={ fieldAi === 'title' }
+							onClick={ () => generateField( 'title' ) }
+						/>
 					</div>
 					<input
 						className="details-input"
@@ -629,6 +719,25 @@ export default function DetailsPanel( { fileId } ) {
 
 				<div className="details-section">
 					<div className="details-section-label">
+						{ __( 'Description', 'nhrrob-smart-media-manager' ) }
+						<FieldAiButton
+							busy={ fieldAi === 'description' }
+							onClick={ () => generateField( 'description' ) }
+						/>
+					</div>
+					<textarea
+						className="details-input"
+						rows="2"
+						value={ desc }
+						onChange={ ( e ) => {
+							setDesc( e.target.value );
+							scheduleSave();
+						} }
+					/>
+				</div>
+
+				<div className="details-section">
+					<div className="details-section-label">
 						{ __( 'Folder', 'nhrrob-smart-media-manager' ) }
 					</div>
 					<select
@@ -646,6 +755,42 @@ export default function DetailsPanel( { fileId } ) {
 						</option>
 						{ renderFolderOptions( folders ) }
 					</select>
+					{ folderIds.length > 1 && (
+						<div className="fileinfo-chips folder-chips">
+							{ folderIds.map( ( id ) => (
+								<span key={ id } className="info-chip">
+									{ getFolderName( folders, id ) }
+									{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
+									<i
+										className="ti ti-x"
+										onClick={ () =>
+											changeFolders( id, 'remove' )
+										}
+									/>
+								</span>
+							) ) }
+						</div>
+					) }
+					{ folder > 0 && (
+						<select
+							className="details-input"
+							value=""
+							onChange={ ( e ) =>
+								changeFolders(
+									parseInt( e.target.value ),
+									'add'
+								)
+							}
+						>
+							<option value="">
+								{ __(
+									'Also add to folder…',
+									'nhrrob-smart-media-manager'
+								) }
+							</option>
+							{ renderFolderOptions( folders ) }
+						</select>
+					) }
 				</div>
 
 				<div className="details-section">
@@ -673,7 +818,7 @@ export default function DetailsPanel( { fileId } ) {
 					) }
 					{ usage !== null && usage.length > 0 && (
 						<div className="usage-list">
-							{ usage.slice( 0, 5 ).map( ( u, i ) => (
+							{ usage.slice( 0, 20 ).map( ( u, i ) => (
 								<a
 									key={ i }
 									href={ u.url }
@@ -740,58 +885,96 @@ export default function DetailsPanel( { fileId } ) {
 						<i className="ti ti-copy" />{ ' ' }
 						{ __( 'Copy URL', 'nhrrob-smart-media-manager' ) }
 					</button>
-					{ file.type === 'image' ? (
+					<a
+						className="btn btn-full btn-outline-action"
+						href={ file.url }
+						download
+					>
+						<i className="ti ti-download" />{ ' ' }
+						{ __( 'Download', 'nhrrob-smart-media-manager' ) }
+					</a>
+					<button
+						className="btn btn-full btn-outline-action"
+						onClick={ () =>
+							window.open(
+								`${ cfg.adminUrl }post.php?post=${ file.id }&action=edit`,
+								'_blank'
+							)
+						}
+					>
+						<i className="ti ti-external-link" />{ ' ' }
+						{ __( 'Edit Media', 'nhrrob-smart-media-manager' ) }
+					</button>
+					<input
+						ref={ replaceRef }
+						type="file"
+						accept={ file.mime }
+						style={ { display: 'none' } }
+						onChange={ replaceFile }
+					/>
+					<button
+						className="btn btn-full btn-outline-action"
+						disabled={ replacing }
+						title={ __(
+							'Upload a new file of the same type. The URL and every place the file is used stay the same.',
+							'nhrrob-smart-media-manager'
+						) }
+						onClick={ () => replaceRef.current?.click() }
+					>
+						<i className="ti ti-replace" />{ ' ' }
+						{ replacing
+							? __( 'Replacing…', 'nhrrob-smart-media-manager' )
+							: __(
+									'Replace File',
+									'nhrrob-smart-media-manager'
+							  ) }
+					</button>
+					{ inTrash && (
 						<button
 							className="btn btn-full btn-outline-action"
-							onClick={ () =>
-								window.open(
-									`${ cfg.adminUrl }post.php?post=${ file.id }&action=edit`,
-									'_blank'
-								)
-							}
+							onClick={ restoreFile }
 						>
-							<i className="ti ti-external-link" />{ ' ' }
-							{ __( 'Edit Media', 'nhrrob-smart-media-manager' ) }
+							<i className="ti ti-restore" />{ ' ' }
+							{ __( 'Restore', 'nhrrob-smart-media-manager' ) }
 						</button>
-					) : (
-						<>
-							<a
-								className="btn btn-full btn-outline-action"
-								href={ file.url }
-								download
-							>
-								<i className="ti ti-download" />{ ' ' }
-								{ __(
-									'Download',
-									'nhrrob-smart-media-manager'
-								) }
-							</a>
-							<button
-								className="btn btn-full btn-outline-action"
-								onClick={ () =>
-									window.open(
-										`${ cfg.adminUrl }post.php?post=${ file.id }&action=edit`,
-										'_blank'
-									)
-								}
-							>
-								<i className="ti ti-external-link" />{ ' ' }
-								{ __(
-									'Edit Media',
-									'nhrrob-smart-media-manager'
-								) }
-							</button>
-						</>
 					) }
 					<button
 						className="btn btn-full btn-danger-outline"
-						onClick={ deleteFile }
+						onClick={ deleteSelected }
 					>
 						<i className="ti ti-trash" />{ ' ' }
-						{ __( 'Delete File', 'nhrrob-smart-media-manager' ) }
+						{ inTrash
+							? __(
+									'Delete Permanently',
+									'nhrrob-smart-media-manager'
+							  )
+							: __(
+									'Move to Trash',
+									'nhrrob-smart-media-manager'
+							  ) }
 					</button>
 				</div>
 			</div>
 		</aside>
+	);
+}
+
+function FieldAiButton( { busy, onClick } ) {
+	if ( ! cfg.aiConfigured ) {
+		return null;
+	}
+	return (
+		<button
+			className="btn-icon-inline field-ai-btn"
+			disabled={ busy }
+			title={ __( 'Generate with AI', 'nhrrob-smart-media-manager' ) }
+			onClick={ onClick }
+		>
+			{ busy ? (
+				<span className="smm-spinner-sm" />
+			) : (
+				<i className="ti ti-sparkles" />
+			) }
+		</button>
 	);
 }

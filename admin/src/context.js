@@ -13,9 +13,26 @@ export const initialState = {
 	pagination: { page: 1, total: 0, pages: 1, perPage: cfg.perPage || 40 },
 	folders: [],
 	uncategorizedCount: 0,
+	totalCount: 0,
 	recentView: false,
 	starredView: false,
+	specialView: null,
+	filterMine: false,
+	dateFrom: '',
+	dateTo: '',
+	missingAltCount: 0,
+	trashCount: 0,
+	sidebarCollapsed:
+		localStorage.getItem( 'nhrsmm_sidebar_collapsed' ) === '1',
+	sidebarWidth: parseInt(
+		localStorage.getItem( 'nhrsmm_sidebar_width' ) || '0',
+		10
+	),
+	modal: null,
 	starredIds: ( () => {
+		if ( cfg.starredIds?.length ) {
+			return new Set( cfg.starredIds );
+		}
 		try {
 			return new Set(
 				JSON.parse(
@@ -51,6 +68,7 @@ export function reducer( state, action ) {
 				currentFolder: action.folder,
 				recentView: false,
 				starredView: false,
+				specialView: null,
 				selection: new Set(),
 				detailsTarget: null,
 				pagination: { ...state.pagination, page: 1 },
@@ -61,6 +79,7 @@ export function reducer( state, action ) {
 				...state,
 				recentView: true,
 				starredView: false,
+				specialView: null,
 				currentFolder: null,
 				selection: new Set(),
 				detailsTarget: null,
@@ -72,11 +91,43 @@ export function reducer( state, action ) {
 				...state,
 				starredView: true,
 				recentView: false,
+				specialView: null,
 				currentFolder: null,
 				selection: new Set(),
 				detailsTarget: null,
 				pagination: { ...state.pagination, page: 1 },
 			};
+
+		case 'SET_SPECIAL_VIEW':
+			return {
+				...state,
+				specialView: action.view,
+				recentView: false,
+				starredView: false,
+				currentFolder: null,
+				selection: new Set(),
+				detailsTarget: null,
+				pagination: { ...state.pagination, page: 1 },
+			};
+
+		case 'SET_FILTERS':
+			return {
+				...state,
+				...action.patch,
+				pagination: { ...state.pagination, page: 1 },
+			};
+
+		case 'SET_SIDEBAR':
+			return { ...state, ...action.patch };
+
+		case 'OPEN_MODAL':
+			return { ...state, modal: action.modal };
+
+		case 'CLOSE_MODAL':
+			return { ...state, modal: null };
+
+		case 'REORDER_FILES':
+			return { ...state, files: action.files };
 
 		case 'TOGGLE_STAR': {
 			const next = new Set( state.starredIds );
@@ -117,6 +168,9 @@ export function reducer( state, action ) {
 				...state,
 				folders: action.folders,
 				uncategorizedCount: action.uncategorizedCount ?? 0,
+				totalCount: action.totalCount ?? 0,
+				missingAltCount: action.missingAltCount ?? 0,
+				trashCount: action.trashCount ?? 0,
 			};
 
 		case 'SET_LOADING':
@@ -203,7 +257,12 @@ export function reducer( state, action ) {
 		case 'SHOW_CONFIRM':
 			return {
 				...state,
-				confirmModal: { message: action.message, onOk: action.onOk },
+				confirmModal: {
+					message: action.message,
+					onOk: action.onOk,
+					title: action.title,
+					okLabel: action.okLabel,
+				},
 			};
 
 		case 'HIDE_CONFIRM':
@@ -240,6 +299,9 @@ export function reducer( state, action ) {
 			return state;
 	}
 }
+
+// Lets memoised cards read the live selection at drag time without re-rendering.
+export const selectionRef = { current: new Set() };
 
 export const AppContext = createContext( null );
 

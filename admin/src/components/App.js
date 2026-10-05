@@ -1,8 +1,8 @@
 import { useReducer, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { AppContext, initialState, reducer } from '../context';
-import { get, del } from '../api';
-import { getUrlParam } from '../utils';
+import { AppContext, initialState, reducer, selectionRef } from '../context';
+import { get, post, del } from '../api';
+import { getUrlParam, getRecent, setRecent } from '../utils';
 import Topbar from './Topbar';
 import Sidebar from './Sidebar';
 import MainArea from './MainArea';
@@ -10,6 +10,7 @@ import DetailsPanel from './DetailsPanel';
 import UploadModal from './UploadModal';
 import BulkBar from './BulkBar';
 import { ConfirmModal, ContextMenus, Toast, StatusBar } from './Modals';
+import ToolModal from './Tools';
 
 const cfg = window.nhrsmmConfig || {};
 
@@ -18,6 +19,8 @@ export default function App() {
 
 	const stateRef = useRef( state );
 	stateRef.current = state;
+	selectionRef.current = state.selection;
+	const syncedRef = useRef( false );
 
 	const loadMedia = useCallback( async ( opts = {} ) => {
 		const s = stateRef.current;
@@ -36,6 +39,8 @@ export default function App() {
 		const sortBy = opts.sortBy !== undefined ? opts.sortBy : s.sortBy;
 		const sortOrd =
 			opts.sortOrder !== undefined ? opts.sortOrder : s.sortOrder;
+		const special =
+			opts.specialView !== undefined ? opts.specialView : s.specialView;
 
 		if ( starredView ) {
 			const ids = [ ...s.starredIds ];
@@ -52,9 +57,7 @@ export default function App() {
 			}
 			params.set( 'ids', ids.join( ',' ) );
 		} else if ( recentView ) {
-			const recentIds = JSON.parse(
-				localStorage.getItem( 'nhrsmm_recent_ids' ) || '[]'
-			);
+			const recentIds = getRecent();
 			if ( recentIds.length === 0 ) {
 				dispatch( {
 					type: 'SET_FILES',
@@ -68,8 +71,28 @@ export default function App() {
 			}
 			params.set( 'ids', recentIds.join( ',' ) );
 		} else {
-			if ( folder !== null ) {
+			if ( special === 'missing-alt' ) {
+				params.set( 'alt', 'missing' );
+			} else if ( special === 'trash' ) {
+				params.set( 'status', 'trash' );
+			} else if ( special === 'unused' ) {
+				params.set( 'unused', '1' );
+			} else if ( folder !== null ) {
 				params.set( 'folder', folder );
+			}
+			const mine =
+				opts.filterMine !== undefined ? opts.filterMine : s.filterMine;
+			const from =
+				opts.dateFrom !== undefined ? opts.dateFrom : s.dateFrom;
+			const to = opts.dateTo !== undefined ? opts.dateTo : s.dateTo;
+			if ( mine ) {
+				params.set( 'author', cfg.currentUserId );
+			}
+			if ( from ) {
+				params.set( 'date_from', from );
+			}
+			if ( to ) {
+				params.set( 'date_to', to );
 			}
 			if ( search ) {
 				params.set( 'search', search );
@@ -105,6 +128,9 @@ export default function App() {
 				type: 'SET_FOLDERS',
 				folders: result.tree,
 				uncategorizedCount: result.uncategorized,
+				totalCount: result.total,
+				missingAltCount: result.missing_alt,
+				trashCount: result.trash,
 			} );
 		} catch {
 			// non-critical
@@ -115,8 +141,8 @@ export default function App() {
 		dispatch( { type: 'SHOW_TOAST', message, kind } );
 	}, [] );
 
-	const showConfirm = useCallback( ( message, onOk ) => {
-		dispatch( { type: 'SHOW_CONFIRM', message, onOk } );
+	const showConfirm = useCallback( ( message, onOk, opts = {} ) => {
+		dispatch( { type: 'SHOW_CONFIRM', message, onOk, ...opts } );
 	}, [] );
 
 	const deleteSelected = useCallback( () => {
@@ -125,32 +151,58 @@ export default function App() {
 			return;
 		}
 		const count = s.selection.size;
+		const force = s.specialView === 'trash';
 		showConfirm(
-			sprintf(
-				// translators: %d: number of files to delete
-				_n(
-					'Delete %d file? This cannot be undone.',
-					'Delete %d files? This cannot be undone.',
-					count,
-					'nhrrob-smart-media-manager'
-				),
-				count
-			),
+			force
+				? sprintf(
+						// translators: %d: number of files to delete
+						_n(
+							'Permanently delete %d file? This cannot be undone.',
+							'Permanently delete %d files? This cannot be undone.',
+							count,
+							'nhrrob-smart-media-manager'
+						),
+						count
+				  )
+				: sprintf(
+						// translators: %d: number of files to move to the trash
+						_n(
+							'Move %d file to the trash?',
+							'Move %d files to the trash?',
+							count,
+							'nhrrob-smart-media-manager'
+						),
+						count
+				  ),
 			async () => {
 				const ids = [ ...stateRef.current.selection ];
 				try {
-					const res = await del( '/media/bulk-delete', { ids } );
+					const res = await del( '/media/bulk-delete', {
+						ids,
+						force,
+					} );
 					showToast(
-						sprintf(
-							// translators: %d: number of deleted files
-							_n(
-								'Deleted %d file.',
-								'Deleted %d files.',
-								res.deleted,
-								'nhrrob-smart-media-manager'
-							),
-							res.deleted
-						),
+						force
+							? sprintf(
+									// translators: %d: number of deleted files
+									_n(
+										'Deleted %d file.',
+										'Deleted %d files.',
+										res.deleted,
+										'nhrrob-smart-media-manager'
+									),
+									res.deleted
+							  )
+							: sprintf(
+									// translators: %d: number of trashed files
+									_n(
+										'Moved %d file to the trash.',
+										'Moved %d files to the trash.',
+										res.deleted,
+										'nhrrob-smart-media-manager'
+									),
+									res.deleted
+							  ),
 						'success'
 					);
 					dispatch( { type: 'CLEAR_SELECTION' } );
@@ -159,7 +211,19 @@ export default function App() {
 				} catch ( e ) {
 					showToast( e.message, 'danger' );
 				}
-			}
+			},
+			force
+				? {}
+				: {
+						title: __(
+							'Move to Trash',
+							'nhrrob-smart-media-manager'
+						),
+						okLabel: __(
+							'Move to Trash',
+							'nhrrob-smart-media-manager'
+						),
+				  }
 		);
 	}, [ showConfirm, showToast, loadFolders, loadMedia ] );
 
@@ -190,7 +254,39 @@ export default function App() {
 			'nhrsmm_starred_ids',
 			JSON.stringify( [ ...state.starredIds ] )
 		);
+		// Skip the initial render unless it carries a browser-only list to migrate.
+		if ( ! syncedRef.current ) {
+			syncedRef.current = true;
+			if ( cfg.starredIds?.length || state.starredIds.size === 0 ) {
+				return;
+			}
+		}
+		post( '/user-state', { starred: [ ...state.starredIds ] } ).catch(
+			() => {}
+		);
 	}, [ state.starredIds ] );
+
+	useEffect( () => {
+		localStorage.setItem(
+			'nhrsmm_sidebar_collapsed',
+			state.sidebarCollapsed ? '1' : '0'
+		);
+		localStorage.setItem(
+			'nhrsmm_sidebar_width',
+			String( state.sidebarWidth )
+		);
+	}, [ state.sidebarCollapsed, state.sidebarWidth ] );
+
+	useEffect( () => {
+		if ( state.currentFolder !== null ) {
+			localStorage.setItem(
+				'nhrsmm_last_folder',
+				String( state.currentFolder )
+			);
+		} else {
+			localStorage.removeItem( 'nhrsmm_last_folder' );
+		}
+	}, [ state.currentFolder ] );
 
 	useEffect( () => {
 		localStorage.setItem( 'nhrsmm_thumb_size', String( state.thumbSize ) );
@@ -205,14 +301,12 @@ export default function App() {
 		if ( ! id ) {
 			return;
 		}
-		const stored = JSON.parse(
-			localStorage.getItem( 'nhrsmm_recent_ids' ) || '[]'
-		);
-		const updated = [ id, ...stored.filter( ( i ) => i !== id ) ].slice(
-			0,
-			20
-		);
-		localStorage.setItem( 'nhrsmm_recent_ids', JSON.stringify( updated ) );
+		const updated = [
+			id,
+			...getRecent().filter( ( i ) => i !== id ),
+		].slice( 0, 20 );
+		setRecent( updated );
+		post( '/user-state', { recent: updated } ).catch( () => {} );
 	}, [ state.detailsTarget ] );
 
 	useEffect( () => {
@@ -256,7 +350,16 @@ export default function App() {
 
 		let initialFolder;
 		if ( urlFolder === null ) {
-			initialFolder = undefined;
+			// No folder in the URL: honour the "Startup folder" setting.
+			const last = localStorage.getItem( 'nhrsmm_last_folder' );
+			if ( cfg.startupFolder === 'uncategorized' ) {
+				initialFolder = 0;
+			} else if ( cfg.startupFolder === 'last' && last !== null ) {
+				initialFolder = parseInt( last, 10 );
+			}
+			if ( initialFolder !== undefined ) {
+				dispatch( { type: 'SET_FOLDER', folder: initialFolder } );
+			}
 		} else if ( urlFolder === 'all' ) {
 			initialFolder = null;
 		} else {
@@ -299,6 +402,7 @@ export default function App() {
 			{ state.confirmModal && <ConfirmModal /> }
 			{ state.contextMenu && <ContextMenus /> }
 			{ state.selection.size >= 2 && <BulkBar /> }
+			{ state.modal && <ToolModal /> }
 			{ state.toast && <Toast /> }
 		</AppContext.Provider>
 	);

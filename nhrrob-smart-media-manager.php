@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: NHR Smart Media Manager
+ * Plugin Name: NHR Smart Media Manager – Media Library Folders & AI Alt Text
  * Plugin URI: http://wordpress.org/plugins/nhrrob-smart-media-manager/
- * Description: AI-powered WordPress media manager with virtual folders, smart search, and one-click alt text generation.
+ * Description: Media library folders with a folder tree in the media modal, bulk editing, trash, and AI alt text through your own WordPress AI connector.
  * Author: Nazmul Hasan Robin
  * Author URI: https://profiles.wordpress.org/nhrrob/
- * Version: 1.0.3
+ * Version: 1.1.0
  * Requires at least: 7.0
  * Requires PHP: 7.4
  * Text Domain: nhrrob-smart-media-manager
@@ -31,7 +31,7 @@ final class Nhrsmm_Smart_Media_Manager {
 	 *
 	 * @var string
 	 */
-	const VERSION = '1.0.3';
+	const VERSION = '1.1.0';
 
 	/**
 	 * Registers activation/deactivation hooks and defers boot to plugins_loaded.

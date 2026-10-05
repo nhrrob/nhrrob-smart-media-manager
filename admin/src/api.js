@@ -40,3 +40,18 @@ export const get = ( path ) => apiFetch( 'GET', path );
 export const post = ( path, body ) => apiFetch( 'POST', path, body );
 export const put = ( path, body ) => apiFetch( 'PUT', path, body );
 export const del = ( path, body ) => apiFetch( 'DELETE', path, body );
+
+// Multipart POST (file replace): the browser sets the Content-Type boundary itself.
+export async function upload( path, formData ) {
+	const res = await fetch( buildUrl( path ), {
+		method: 'POST',
+		headers: { 'X-WP-Nonce': cfg.nonce },
+		credentials: 'same-origin',
+		body: formData,
+	} );
+	const data = await res.json().catch( () => null );
+	if ( ! res.ok ) {
+		throw new Error( data?.message || `HTTP ${ res.status }` );
+	}
+	return data;
+}

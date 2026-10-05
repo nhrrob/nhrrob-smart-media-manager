@@ -136,7 +136,14 @@ export default function SettingsApp() {
 									saving={ saving }
 								/>
 							) }
-							{ tab === 'ai' && <AiTab /> }
+							{ tab === 'ai' && (
+								<AiTab
+									settings={ settings }
+									onChange={ setSettings }
+									onSave={ save }
+									saving={ saving }
+								/>
+							) }
 						</div>
 
 						<aside className="settings-aside">
@@ -433,6 +440,93 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 						</select>
 					</div>
 				</div>
+
+				<div className="settings-row">
+					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
+						<label className="settings-row-label">
+							{ __(
+								'Startup Folder',
+								'nhrrob-smart-media-manager'
+							) }
+						</label>
+						<p className="settings-row-desc">
+							{ __(
+								'Which folder opens first in the Smart Library.',
+								'nhrrob-smart-media-manager'
+							) }
+						</p>
+					</div>
+					<div className="settings-row-control">
+						<select
+							className="smm-select"
+							value={ settings.startup_folder }
+							onChange={ ( e ) =>
+								set( 'startup_folder', e.target.value )
+							}
+						>
+							<option value="all">
+								{ __(
+									'All Files',
+									'nhrrob-smart-media-manager'
+								) }
+							</option>
+							<option value="last">
+								{ __(
+									'Last opened folder',
+									'nhrrob-smart-media-manager'
+								) }
+							</option>
+							<option value="uncategorized">
+								{ __(
+									'Uncategorized',
+									'nhrrob-smart-media-manager'
+								) }
+							</option>
+						</select>
+					</div>
+				</div>
+				<div className="settings-row">
+					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
+						<label className="settings-row-label">
+							{ __(
+								'Default Upload Folder',
+								'nhrrob-smart-media-manager'
+							) }
+						</label>
+						<p className="settings-row-desc">
+							{ __(
+								'New uploads go here unless a folder is chosen in the uploader.',
+								'nhrrob-smart-media-manager'
+							) }
+						</p>
+					</div>
+					<div className="settings-row-control">
+						<select
+							className="smm-select"
+							value={ settings.default_upload_folder }
+							onChange={ ( e ) =>
+								set(
+									'default_upload_folder',
+									parseInt( e.target.value )
+								)
+							}
+						>
+							<option value="0">
+								{ __(
+									'Uncategorized',
+									'nhrrob-smart-media-manager'
+								) }
+							</option>
+							{ ( cfg.folders || [] ).map( ( f ) => (
+								<option key={ f.id } value={ f.id }>
+									{ '— '.repeat( f.depth ) + f.name }
+								</option>
+							) ) }
+						</select>
+					</div>
+				</div>
 			</div>
 
 			<div className="settings-footer">
@@ -461,9 +555,13 @@ function GeneralTab( { settings, onChange, onSave, saving } ) {
 	);
 }
 
-function AiTab() {
+function AiTab( { settings, onChange, onSave, saving } ) {
 	const aiConfigured = cfg.aiConfigured;
 	const connectorsUrl = cfg.connectorsUrl || '';
+
+	function set( key, value ) {
+		onChange( ( prev ) => ( { ...prev, [ key ]: value } ) );
+	}
 
 	return (
 		<>
@@ -545,6 +643,173 @@ function AiTab() {
 						) }
 					</div>
 				</div>
+			</div>
+
+			<div className="settings-card">
+				<div className="settings-card-head">
+					<i className="ti ti-adjustments-horizontal" />{ ' ' }
+					{ __( 'Generation Options', 'nhrrob-smart-media-manager' ) }
+				</div>
+
+				<div className="settings-row">
+					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
+						<label className="settings-row-label">
+							{ __(
+								'Alt Text on Upload',
+								'nhrrob-smart-media-manager'
+							) }
+						</label>
+						<p className="settings-row-desc">
+							{ __(
+								'Write alt text automatically for every newly uploaded image. Each new image is sent to your AI provider in the background.',
+								'nhrrob-smart-media-manager'
+							) }
+						</p>
+					</div>
+					<div className="settings-row-control">
+						<input
+							type="checkbox"
+							checked={ !! settings.auto_alt }
+							onChange={ ( e ) =>
+								set( 'auto_alt', e.target.checked )
+							}
+						/>
+					</div>
+				</div>
+				<div className="settings-row">
+					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
+						<label className="settings-row-label">
+							{ __( 'Language', 'nhrrob-smart-media-manager' ) }
+						</label>
+						<p className="settings-row-desc">
+							{ __(
+								'Language for generated text, for example French. Leave empty to let the AI decide.',
+								'nhrrob-smart-media-manager'
+							) }
+						</p>
+					</div>
+					<div className="settings-row-control">
+						<input
+							type="text"
+							className="details-input"
+							value={ settings.ai_language }
+							onChange={ ( e ) =>
+								set( 'ai_language', e.target.value )
+							}
+						/>
+					</div>
+				</div>
+				<div className="settings-row">
+					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
+						<label className="settings-row-label">
+							{ __(
+								'Alt Text Length',
+								'nhrrob-smart-media-manager'
+							) }
+						</label>
+						<p className="settings-row-desc">
+							{ __(
+								'Maximum number of characters for generated alt text.',
+								'nhrrob-smart-media-manager'
+							) }
+						</p>
+					</div>
+					<div className="settings-row-control">
+						<input
+							type="number"
+							className="details-input"
+							min="50"
+							max="300"
+							value={ settings.ai_alt_length }
+							onChange={ ( e ) =>
+								set(
+									'ai_alt_length',
+									parseInt( e.target.value ) || 125
+								)
+							}
+						/>
+					</div>
+				</div>
+				<div className="settings-row">
+					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
+						<label className="settings-row-label">
+							{ __(
+								'Use Page Context',
+								'nhrrob-smart-media-manager'
+							) }
+						</label>
+						<p className="settings-row-desc">
+							{ __(
+								'Include the title of the page a file is attached to, and its focus keyphrase from Yoast SEO, Rank Math or SEOPress.',
+								'nhrrob-smart-media-manager'
+							) }
+						</p>
+					</div>
+					<div className="settings-row-control">
+						<input
+							type="checkbox"
+							checked={ !! settings.ai_context }
+							onChange={ ( e ) =>
+								set( 'ai_context', e.target.checked )
+							}
+						/>
+					</div>
+				</div>
+				<div className="settings-row">
+					<div className="settings-row-info">
+						{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
+						<label className="settings-row-label">
+							{ __(
+								'Extra Instructions',
+								'nhrrob-smart-media-manager'
+							) }
+						</label>
+						<p className="settings-row-desc">
+							{ __(
+								'Added to every AI request, for example a tone of voice or words to avoid.',
+								'nhrrob-smart-media-manager'
+							) }
+						</p>
+					</div>
+					<div className="settings-row-control">
+						<textarea
+							className="details-input"
+							rows="3"
+							maxLength="500"
+							value={ settings.ai_prompt }
+							onChange={ ( e ) =>
+								set( 'ai_prompt', e.target.value )
+							}
+						/>
+					</div>
+				</div>
+			</div>
+
+			<div className="settings-footer">
+				<button
+					className="btn btn-primary"
+					onClick={ onSave }
+					disabled={ saving }
+				>
+					{ saving ? (
+						<>
+							<span className="smm-spinner-sm" />{ ' ' }
+							{ __( 'Saving…', 'nhrrob-smart-media-manager' ) }
+						</>
+					) : (
+						<>
+							<i className="ti ti-device-floppy" />{ ' ' }
+							{ __(
+								'Save Settings',
+								'nhrrob-smart-media-manager'
+							) }
+						</>
+					) }
+				</button>
 			</div>
 		</>
 	);

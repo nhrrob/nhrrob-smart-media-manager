@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useApp } from '../context';
-import { iconForMime } from '../utils';
+import { post } from '../api';
+import { iconForMime, collectDropped } from '../utils';
 
 const cfg = window.nhrsmmConfig || {};
 
@@ -10,12 +11,49 @@ export default function UploadModal() {
 		dispatch,
 		loadMedia,
 		loadFolders,
-		state: { uploadInitialFiles, folders },
+		state: { uploadInitialFiles, folders, currentFolder },
 	} = useApp();
 	const [ queue, setQueue ] = useState( [] );
 	const [ results, setResults ] = useState( { ok: 0, fail: 0 } );
 	const [ done, setDone ] = useState( false );
 	const fileInputRef = useRef( null );
+	const dirInputRef = useRef( null );
+	const pathCache = useRef( {} );
+	const pending = useRef( [] );
+	const active = useRef( 0 );
+
+	// Upload three files at a time so a dropped folder does not open hundreds of requests.
+	function pump() {
+		while ( active.current < 3 && pending.current.length ) {
+			active.current++;
+			pending.current.shift()();
+		}
+	}
+	function finished() {
+		active.current--;
+		pump();
+	}
+
+	// Resolves the folder for a file dropped inside a directory, creating the path once.
+	function folderFor( baseFolder, path ) {
+		if ( ! path.length ) {
+			return Promise.resolve( baseFolder );
+		}
+		const key = baseFolder + '/' + path.join( '/' );
+		if ( ! pathCache.current[ key ] ) {
+			// Chain on the parent path so sibling folders are not created twice.
+			pathCache.current[ key ] = folderFor(
+				baseFolder,
+				path.slice( 0, -1 )
+			).then( ( parent ) =>
+				post( '/folders/path', {
+					path: [ path[ path.length - 1 ] ],
+					parent,
+				} ).then( ( res ) => res.id )
+			);
+		}
+		return pathCache.current[ key ];
+	}
 
 	useEffect( () => {
 		if ( uploadInitialFiles ) {
@@ -33,9 +71,17 @@ export default function UploadModal() {
 		loadMedia();
 	}
 
+	// Accepts a FileList or a list of { file, path } (path = folder names inside a dropped directory).
 	function addFiles( files ) {
-		const fileArr = Array.from( files );
-		fileArr.forEach( ( file ) => {
+		const folderSel = document.getElementById( 'smm-upload-folder-select' );
+		const baseFolder = folderSel ? parseInt( folderSel.value ) || 0 : 0;
+
+		Array.from( files ).forEach( ( entry ) => {
+			const file = entry.file || entry;
+			let path = entry.path || [];
+			if ( ! entry.file && file.webkitRelativePath ) {
+				path = file.webkitRelativePath.split( '/' ).slice( 0, -1 );
+			}
 			const id =
 				'u-' +
 				Date.now() +
@@ -44,10 +90,21 @@ export default function UploadModal() {
 			const icon = iconForMime( file.type );
 			setQueue( ( prev ) => [
 				...prev,
-				{ id, name: file.name, icon, progress: 0, status: 'waiting' },
+				{
+					id,
+					name: [ ...path, file.name ].join( '/' ),
+					icon,
+					progress: 0,
+					status: 'waiting',
+				},
 			] );
-			uploadFile( file, id );
+			pending.current.push( () =>
+				folderFor( baseFolder, path )
+					.catch( () => baseFolder )
+					.then( ( folderId ) => uploadFile( file, id, folderId ) )
+			);
 		} );
+		pump();
 	}
 
 	function updateItem( id, patch ) {
@@ -58,14 +115,15 @@ export default function UploadModal() {
 		);
 	}
 
-	function uploadFile( file, itemId ) {
-		const folderSel = document.getElementById( 'smm-upload-folder-select' );
-		const folderId = folderSel ? parseInt( folderSel.value ) || 0 : 0;
-
+	function uploadFile( file, itemId, folderId ) {
 		const formData = new FormData();
 		formData.append( 'async-upload', file );
 		formData.append( 'action', 'upload-attachment' );
 		formData.append( '_wpnonce', cfg.mediaUploadNonce || '' );
+		// The server assigns the folder while it creates the attachment.
+		if ( folderId ) {
+			formData.append( 'nhrsmm_folder', folderId );
+		}
 
 		const xhr = new XMLHttpRequest();
 		xhr.open( 'POST', ( cfg.adminUrl || '' ) + 'async-upload.php' );
@@ -79,7 +137,7 @@ export default function UploadModal() {
 			}
 		} );
 
-		xhr.addEventListener( 'load', async () => {
+		xhr.addEventListener( 'load', () => {
 			try {
 				const data = JSON.parse( xhr.responseText );
 				if ( xhr.status >= 400 || data?.success === false ) {
@@ -88,25 +146,13 @@ export default function UploadModal() {
 							__( 'Upload failed', 'nhrrob-smart-media-manager' )
 					);
 				}
-				const attachId = data?.data?.id || data?.id;
-				if ( attachId && folderId ) {
-					await fetch( `${ cfg.restUrl }/media/${ attachId }/move`, {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							'X-WP-Nonce': cfg.nonce,
-						},
-						credentials: 'same-origin',
-						body: JSON.stringify( { folder_id: folderId } ),
-					} ).catch( () => {} );
-				}
 				updateItem( itemId, { progress: 100, status: 'ok' } );
 				setResults( ( prev ) => ( { ...prev, ok: prev.ok + 1 } ) );
 			} catch ( err ) {
 				updateItem( itemId, { status: 'fail', error: err.message } );
 				setResults( ( prev ) => ( { ...prev, fail: prev.fail + 1 } ) );
 			}
-			setDone( ( prev ) => prev );
+			finished();
 		} );
 
 		xhr.addEventListener( 'error', () => {
@@ -115,6 +161,7 @@ export default function UploadModal() {
 				error: __( 'Network error', 'nhrrob-smart-media-manager' ),
 			} );
 			setResults( ( prev ) => ( { ...prev, fail: prev.fail + 1 } ) );
+			finished();
 		} );
 
 		xhr.send( formData );
@@ -176,7 +223,9 @@ export default function UploadModal() {
 							e.preventDefault();
 							e.currentTarget.classList.remove( 'drag-over' );
 							if ( e.dataTransfer.files.length ) {
-								addFiles( e.dataTransfer.files );
+								collectDropped( e.dataTransfer ).then(
+									addFiles
+								);
 							}
 						} }
 					>
@@ -184,7 +233,7 @@ export default function UploadModal() {
 							<i className="ti ti-cloud-upload dropzone-icon" />
 							<p className="dropzone-title">
 								{ __(
-									'Drop files here',
+									'Drop files or folders here',
 									'nhrrob-smart-media-manager'
 								) }
 							</p>
@@ -218,6 +267,35 @@ export default function UploadModal() {
 									'Browse Files',
 									'nhrrob-smart-media-manager'
 								) }
+							</button>{ ' ' }
+							<input
+								ref={ dirInputRef }
+								type="file"
+								webkitdirectory=""
+								style={ { display: 'none' } }
+								onChange={ ( e ) => {
+									if ( e.target.files.length ) {
+										addFiles( e.target.files );
+									}
+									e.target.value = '';
+								} }
+							/>
+							<button
+								className="btn btn-default"
+								title={ __(
+									'Upload a folder and keep its subfolders',
+									'nhrrob-smart-media-manager'
+								) }
+								onClick={ ( e ) => {
+									e.stopPropagation();
+									dirInputRef.current?.click();
+								} }
+							>
+								<i className="ti ti-folder-up" />{ ' ' }
+								{ __(
+									'Upload Folder',
+									'nhrrob-smart-media-manager'
+								) }
 							</button>
 						</div>
 					</div>
@@ -236,6 +314,7 @@ export default function UploadModal() {
 						<select
 							className="smm-select"
 							id="smm-upload-folder-select"
+							defaultValue={ currentFolder || 0 }
 						>
 							<option value="0">
 								{ __(

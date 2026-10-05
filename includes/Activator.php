@@ -23,15 +23,7 @@ class Activator {
 	 */
 	public static function run() {
 		if ( false === get_option( 'nhrsmm_settings', false ) ) {
-			update_option(
-				'nhrsmm_settings',
-				[
-					'default_view'   => 'grid',
-					'thumbnail_size' => 'medium',
-					'items_per_page' => 40,
-				],
-				false
-			);
+			update_option( 'nhrsmm_settings', Core\Options::defaults(), false );
 		}
 
 		// Taxonomy is not registered during activation (init hasn't fired for a newly activated plugin).

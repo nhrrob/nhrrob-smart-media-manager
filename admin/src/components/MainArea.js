@@ -1,9 +1,12 @@
 import { useState, memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useApp } from '../context';
+import { useApp, selectionRef } from '../context';
+import { post } from '../api';
 import {
 	setUrlParams,
 	findFolder,
+	findFolderPath,
+	collectDropped,
 	getFolderName,
 	mimeToLabel,
 	typeToIcon,
@@ -28,13 +31,16 @@ export default function MainArea() {
 		e.currentTarget.style.outline = '';
 		if ( e.dataTransfer.files.length ) {
 			e.preventDefault();
-			dispatch( { type: 'OPEN_UPLOAD', files: e.dataTransfer.files } );
+			collectDropped( e.dataTransfer ).then( ( files ) =>
+				dispatch( { type: 'OPEN_UPLOAD', files } )
+			);
 		}
 	}
 
 	return (
 		<div className="smm-main" id="smm-main">
 			<Toolbar />
+			<ViewBanner />
 			<div
 				className="smm-content-area"
 				id="smm-content-area"
@@ -62,6 +68,11 @@ function Toolbar() {
 		thumbSize,
 		sortBy,
 		sortOrder,
+		starredView,
+		specialView,
+		filterMine,
+		dateFrom,
+		dateTo,
 	} = state;
 	const [ filterOpen, setFilterOpen ] = useState( false );
 	const [ sortOpen, setSortOpen ] = useState( false );
@@ -83,18 +94,52 @@ function Toolbar() {
 		}
 	}
 
+	const specialLabels = {
+		'missing-alt': __( 'Missing alt text', 'nhrrob-smart-media-manager' ),
+		unused: __( 'Unused', 'nhrrob-smart-media-manager' ),
+		trash: __( 'Trash', 'nhrrob-smart-media-manager' ),
+	};
+
+	function goToFolder( folder ) {
+		dispatch( { type: 'SET_FOLDER', folder } );
+		setUrlParams( { folder, page: null } );
+		loadMedia( {
+			folder,
+			recentView: false,
+			starredView: false,
+			specialView: null,
+		} );
+	}
+
+	// Trail of { id, name } from the top-level folder down to the current one.
 	function getBreadcrumb() {
+		if ( specialView ) {
+			return [ { name: specialLabels[ specialView ] } ];
+		}
 		if ( recentView ) {
-			return __( 'Recent', 'nhrrob-smart-media-manager' );
+			return [ { name: __( 'Recent', 'nhrrob-smart-media-manager' ) } ];
+		}
+		if ( starredView ) {
+			return [ { name: __( 'Starred', 'nhrrob-smart-media-manager' ) } ];
 		}
 		if ( currentFolder === null ) {
-			return __( 'All Files', 'nhrrob-smart-media-manager' );
+			return [
+				{ name: __( 'All Files', 'nhrrob-smart-media-manager' ) },
+			];
 		}
 		if ( currentFolder === 0 ) {
-			return __( 'Uncategorized', 'nhrrob-smart-media-manager' );
+			return [
+				{ name: __( 'Uncategorized', 'nhrrob-smart-media-manager' ) },
+			];
 		}
-		const f = findFolder( folders, currentFolder );
-		return f ? f.name : '…';
+		return findFolderPath( folders, currentFolder ) || [ { name: '…' } ];
+	}
+	const crumbs = getBreadcrumb();
+
+	function setFilters( patch ) {
+		dispatch( { type: 'SET_FILTERS', patch } );
+		setUrlParams( { page: null } );
+		loadMedia( { ...patch, page: 1 } );
 	}
 
 	function switchView( v ) {
@@ -117,8 +162,11 @@ function Toolbar() {
 
 	const sortOptions = [
 		[ 'date', __( 'Date Added', 'nhrrob-smart-media-manager' ) ],
+		[ 'modified', __( 'Date Modified', 'nhrrob-smart-media-manager' ) ],
 		[ 'title', __( 'Name', 'nhrrob-smart-media-manager' ) ],
 		[ 'size', __( 'Size', 'nhrrob-smart-media-manager' ) ],
+		[ 'author', __( 'Uploaded By', 'nhrrob-smart-media-manager' ) ],
+		[ 'menu_order', __( 'Custom Order', 'nhrrob-smart-media-manager' ) ],
 	];
 
 	const filterOptions = [
@@ -148,18 +196,31 @@ function Toolbar() {
 				<span
 					className="breadcrumb-item"
 					style={ { cursor: 'pointer' } }
-					onClick={ () => {
-						dispatch( { type: 'SET_FOLDER', folder: null } );
-						setUrlParams( { folder: null, page: null } );
-						loadMedia( { folder: null } );
-					} }
+					onClick={ () => goToFolder( null ) }
 				>
 					<i className="ti ti-home" />
 				</span>
-				<span className="breadcrumb-sep">
-					<i className="ti ti-chevron-right" />
-				</span>
-				<span className="breadcrumb-current">{ getBreadcrumb() }</span>
+				{ crumbs.map( ( crumb, i ) => (
+					<span key={ i } className="breadcrumb-part">
+						<span className="breadcrumb-sep">
+							<i className="ti ti-chevron-right" />
+						</span>
+						{ i === crumbs.length - 1 ? (
+							<span className="breadcrumb-current">
+								{ crumb.name }
+							</span>
+						) : (
+							// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+							<span
+								className="breadcrumb-item"
+								style={ { cursor: 'pointer' } }
+								onClick={ () => goToFolder( crumb.id ) }
+							>
+								{ crumb.name }
+							</span>
+						) }
+					</span>
+				) ) }
 			</div>
 
 			<div className="toolbar-filter-chips">
@@ -177,6 +238,30 @@ function Toolbar() {
 						<i
 							className="ti ti-x"
 							onClick={ () => setFilter( '' ) }
+						/>
+					</span>
+				) }
+				{ filterMine && (
+					<span className="filter-chip">
+						{ __( 'Mine', 'nhrrob-smart-media-manager' ) }
+						{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
+						<i
+							className="ti ti-x"
+							onClick={ () =>
+								setFilters( { filterMine: false } )
+							}
+						/>
+					</span>
+				) }
+				{ ( dateFrom || dateTo ) && (
+					<span className="filter-chip">
+						{ dateFrom || '…' } – { dateTo || '…' }
+						{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
+						<i
+							className="ti ti-x"
+							onClick={ () =>
+								setFilters( { dateFrom: '', dateTo: '' } )
+							}
 						/>
 					</span>
 				) }
@@ -285,6 +370,56 @@ function Toolbar() {
 								</label>
 							) ) }
 						</div>
+						<div className="smm-dropdown-section">
+							<div className="smm-dropdown-label">
+								{ __(
+									'Uploaded',
+									'nhrrob-smart-media-manager'
+								) }
+							</div>
+							{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
+							<label className="smm-dropdown-opt">
+								<input
+									type="checkbox"
+									checked={ filterMine }
+									onChange={ ( e ) =>
+										setFilters( {
+											filterMine: e.target.checked,
+										} )
+									}
+								/>{ ' ' }
+								{ __(
+									'Only my uploads',
+									'nhrrob-smart-media-manager'
+								) }
+							</label>
+							<div className="filter-dates">
+								<input
+									type="date"
+									value={ dateFrom }
+									aria-label={ __(
+										'Uploaded from',
+										'nhrrob-smart-media-manager'
+									) }
+									onChange={ ( e ) =>
+										setFilters( {
+											dateFrom: e.target.value,
+										} )
+									}
+								/>
+								<input
+									type="date"
+									value={ dateTo }
+									aria-label={ __(
+										'Uploaded until',
+										'nhrrob-smart-media-manager'
+									) }
+									onChange={ ( e ) =>
+										setFilters( { dateTo: e.target.value } )
+									}
+								/>
+							</div>
+						</div>
 					</div>
 				) }
 			</div>
@@ -344,7 +479,7 @@ function Toolbar() {
 }
 
 // colors must match sidebar folder dots
-const FOLDER_COLORS = [
+export const FOLDER_COLORS = [
 	'#5b8def',
 	'#e07c4b',
 	'#3bba77',
@@ -354,17 +489,123 @@ const FOLDER_COLORS = [
 	'#06c8a0',
 ];
 
-export function folderColor( folderId ) {
+export function folderColor( folderId, folders = [] ) {
 	if ( ! folderId ) {
 		return null;
 	}
-	return FOLDER_COLORS[ folderId % FOLDER_COLORS.length ];
+	return (
+		findFolder( folders, folderId )?.color ||
+		FOLDER_COLORS[ folderId % FOLDER_COLORS.length ]
+	);
+}
+
+// Context bar for the Missing alt text, Unused and Trash views.
+function ViewBanner() {
+	const { state, dispatch, cfg } = useApp();
+	const { specialView, missingAltCount } = state;
+
+	if (
+		specialView === 'missing-alt' &&
+		cfg.aiConfigured &&
+		missingAltCount
+	) {
+		return (
+			<div className="smm-view-banner">
+				<span>
+					{ __(
+						'These images have no alt text.',
+						'nhrrob-smart-media-manager'
+					) }
+				</span>
+				<button
+					className="btn btn-sm btn-ai"
+					onClick={ () =>
+						dispatch( {
+							type: 'OPEN_MODAL',
+							modal: { kind: 'bulk-ai' },
+						} )
+					}
+				>
+					<i className="ti ti-sparkles" />{ ' ' }
+					{ __( 'Generate for all', 'nhrrob-smart-media-manager' ) }
+				</button>
+			</div>
+		);
+	}
+
+	if ( specialView === 'unused' ) {
+		return (
+			<div className="smm-view-banner">
+				<span>
+					{ __(
+						'Files with no reference found in post content, featured images, custom fields, page builder data, product galleries or the site logo. Files used only in theme files or CSS are not detected, so review before deleting.',
+						'nhrrob-smart-media-manager'
+					) }
+				</span>
+				<button
+					className="btn btn-sm btn-default"
+					onClick={ () =>
+						dispatch( {
+							type: 'OPEN_MODAL',
+							modal: { kind: 'scan' },
+						} )
+					}
+				>
+					<i className="ti ti-search" />{ ' ' }
+					{ __( 'Scan library', 'nhrrob-smart-media-manager' ) }
+				</button>
+			</div>
+		);
+	}
+
+	if ( specialView === 'trash' ) {
+		return (
+			<div className="smm-view-banner">
+				<span>
+					{ __(
+						'Trashed files are deleted permanently by WordPress after 30 days unless your site changes that period.',
+						'nhrrob-smart-media-manager'
+					) }
+				</span>
+			</div>
+		);
+	}
+
+	return null;
 }
 
 function GridView() {
 	const { state, dispatch, loadMedia } = useApp();
-	const { files, loading, selection, thumbSize, recentView, starredIds } =
-		state;
+	const {
+		files,
+		loading,
+		selection,
+		thumbSize,
+		recentView,
+		starredIds,
+		folders,
+		sortBy,
+		specialView,
+		pagination,
+	} = state;
+	const canReorder = sortBy === 'menu_order' && ! specialView && ! recentView;
+
+	// Custom order: drop one card onto another to place it there.
+	async function onReorder( dragId, targetId ) {
+		const ids = files.map( ( f ) => f.id );
+		const from = ids.indexOf( dragId );
+		const to = ids.indexOf( targetId );
+		if ( from < 0 || to < 0 || from === to ) {
+			return;
+		}
+		const next = [ ...files ];
+		next.splice( to, 0, next.splice( from, 1 )[ 0 ] );
+		dispatch( { type: 'REORDER_FILES', files: next } );
+		await post( '/media/reorder', {
+			ids: next.map( ( f ) => f.id ),
+			offset: ( pagination.page - 1 ) * pagination.perPage,
+		} ).catch( () => loadMedia() );
+	}
 
 	if ( loading && files.length === 0 ) {
 		return (
@@ -470,6 +711,8 @@ function GridView() {
 						isStarred={ starredIds.has( f.id ) }
 						selectionSize={ selection.size }
 						thumbSize={ thumbSize }
+						dotColor={ folderColor( f.folder_id, folders ) }
+						onReorder={ canReorder ? onReorder : null }
 						dispatch={ dispatch }
 					/>
 				) ) }
@@ -484,27 +727,32 @@ const MediaCard = memo( function MediaCard( {
 	isStarred,
 	selectionSize,
 	thumbSize,
+	dotColor,
+	onReorder,
 	dispatch,
 } ) {
 	let selClass = '';
 	if ( isSelected ) {
 		selClass = selectionSize === 1 ? 'selected' : 'multi-selected';
 	}
-	const dotColor = folderColor( f.folder_id );
 	const imgSrc = thumbSize > 150 && f.thumb_md ? f.thumb_md : f.thumb;
 
 	function onDragStart( e ) {
-		const ids = isSelected ? null : [ f.id ];
+		// Dragging a selected card moves the whole selection.
+		const ids = isSelected ? [ ...selectionRef.current ] : [ f.id ];
 		e.dataTransfer.effectAllowed = 'move';
 		e.dataTransfer.setData(
 			'text/plain',
-			JSON.stringify( { fileIds: ids || null, singleId: f.id } )
+			JSON.stringify( { fileIds: ids, singleId: f.id } )
 		);
 
 		const ghost = document.createElement( 'div' );
 		ghost.style.cssText =
 			'position:fixed;top:-200px;background:var(--brand-800);color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;';
-		ghost.textContent = __( '1 file', 'nhrrob-smart-media-manager' );
+		ghost.textContent =
+			ids.length > 1
+				? String( ids.length )
+				: __( '1 file', 'nhrrob-smart-media-manager' );
 		document.body.appendChild( ghost );
 		e.dataTransfer.setDragImage( ghost, 0, 0 );
 		setTimeout( () => ghost.remove(), 0 );
@@ -552,6 +800,24 @@ const MediaCard = memo( function MediaCard( {
 				dispatch( { type: 'SELECT_FILE', id: f.id, mode: 'single' } )
 			}
 			onDragStart={ onDragStart }
+			onDragOver={ onReorder ? ( e ) => e.preventDefault() : undefined }
+			onDrop={
+				onReorder
+					? ( e ) => {
+							try {
+								const data = JSON.parse(
+									e.dataTransfer.getData( 'text/plain' )
+								);
+								if ( data.singleId ) {
+									e.preventDefault();
+									onReorder( data.singleId, f.id );
+								}
+							} catch {
+								// Not a card drag (e.g. files from the desktop).
+							}
+					  }
+					: undefined
+			}
 		>
 			<div className="card-thumb">
 				{ imgSrc ? (
@@ -757,7 +1023,7 @@ const MediaRow = memo( function MediaRow( {
 	const folderName = f.folder_id
 		? getFolderName( folders, f.folder_id )
 		: '—';
-	const dotColor = folderColor( f.folder_id );
+	const dotColor = folderColor( f.folder_id, folders );
 
 	function onClick( e ) {
 		if ( e.target.closest( '.smm-checkbox' ) ) {
