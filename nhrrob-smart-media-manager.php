@@ -2,7 +2,7 @@
 /**
  * Plugin Name: NHR Smart Media Manager – Media Library Folders & AI Alt Text
  * Plugin URI: http://wordpress.org/plugins/nhrrob-smart-media-manager/
- * Description: Media library folders with a folder tree in the media modal, bulk editing, trash, and AI alt text through your own WordPress AI connector.
+ * Description: Media library folders, a folder tree in the media modal, a gallery block that follows a folder, bulk editing, and AI alt text with your AI connector.
  * Author: Nazmul Hasan Robin
  * Author URI: https://profiles.wordpress.org/nhrrob/
  * Version: 1.1.0

@@ -1,6 +1,6 @@
 === NHR Smart Media Manager – Media Library Folders & AI Alt Text ===
 Contributors: nhrrob
-Tags: media library folders, media folders, file manager, alt text, ai
+Tags: media library folders, media folders, gallery, alt text, ai
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -8,16 +8,17 @@ Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Media library folders with a folder tree in the media modal, bulk editing, trash, and AI alt text through your own WordPress AI connector.
+Media library folders, a folder tree in the media modal, a gallery block that follows a folder, bulk editing, and AI alt text with your AI connector.
 
 == Description ==
 
-NHR Smart Media Manager organizes your WordPress media library into folders and writes alt text with AI. It adds a Smart Library page under Media, puts a folder tree in the media modal used by the block editor and page builders, and adds a folder filter to the Media Library. Folders are virtual, so file URLs never change.
+NHR Smart Media Manager organizes your WordPress media library into folders and writes alt text with AI. It adds a Smart Library page under Media, puts a folder tree in the media modal used by the block editor and page builders, and adds a folder filter to the Media Library. Folders are virtual, so file URLs never change. Any folder can also be shown on your site as an image gallery that updates itself when the folder changes.
 
 **Key Features:**
 
 * **Virtual Folder System** — Create nested folders to organize your media. Folders are stored as a custom taxonomy and do not move files on disk. Give folders a color, drag them into your own order, and search the folder tree.
 * **Folders in the Media Library and Media Modal** — The media modal used by the block editor, featured image picker, and page builders gets a folder tree, and Media → Library (grid and list view) gets a folder dropdown. Files uploaded there go into the selected folder.
+* **Folder Gallery Block** — Turn any folder into an image gallery on your site. Add the Folder Gallery block, pick a folder, and the gallery follows it: add, remove, or reorder images in the folder and every gallery using it updates on its own. Also available as a shortcode.
 * **Import and Export** — Import folders and file assignments from FileBird, Real Media Library, CatFolders, Folders, Enhanced Media Library, Wicked Folders, Media Library Organizer, Mediamatic, HappyFiles, and WP Media Folder. Export your folder structure as a JSON file and import it on another site.
 * **Modern Grid & List View** — Grid or sortable list view with thumbnail size control. Sort by date added, date modified, name, size, uploader, or your own custom order.
 * **File Details Panel** — Slide-in panel with editable title, alt text, caption, and description. See where each file is used: post content, featured images, custom fields, page builder data, product galleries, and the site logo.
@@ -31,11 +32,23 @@ NHR Smart Media Manager organizes your WordPress media library into folders and 
 * **Unused Files View** — Scan the library for files with no reference in post content, featured images, custom fields, page builder data, product galleries, or the site logo. Files used only in theme files or CSS are not detected, so review the list before deleting.
 * **AI Alt Text, Captions, Titles & Descriptions** — Generate text for a file with one click, for a selection, or for every image missing alt text, using the WordPress AI connector you configure at Settings → Connectors. Optionally write alt text automatically on upload. Choose the language, maximum length, extra instructions, and whether to use the page title and SEO focus keyphrase (Yoast SEO, Rank Math, SEOPress) as context.
 * **Upload Enhancements** — Assign files to folders on upload, drag-and-drop files or whole folders from your desktop (subfolders are kept), per-file progress bars, and a default upload folder.
-* **Folder Gallery Block & Shortcode** — Show the images of a folder as a gallery with the Folder Gallery block or `[nhrsmm_gallery folder="12"]`.
 * **Starred & Recent** — Star files and reopen recent ones. Both lists are saved to your user account.
 * **WP-CLI** — `wp nhrsmm alt --limit=200` generates alt text for images that have none.
 * **Multisite** — Each site in a network has its own folders and settings.
 * **Keyboard Shortcuts** — Full keyboard navigation (Escape, Delete, Ctrl+A, Shift+click range select, Arrow keys).
+
+= Folder Gallery: galleries that follow a folder =
+
+A normal gallery is a fixed list of images. To add a photo you have to edit every page that shows the gallery. The Folder Gallery block points at a folder instead:
+
+* Add the **Folder Gallery** block in the block editor and choose a folder.
+* Choose the number of columns, the image size, how many images to show, and whether images link to the file, the attachment page, or nothing.
+* Upload a new image into the folder, or drag one in, and it appears in the gallery on every page that uses that folder. Remove it from the folder and it leaves the gallery.
+* Images follow the folder's custom order when you have set one (sort by Custom Order in Smart Library and drag the files), otherwise newest first.
+* The gallery is a responsive grid built on the standard WordPress gallery markup: your chosen number of columns on larger screens, at most two on phones.
+* In the classic editor, widgets, or page builders, use the shortcode: `[nhrsmm_gallery folder="12" columns="3" size="medium" link="file" limit="50"]`. The folder ID is shown in the Smart Library address bar when the folder is open.
+
+The gallery shows the images directly inside the chosen folder, not those in its subfolders.
 
 == External Services ==
 
@@ -87,6 +100,10 @@ Yes. Folders are virtual, so file URLs never change. The folder tree appears in 
 
 It is moved to the Trash view, where you can restore it or delete it permanently. WordPress empties trashed items after 30 days by default.
 
+= Can I show a folder as a gallery on my site? =
+
+Yes. Add the Folder Gallery block and pick a folder, or use the `[nhrsmm_gallery folder="12"]` shortcode. The gallery always shows what is in the folder, so you manage it from the media library instead of editing each page.
+
 = Can I move my folders from another plugin? =
 
 Yes. Open Smart Library and use the plug icon at the bottom of the folder sidebar. Folders and file assignments are copied; the other plugin's data is not changed.
@@ -101,6 +118,7 @@ Yes. Open Smart Library and use the plug icon at the bottom of the folder sideba
 6. Folder tree in the media modal used by the block editor and page builders
 7. Upload modal: drop files or whole folders and pick the target folder
 8. Settings: AI options for language, length, page context, and alt text on upload
+9. Folder Gallery block in the editor: pick a folder and the gallery follows it
 
 == Source Code ==
 
@@ -127,7 +145,7 @@ To rebuild the JavaScript assets: `npm install && npm run build`
 * New: Keep a file in several folders; hold Shift while dropping files on a folder to add instead of move.
 * New: Sort by date modified, uploader, or a custom drag-and-drop order; filter by upload date and your own uploads.
 * New: Upload whole folders from your desktop and keep their structure.
-* New: Folder Gallery block and `[nhrsmm_gallery]` shortcode.
+* New: Folder Gallery block and `[nhrsmm_gallery]` shortcode: show a folder as a gallery that updates when the folder changes.
 * New: Starred and Recent lists are saved per user account.
 * Improved: Search now matches file names and alt text.
 * Improved: "Used In" also checks custom fields, page builder data, product galleries, and the site logo.

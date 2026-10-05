@@ -79,7 +79,7 @@ All routes require `manage_categories` (Editor+), with per-attachment `edit_post
 | `Core\Importer` | Reads other folder plugins' tables/taxonomies (read-only) |
 | `Core\Ai` | Alt, caption, title, description; prompt options; auto alt cron callback |
 | `Admin\NativeLibrary` | Folder tree in the media modal, folder dropdown in Media → Library grid/list and in narrow modals (`admin/js/nhrsmm-media-modal.js`, hand-written, not built; its CSS is an inline style on `media-views`). The tree is skipped in grid mode because that layout is not absolutely positioned. |
-| `Block` | `[nhrsmm_gallery]` shortcode and `nhrsmm/folder-gallery` block |
+| `Block` | `[nhrsmm_gallery]` shortcode and `nhrsmm/folder-gallery` block. Wraps core's `gallery_shortcode()` output in `.nhrsmm-gallery` with its own inline grid CSS (`nhrsmm-gallery` style handle), because core gallery markup has no column styles in block themes |
 | `Cli` | `wp nhrsmm alt` |
 
 ## Non-Obvious Implementation Details

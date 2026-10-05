@@ -1,6 +1,6 @@
 {
     "name": "nhrsmm/smart-media-manager",
-    "description": "Media library folders with a folder tree in the media modal, bulk editing, trash, and AI alt text through your own WordPress AI connector.",
+    "description": "Media library folders, a folder tree in the media modal, a gallery block that follows a folder, bulk editing, and AI alt text with your AI connector.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "authors": [

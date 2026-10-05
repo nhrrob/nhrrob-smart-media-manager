@@ -37,6 +37,18 @@ class Block {
 	public function register(): void {
 		add_shortcode( 'nhrsmm_gallery', [ $this, 'render' ] );
 
+		// Grid layout for the gallery. Core's gallery markup has no column styles in themes that
+		// declare HTML5 galleries (all block themes), so the column setting would do nothing.
+		wp_register_style( 'nhrsmm-gallery', false, [], NHRSMM_VERSION );
+		wp_add_inline_style(
+			'nhrsmm-gallery',
+			'.nhrsmm-gallery .gallery{display:grid;grid-template-columns:repeat(var(--nhrsmm-columns,3),minmax(0,1fr));gap:12px;margin:0}'
+			. '.nhrsmm-gallery .gallery-item{float:none!important;width:auto!important;max-width:none;margin:0!important;padding:0;text-align:center}'
+			. '.nhrsmm-gallery .gallery-item img{display:block;width:100%;height:auto;border:0!important}'
+			. '.nhrsmm-gallery .gallery br{display:none}'
+			. '@media (max-width:600px){.nhrsmm-gallery .gallery{grid-template-columns:repeat(min(var(--nhrsmm-columns,3),2),minmax(0,1fr))}}'
+		);
+
 		$asset_file = NHRSMM_PLUGIN_DIR . 'admin/build/block.asset.php';
 		if ( ! file_exists( $asset_file ) ) {
 			return;
@@ -51,6 +63,7 @@ class Block {
 			[
 				'api_version'           => 3,
 				'editor_script_handles' => [ 'nhrsmm-block' ],
+				'style_handles'         => [ 'nhrsmm-gallery' ],
 				'render_callback'       => [ $this, 'render' ],
 				'attributes'            => [
 					'folder'  => [
@@ -137,14 +150,19 @@ class Block {
 			return '';
 		}
 
-		return gallery_shortcode(
+		$columns = min( 9, max( 1, absint( $atts['columns'] ) ) );
+		wp_enqueue_style( 'nhrsmm-gallery' );
+
+		$gallery = gallery_shortcode(
 			[
 				'ids'     => implode( ',', $ids ),
-				'columns' => min( 9, max( 1, absint( $atts['columns'] ) ) ),
+				'columns' => $columns,
 				'size'    => sanitize_key( $atts['size'] ),
 				'link'    => in_array( $atts['link'], [ 'file', 'none', 'post' ], true ) ? $atts['link'] : 'file',
 				'orderby' => 'post__in',
 			]
 		);
+
+		return '<div class="nhrsmm-gallery" style="--nhrsmm-columns:' . $columns . '">' . $gallery . '</div>';
 	}
 }
