@@ -45,11 +45,18 @@ class App {
 		( new Assets() )->register_hooks();
 		( new Admin\MediaPage() )->register_hooks();
 		( new Admin\Settings() )->register_hooks();
+		( new Admin\NativeLibrary() )->register_hooks();
+		( new Block() )->register_hooks();
 
 		add_filter( 'plugin_action_links_' . plugin_basename( NHRSMM_FILE ), [ $this, 'action_links' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 		add_action( 'add_attachment', [ $this, 'on_attachment_add' ] );
 		add_action( 'delete_attachment', [ $this, 'on_attachment_delete' ] );
+		add_action( 'nhrsmm_auto_alt', [ $this, 'run_auto_alt' ] );
+
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			\WP_CLI::add_command( 'nhrsmm', Cli::class );
+		}
 	}
 
 	/**
@@ -104,16 +111,38 @@ class App {
 	}
 
 	/**
-	 * Assigns the default upload folder to newly added attachments.
+	 * Puts a newly added attachment into the folder chosen in the uploader (or the default
+	 * upload folder) and queues AI alt text when that setting is on.
 	 *
 	 * @param int $attachment_id Attachment post ID.
 	 * @return void
 	 */
 	public function on_attachment_add( $attachment_id ) {
-		$default_folder = get_option( 'nhrsmm_default_upload_folder', 0 );
-		if ( $default_folder && term_exists( (int) $default_folder, 'nhrsmm_media_folder' ) ) {
-			wp_set_object_terms( $attachment_id, (int) $default_folder, 'nhrsmm_media_folder' );
+		$settings = Core\Options::get();
+
+		// Sent by this plugin's uploaders through async-upload.php, which verifies the media-form nonce.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$folder = isset( $_REQUEST['nhrsmm_folder'] ) ? absint( wp_unslash( $_REQUEST['nhrsmm_folder'] ) ) : 0;
+		if ( ! $folder ) {
+			$folder = absint( $settings['default_upload_folder'] );
 		}
+		if ( $folder && term_exists( $folder, 'nhrsmm_media_folder' ) ) {
+			wp_set_object_terms( $attachment_id, $folder, 'nhrsmm_media_folder' );
+		}
+
+		if ( ! empty( $settings['auto_alt'] ) && wp_attachment_is_image( $attachment_id ) && Core\Ai::is_available() ) {
+			wp_schedule_single_event( time() + 10, 'nhrsmm_auto_alt', [ (int) $attachment_id ] );
+		}
+	}
+
+	/**
+	 * Cron callback for automatic alt text on upload.
+	 *
+	 * @param int $attachment_id Attachment post ID.
+	 * @return void
+	 */
+	public function run_auto_alt( $attachment_id ) {
+		( new Core\Ai() )->auto_alt( $attachment_id );
 	}
 
 	/**

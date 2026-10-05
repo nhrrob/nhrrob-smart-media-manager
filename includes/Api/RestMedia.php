@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Nhrsmm\SmartMediaManager\Core\Media;
+use Nhrsmm\SmartMediaManager\Core\Usage;
 
 /**
  * Handles REST routes for media listing, retrieval, update, move, bulk operations, and usage.
@@ -59,6 +60,13 @@ class RestMedia extends RestController {
 				],
 			]
 		);
+
+		$this->route( '/media/bulk-restore', 'POST', 'bulk_restore' );
+		$this->route( '/media/bulk-update', 'POST', 'bulk_update' );
+		$this->route( '/media/reorder', 'POST', 'reorder' );
+		$this->route( '/media/scan-unused', 'POST', 'scan_unused' );
+		$this->route( '/media/(?P<id>\d+)/replace', 'POST', 'replace' );
+		$this->route( '/user-state', 'POST', 'save_user_state' );
 
 		register_rest_route(
 			$this->namespace,
@@ -112,16 +120,22 @@ class RestMedia extends RestController {
 		$media  = new Media();
 		$result = $media->get_list(
 			[
-				'page'     => absint( $request->get_param( 'page' ) ?? 1 ),
-				'per_page' => null !== $request->get_param( 'per_page' ) ? absint( $request->get_param( 'per_page' ) ) : null,
-				'folder'   => null !== $request->get_param( 'folder' ) ? absint( $request->get_param( 'folder' ) ) : null,
-				'search'   => sanitize_text_field( $request->get_param( 'search' ) ?? '' ),
-				'type'     => sanitize_key( $request->get_param( 'type' ) ?? '' ),
-				'orderby'  => sanitize_key( $request->get_param( 'orderby' ) ?? 'date' ),
-				'order'    => sanitize_key( $request->get_param( 'order' ) ?? 'DESC' ),
-				'ids'      => $request->get_param( 'ids' )
+				'page'      => absint( $request->get_param( 'page' ) ?? 1 ),
+				'per_page'  => null !== $request->get_param( 'per_page' ) ? absint( $request->get_param( 'per_page' ) ) : null,
+				'folder'    => null !== $request->get_param( 'folder' ) ? absint( $request->get_param( 'folder' ) ) : null,
+				'search'    => sanitize_text_field( $request->get_param( 'search' ) ?? '' ),
+				'type'      => sanitize_key( $request->get_param( 'type' ) ?? '' ),
+				'orderby'   => sanitize_key( $request->get_param( 'orderby' ) ?? 'date' ),
+				'order'     => sanitize_key( $request->get_param( 'order' ) ?? 'DESC' ),
+				'ids'       => $request->get_param( 'ids' )
 					? array_filter( array_map( 'absint', explode( ',', $request->get_param( 'ids' ) ) ) )
 					: [],
+				'alt'       => sanitize_key( $request->get_param( 'alt' ) ?? '' ),
+				'status'    => sanitize_key( $request->get_param( 'status' ) ?? '' ),
+				'unused'    => (bool) $request->get_param( 'unused' ),
+				'author'    => absint( $request->get_param( 'author' ) ?? 0 ),
+				'date_from' => sanitize_text_field( $request->get_param( 'date_from' ) ?? '' ),
+				'date_to'   => sanitize_text_field( $request->get_param( 'date_to' ) ?? '' ),
 			]
 		);
 		return rest_ensure_response( $result );
@@ -204,13 +218,14 @@ class RestMedia extends RestController {
 		if ( empty( $ids ) ) {
 			return new \WP_Error( 'no_ids', __( 'No file IDs provided.', 'nhrrob-smart-media-manager' ), [ 'status' => 400 ] );
 		}
+		$mode   = in_array( $params['mode'] ?? '', [ 'add', 'remove' ], true ) ? $params['mode'] : 'move';
 		$media  = new Media();
-		$result = $media->bulk_move( $ids, $folder_id );
+		$result = $media->bulk_move( $ids, $folder_id, $mode );
 		return rest_ensure_response( $result );
 	}
 
 	/**
-	 * Permanently deletes multiple attachments.
+	 * Trashes multiple attachments, or deletes them permanently when force is set.
 	 *
 	 * @param \WP_REST_Request $request REST request.
 	 * @return \WP_REST_Response|\WP_Error
@@ -222,7 +237,7 @@ class RestMedia extends RestController {
 			return new \WP_Error( 'no_ids', __( 'No file IDs provided.', 'nhrrob-smart-media-manager' ), [ 'status' => 400 ] );
 		}
 		$media  = new Media();
-		$result = $media->bulk_delete( $ids );
+		$result = $media->bulk_delete( $ids, ! empty( $params['force'] ) );
 		return rest_ensure_response( $result );
 	}
 
@@ -237,7 +252,93 @@ class RestMedia extends RestController {
 		if ( ! current_user_can( 'edit_post', $id ) ) {
 			return new \WP_Error( 'forbidden', __( 'You cannot view this attachment.', 'nhrrob-smart-media-manager' ), [ 'status' => 403 ] );
 		}
-		$media = new Media();
-		return rest_ensure_response( $media->get_usage( $id ) );
+		return rest_ensure_response( ( new Usage() )->get( $id ) );
+	}
+
+	/**
+	 * Restores multiple attachments from the trash.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response
+	 */
+	public function bulk_restore( \WP_REST_Request $request ) {
+		return rest_ensure_response( ( new Media() )->bulk_restore( $this->body_ids( $request ) ) );
+	}
+
+	/**
+	 * Applies the same field values to multiple attachments.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response
+	 */
+	public function bulk_update( \WP_REST_Request $request ) {
+		$params = $request->get_json_params() ?? [];
+		return rest_ensure_response( ( new Media() )->bulk_update( $this->body_ids( $request ), (array) ( $params['data'] ?? [] ) ) );
+	}
+
+	/**
+	 * Saves a manual file order.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response
+	 */
+	public function reorder( \WP_REST_Request $request ) {
+		$params = $request->get_json_params() ?? [];
+		return rest_ensure_response(
+			[
+				'updated' => ( new Media() )->reorder( $this->body_ids( $request ), absint( $params['offset'] ?? 0 ) ),
+			]
+		);
+	}
+
+	/**
+	 * Scans one batch of attachments for files with no known reference.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response
+	 */
+	public function scan_unused( \WP_REST_Request $request ) {
+		$params = $request->get_json_params() ?? [];
+		return rest_ensure_response( ( new Usage() )->scan( absint( $params['after'] ?? 0 ) ) );
+	}
+
+	/**
+	 * Replaces the file behind an attachment.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function replace( \WP_REST_Request $request ) {
+		$id    = absint( $request->get_param( 'id' ) );
+		$files = $request->get_file_params();
+		if ( ! current_user_can( 'upload_files' ) || ! current_user_can( 'edit_post', $id ) ) {
+			return new \WP_Error( 'forbidden', __( 'You cannot edit this attachment.', 'nhrrob-smart-media-manager' ), [ 'status' => 403 ] );
+		}
+		if ( empty( $files['file'] ) || ! is_array( $files['file'] ) ) {
+			return new \WP_Error( 'no_file', __( 'No file was uploaded.', 'nhrrob-smart-media-manager' ), [ 'status' => 400 ] );
+		}
+		$result = ( new Media() )->replace_file( $id, $files['file'] );
+		return is_wp_error( $result ) ? $result : rest_ensure_response( $result );
+	}
+
+	/**
+	 * Saves the current user's starred and recent file lists.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response
+	 */
+	public function save_user_state( \WP_REST_Request $request ) {
+		$params = $request->get_json_params() ?? [];
+		$user   = get_current_user_id();
+		foreach ( [
+			'starred' => 500,
+			'recent'  => 20,
+		] as $key => $cap ) {
+			if ( isset( $params[ $key ] ) && is_array( $params[ $key ] ) ) {
+				$ids = array_slice( array_values( array_unique( array_filter( array_map( 'absint', $params[ $key ] ) ) ) ), 0, $cap );
+				update_user_meta( $user, 'nhrsmm_' . $key, $ids );
+			}
+		}
+		return rest_ensure_response( [ 'saved' => true ] );
 	}
 }

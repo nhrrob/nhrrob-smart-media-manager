@@ -25,9 +25,6 @@
 <circle cx="172" cy="72" r="92" fill="#667eea" fill-opacity="0.08"/>
 <circle cx="68" cy="200" r="66" fill="#764ba2" fill-opacity="0.06"/>
 
-<!-- Top accent stripe -->
-<rect x="0" y="0" width="256" height="5" rx="2" fill="url(#acc)" fill-opacity="0.6"/>
-
 <!-- Image frame — gradient border layer -->
 <rect x="58" y="78" width="140" height="103" rx="15" fill="url(#acc)"/>
 <!-- Image frame — dark interior -->

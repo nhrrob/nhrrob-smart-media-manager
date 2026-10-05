@@ -23,6 +23,85 @@ async function clickNav( page, text ) {
 	await waitForGridLoaded( page );
 }
 
+// Creates a folder and uploads generated PNGs into it through the same endpoints the app uses.
+// Must be called on the Smart Library page (needs window.nhrsmmConfig).
+async function seed( page, { files = 1 } = {} ) {
+	return page.evaluate(
+		async ( { count, stamp } ) => {
+			const cfg = window.nhrsmmConfig;
+			const api = ( method, route, body ) =>
+				fetch( cfg.restUrl + route, {
+					method,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-WP-Nonce': cfg.nonce,
+					},
+					credentials: 'same-origin',
+					body: body ? JSON.stringify( body ) : undefined,
+				} ).then( ( r ) => r.json() );
+
+			const folderName = `e2e-folder-${ stamp }`;
+			const folder = await api( 'POST', '/folders', {
+				name: folderName,
+			} );
+
+			const ids = [];
+			const names = [];
+			for ( let i = 0; i < count; i++ ) {
+				const canvas = document.createElement( 'canvas' );
+				canvas.width = 120;
+				canvas.height = 80;
+				canvas.getContext( '2d' ).fillRect( 0, 0, 120, 80 );
+				const blob = await new Promise( ( resolve ) =>
+					canvas.toBlob( resolve, 'image/png' )
+				);
+				const name = `e2e-${ stamp }-${ i }.png`;
+				const form = new FormData();
+				form.append( 'async-upload', new File( [ blob ], name ) );
+				form.append( 'action', 'upload-attachment' );
+				form.append( '_wpnonce', cfg.mediaUploadNonce );
+				form.append( 'nhrsmm_folder', folder.id );
+				const res = await fetch( cfg.adminUrl + 'async-upload.php', {
+					method: 'POST',
+					body: form,
+					credentials: 'same-origin',
+				} ).then( ( r ) => r.json() );
+				ids.push( res.data.id );
+				names.push( name );
+			}
+			return { folderId: folder.id, folderName, ids, names };
+		},
+		{ count: files, stamp: Date.now() }
+	);
+}
+
+// Permanently removes seeded files and their folder.
+async function cleanup( page, { folderId, ids } ) {
+	await page.goto( LIBRARY_URL );
+	await page.waitForFunction( () => window.nhrsmmConfig );
+	await page.evaluate(
+		async ( { folder, attachments } ) => {
+			const cfg = window.nhrsmmConfig;
+			const call = ( method, route, body ) =>
+				fetch( cfg.restUrl + route, {
+					method,
+					headers: {
+						'Content-Type': 'application/json',
+						'X-WP-Nonce': cfg.nonce,
+					},
+					credentials: 'same-origin',
+					body: body ? JSON.stringify( body ) : undefined,
+				} );
+			await call( 'DELETE', '/media/bulk-delete', {
+				ids: attachments,
+				force: true,
+			} );
+			await call( 'DELETE', `/folders/${ folder }` );
+		},
+		{ folder: folderId, attachments: ids }
+	);
+}
+
 test.describe( 'Smart Media Library', () => {
 	test.beforeEach( async ( { page } ) => {
 		await loginAsAdmin( page );
@@ -51,7 +130,7 @@ test.describe( 'Smart Media Library', () => {
 		await expect( page.locator( '.smm-modal-overlay' ) ).toBeVisible();
 
 		await page
-			.locator( '.smm-modal input[type="file"]' )
+			.locator( '.smm-modal input[type="file"][multiple]' )
 			.setInputFiles( FIXTURE_PNG );
 
 		await expect(
@@ -201,5 +280,165 @@ test.describe( 'Smart Media Library', () => {
 				.locator( '#smm-folder-tree .folder-name' )
 				.filter( { hasText: folderName } )
 		).toBeVisible();
+	} );
+
+	test( 'a file uploaded into a folder shows up in that folder', async ( {
+		page,
+	} ) => {
+		await gotoLibrary( page );
+		const data = await seed( page );
+
+		await page.goto( `${ LIBRARY_URL }&folder=${ data.folderId }` );
+		await waitForGridLoaded( page );
+
+		await expect( page.locator( '.smm-media-card' ) ).toHaveCount( 1 );
+		await expect( page.locator( '.breadcrumb-current' ) ).toHaveText(
+			data.folderName
+		);
+
+		await cleanup( page, data );
+	} );
+
+	test( 'deleting a file moves it to the Trash and it can be restored', async ( {
+		page,
+	} ) => {
+		await gotoLibrary( page );
+		const data = await seed( page );
+
+		await page.goto( `${ LIBRARY_URL }&folder=${ data.folderId }` );
+		await waitForGridLoaded( page );
+		await page.locator( '.smm-media-card' ).first().click();
+		await page
+			.locator( '.details-actions button' )
+			.filter( { hasText: 'Move to Trash' } )
+			.click();
+		await page.locator( '.btn-danger-solid' ).click();
+		await expect( page.locator( '.smm-media-card' ) ).toHaveCount( 0 );
+
+		await clickNav( page, 'Trash' );
+		const trashed = page
+			.locator( '.smm-media-card' )
+			.filter( { hasText: data.names[ 0 ] } );
+		await expect( trashed ).toBeVisible();
+
+		await trashed.click();
+		await page
+			.locator( '.details-actions button' )
+			.filter( { hasText: 'Restore' } )
+			.click();
+		await expect( trashed ).toHaveCount( 0 );
+
+		await page.goto( `${ LIBRARY_URL }&folder=${ data.folderId }` );
+		await waitForGridLoaded( page );
+		await expect( page.locator( '.smm-media-card' ) ).toHaveCount( 1 );
+
+		await cleanup( page, data );
+	} );
+
+	test( 'bulk edit applies a caption to every selected file', async ( {
+		page,
+	} ) => {
+		await gotoLibrary( page );
+		const data = await seed( page, { files: 2 } );
+
+		await page.goto( `${ LIBRARY_URL }&folder=${ data.folderId }` );
+		await waitForGridLoaded( page );
+		await expect( page.locator( '.smm-media-card' ) ).toHaveCount( 2 );
+		await page.locator( '.smm-toolbar .smm-checkbox' ).click();
+
+		const bar = page.locator( '.smm-bulk-bar' );
+		await expect( bar ).toBeInViewport();
+		await bar.locator( 'button' ).filter( { hasText: 'Edit' } ).click();
+
+		await page
+			.locator( '.tool-field' )
+			.filter( { hasText: 'Caption' } )
+			.locator( 'input' )
+			.fill( 'Shared caption' );
+		await page
+			.locator( '.modal-footer button' )
+			.filter( { hasText: 'Apply' } )
+			.click();
+		await expect( page.locator( '.smm-modal' ) ).toHaveCount( 0 );
+
+		const captions = await page.evaluate( async ( ids ) => {
+			const cfg = window.nhrsmmConfig;
+			return Promise.all(
+				ids.map( ( id ) =>
+					fetch( `${ cfg.restUrl }/media/${ id }`, {
+						headers: { 'X-WP-Nonce': cfg.nonce },
+						credentials: 'same-origin',
+					} )
+						.then( ( r ) => r.json() )
+						.then( ( file ) => file.caption )
+				)
+			);
+		}, data.ids );
+		expect( captions ).toEqual( [ 'Shared caption', 'Shared caption' ] );
+
+		await cleanup( page, data );
+	} );
+
+	test( 'the Missing alt text view lists a new image without alt text', async ( {
+		page,
+	} ) => {
+		await gotoLibrary( page );
+		const data = await seed( page );
+
+		await page.reload();
+		await waitForGridLoaded( page );
+		await clickNav( page, 'Missing alt text' );
+		await expect(
+			page
+				.locator( '.smm-media-card' )
+				.filter( { hasText: data.names[ 0 ] } )
+		).toBeVisible();
+
+		await cleanup( page, data );
+	} );
+
+	test( 'the media modal has a folder tree that filters attachments', async ( {
+		page,
+	} ) => {
+		await gotoLibrary( page );
+		const data = await seed( page );
+
+		await page.goto( '/wp-admin/upload.php?mode=grid' );
+		await page.waitForFunction(
+			() => window.wp?.media && window.nhrsmmModal
+		);
+		await page.evaluate( () => window.wp.media( { title: 'e2e' } ).open() );
+
+		// On this screen the modal opens on its Upload tab.
+		await page.locator( '.media-modal #menu-item-browse' ).click();
+
+		const tree = page.locator( '.media-modal .nhrsmm-tree' );
+		await expect( tree ).toBeVisible();
+		await tree
+			.locator( 'button' )
+			.filter( { hasText: data.folderName } )
+			.click();
+		await expect(
+			page.locator( '.media-modal .attachments .attachment' )
+		).toHaveCount( 1 );
+
+		await cleanup( page, data );
+	} );
+
+	test( 'the Media Library list view can be filtered by folder', async ( {
+		page,
+	} ) => {
+		await gotoLibrary( page );
+		const data = await seed( page, { files: 2 } );
+
+		await page.goto(
+			`/wp-admin/upload.php?mode=list&nhrsmm_folder=${ data.folderId }`
+		);
+		await expect( page.locator( '#the-list tr' ) ).toHaveCount( 2 );
+		await expect( page.locator( '#nhrsmm-folder-filter' ) ).toHaveValue(
+			String( data.folderId )
+		);
+
+		await cleanup( page, data );
 	} );
 } );

@@ -35,6 +35,7 @@ class RestAi extends RestController {
 				],
 			]
 		);
+		$this->route( '/ai/generate', 'POST', 'generate' );
 		register_rest_route(
 			$this->namespace,
 			'/ai/caption',
@@ -98,6 +99,31 @@ class RestAi extends RestController {
 
 		$ai     = new Ai();
 		$result = $ai->generate_caption( $attachment_id );
+
+		if ( is_wp_error( $result ) ) {
+			$data   = $result->get_error_data();
+			$status = is_array( $data ) && isset( $data['status'] ) ? $data['status'] : 400;
+			return new \WP_Error( $result->get_error_code(), $result->get_error_message(), [ 'status' => $status ] );
+		}
+
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Generates text for one attachment field (alt, caption, title, description) and optionally saves it.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function generate( \WP_REST_Request $request ) {
+		$params        = $request->get_json_params() ?? [];
+		$attachment_id = absint( $params['attachment_id'] ?? 0 );
+
+		if ( ! $attachment_id || ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new \WP_Error( 'forbidden', __( 'You cannot edit this attachment.', 'nhrrob-smart-media-manager' ), [ 'status' => 403 ] );
+		}
+
+		$result = ( new Ai() )->generate( $attachment_id, sanitize_key( $params['field'] ?? 'alt' ), ! empty( $params['save'] ) );
 
 		if ( is_wp_error( $result ) ) {
 			$data   = $result->get_error_data();

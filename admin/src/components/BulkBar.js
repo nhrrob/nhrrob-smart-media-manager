@@ -11,11 +11,28 @@ export default function BulkBar() {
 		loadFolders,
 		showToast,
 		deleteSelected,
+		cfg,
 	} = useApp();
-	const { selection, folders } = state;
+	const { selection, folders, files, specialView } = state;
+	const inTrash = specialView === 'trash';
 	const [ selectedFolder, setSelectedFolder ] = useState( '' );
 
-	async function moveSelected() {
+	function openModal( modal ) {
+		dispatch( { type: 'OPEN_MODAL', modal } );
+	}
+
+	async function restoreSelected() {
+		try {
+			await post( '/media/bulk-restore', { ids: [ ...selection ] } );
+			dispatch( { type: 'CLEAR_SELECTION' } );
+			await loadFolders();
+			loadMedia();
+		} catch ( e ) {
+			showToast( e.message, 'danger' );
+		}
+	}
+
+	async function moveSelected( mode = 'move' ) {
 		if ( ! selectedFolder ) {
 			return;
 		}
@@ -25,6 +42,7 @@ export default function BulkBar() {
 			const res = await post( '/media/bulk-move', {
 				ids,
 				folder_id: folderId,
+				mode,
 			} );
 			showToast(
 				sprintf(
@@ -74,38 +92,124 @@ export default function BulkBar() {
 				) }
 			</span>
 
-			<div className="bulk-actions">
-				<select
-					className="smm-select smm-select-sm"
-					value={ selectedFolder }
-					onChange={ ( e ) => setSelectedFolder( e.target.value ) }
-				>
-					<option value="">
+			{ inTrash ? (
+				<div className="bulk-actions">
+					<button
+						className="btn btn-sm btn-white"
+						onClick={ restoreSelected }
+					>
+						<i className="ti ti-restore" />{ ' ' }
+						{ __( 'Restore', 'nhrrob-smart-media-manager' ) }
+					</button>
+					<button
+						className="btn btn-sm btn-danger"
+						onClick={ deleteSelected }
+					>
+						<i className="ti ti-trash" />{ ' ' }
 						{ __(
-							'Move to folder…',
+							'Delete Permanently',
 							'nhrrob-smart-media-manager'
 						) }
-					</option>
-					{ renderFolderOptions( folders ) }
-				</select>
+					</button>
+				</div>
+			) : (
+				<div className="bulk-actions">
+					<select
+						className="smm-select smm-select-sm"
+						value={ selectedFolder }
+						onChange={ ( e ) =>
+							setSelectedFolder( e.target.value )
+						}
+					>
+						<option value="">
+							{ __( 'Folder…', 'nhrrob-smart-media-manager' ) }
+						</option>
+						{ renderFolderOptions( folders ) }
+					</select>
 
-				<button
-					className="btn btn-sm btn-white"
-					disabled={ ! selectedFolder }
-					onClick={ moveSelected }
-				>
-					<i className="ti ti-arrows-move" />{ ' ' }
-					{ __( 'Move', 'nhrrob-smart-media-manager' ) }
-				</button>
+					<button
+						className="btn btn-sm btn-white"
+						disabled={ ! selectedFolder }
+						onClick={ () => moveSelected( 'move' ) }
+					>
+						<i className="ti ti-arrows-move" />{ ' ' }
+						{ __( 'Move', 'nhrrob-smart-media-manager' ) }
+					</button>
 
-				<button
-					className="btn btn-sm btn-danger"
-					onClick={ deleteSelected }
-				>
-					<i className="ti ti-trash" />{ ' ' }
-					{ __( 'Delete', 'nhrrob-smart-media-manager' ) }
-				</button>
-			</div>
+					<button
+						className="btn btn-sm btn-white"
+						disabled={ ! selectedFolder }
+						title={ __(
+							'Add to this folder and keep the current ones',
+							'nhrrob-smart-media-manager'
+						) }
+						onClick={ () => moveSelected( 'add' ) }
+					>
+						<i className="ti ti-folder-plus" />{ ' ' }
+						{ __( 'Add', 'nhrrob-smart-media-manager' ) }
+					</button>
+
+					<button
+						className="btn btn-sm btn-white"
+						onClick={ () =>
+							openModal( {
+								kind: 'bulk-edit',
+								ids: [ ...selection ],
+							} )
+						}
+					>
+						<i className="ti ti-edit" />{ ' ' }
+						{ __( 'Edit', 'nhrrob-smart-media-manager' ) }
+					</button>
+
+					{ cfg.aiConfigured && (
+						<button
+							className="btn btn-sm btn-white"
+							onClick={ () =>
+								openModal( {
+									kind: 'bulk-ai',
+									ids: files
+										.filter(
+											( f ) =>
+												selection.has( f.id ) &&
+												f.type === 'image'
+										)
+										.map( ( f ) => f.id ),
+								} )
+							}
+						>
+							<i className="ti ti-sparkles" />{ ' ' }
+							{ __( 'Alt text', 'nhrrob-smart-media-manager' ) }
+						</button>
+					) }
+
+					<button
+						className="btn btn-sm btn-white"
+						onClick={ () =>
+							openModal( {
+								kind: 'zip',
+								files: files
+									.filter( ( f ) => selection.has( f.id ) )
+									.map( ( f ) => ( {
+										url: f.url,
+										path: f.filename,
+									} ) ),
+							} )
+						}
+					>
+						<i className="ti ti-file-zip" />{ ' ' }
+						{ __( 'ZIP', 'nhrrob-smart-media-manager' ) }
+					</button>
+
+					<button
+						className="btn btn-sm btn-danger"
+						onClick={ deleteSelected }
+					>
+						<i className="ti ti-trash" />{ ' ' }
+						{ __( 'Trash', 'nhrrob-smart-media-manager' ) }
+					</button>
+				</div>
+			) }
 
 			<button
 				className="btn-icon"

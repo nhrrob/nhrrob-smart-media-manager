@@ -16,6 +16,9 @@ class AiTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->ai = new Ai();
+
+		// Ai reads its prompt options (language, length, context) from the plugin settings.
+		Functions\when( 'get_option' )->justReturn( [] );
 	}
 
 	private function alt_text_builder( $generate_text_return = 'A dog in a park' ): object {

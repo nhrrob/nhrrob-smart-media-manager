@@ -100,6 +100,23 @@ export default function Topbar() {
 								</p>
 							</div>
 							<div className="smm-dropdown-section ai-tools-links">
+								<button
+									type="button"
+									className="smm-dropdown-opt"
+									onClick={ () => {
+										setAiOpen( false );
+										dispatch( {
+											type: 'OPEN_MODAL',
+											modal: { kind: 'bulk-ai' },
+										} );
+									} }
+								>
+									<i className="ti ti-sparkles" />
+									{ __(
+										'Alt text for all images missing it',
+										'nhrrob-smart-media-manager'
+									) }
+								</button>
 								<a
 									href={ cfg.connectorsUrl }
 									className="smm-dropdown-opt"

@@ -49,81 +49,75 @@
 <rect x="0" y="247" width="772" height="3" fill="url(#acc)" fill-opacity="0.25"/>
 
 <!-- ===== LEFT COLUMN — TEXT ===== -->
-<!-- "Smart Media" — bold primary heading -->
-<text x="58" y="98"
+<text x="58" y="92"
       font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
-      font-size="58" font-weight="800" letter-spacing="-1.5"
+      font-size="54" font-weight="800" letter-spacing="-1.5"
       fill="white">Smart Media</text>
 
-<!-- "Manager" — light secondary heading -->
-<text x="58" y="158"
+<text x="58" y="146"
       font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
-      font-size="58" font-weight="300" letter-spacing="-1"
+      font-size="54" font-weight="300" letter-spacing="-1"
       fill="white" fill-opacity="0.45">Manager</text>
 
-<!-- Tagline -->
-<text x="60" y="192"
+<!-- What it does -->
+<text x="60" y="180"
       font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
-      font-size="11.5" font-weight="400" letter-spacing="3.5"
-      fill="white" fill-opacity="0.28">ORGANIZE  ·  OPTIMIZE  ·  MANAGE</text>
+      font-size="15" font-weight="500"
+      fill="white" fill-opacity="0.78">Media library folders and AI alt text</text>
+
+<!-- Tagline -->
+<text x="60" y="205"
+      font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+      font-size="10.5" font-weight="400" letter-spacing="3"
+      fill="white" fill-opacity="0.32">FOLDERS  ·  AI ALT TEXT  ·  BULK EDIT</text>
 
 <!-- ===== SEPARATOR ===== -->
-<rect x="456" y="0" width="1" height="250" fill="url(#sepG)"/>
+<rect x="440" y="0" width="1" height="250" fill="url(#sepG)"/>
 
-<!-- ===== RIGHT COLUMN — MEDIA GRID ===== -->
-<!-- Subtle glow behind grid -->
-<ellipse cx="594" cy="125" rx="145" ry="95" fill="#667eea" fill-opacity="0.04"/>
+<!-- ===== RIGHT COLUMN — FOLDER TREE + MEDIA GRID ===== -->
+<ellipse cx="600" cy="125" rx="160" ry="100" fill="#667eea" fill-opacity="0.04"/>
 
-<!-- ——— THUMBNAIL 1 (purple/brand) — top-left ——— -->
-<rect x="474" y="67" width="72" height="52" rx="7" fill="url(#tg1)"/>
-<!-- mountains -->
-<path d="M474,119 L474,104 L494,89 L510,102 L526,87 L546,100 L546,119 Z"
-      fill="white" fill-opacity="0.22"/>
-<!-- sun -->
-<circle cx="486" cy="81" r="7" fill="white" fill-opacity="0.65"/>
-<!-- subtle border -->
-<rect x="474" y="67" width="72" height="52" rx="7" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
+<!-- Panel -->
+<rect x="454" y="44" width="292" height="162" rx="10" fill="white" fill-opacity="0.04" stroke="white" stroke-opacity="0.10"/>
+<rect x="582" y="44" width="1" height="162" fill="white" fill-opacity="0.08"/>
 
-<!-- ——— THUMBNAIL 2 (teal) — top-center ——— -->
-<rect x="558" y="67" width="72" height="52" rx="7" fill="url(#tg2)"/>
-<path d="M558,119 L558,104 L578,89 L594,102 L610,87 L630,100 L630,119 Z"
-      fill="white" fill-opacity="0.22"/>
-<circle cx="570" cy="81" r="7" fill="white" fill-opacity="0.65"/>
-<rect x="558" y="67" width="72" height="52" rx="7" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
+<!-- Folder tree -->
+<path d="M470,63 h5 l2,2 h7 a1.5,1.5 0 0 1 1.5,1.5 v6 a1.5,1.5 0 0 1 -1.5,1.5 h-14 a1.5,1.5 0 0 1 -1.5,-1.5 v-8 a1.5,1.5 0 0 1 1.5,-1.5 z" fill="#8b9cf4"/>
+<text x="492" y="71" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="white" fill-opacity="0.55">Products</text>
+<rect x="462" y="81" width="112" height="20" rx="5" fill="white" fill-opacity="0.10"/>
+<path d="M480,87 h5 l2,2 h7 a1.5,1.5 0 0 1 1.5,1.5 v6 a1.5,1.5 0 0 1 -1.5,1.5 h-14 a1.5,1.5 0 0 1 -1.5,-1.5 v-8 a1.5,1.5 0 0 1 1.5,-1.5 z" fill="#f59e0b"/>
+<text x="502" y="95" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="white" fill-opacity="0.92">Summer 2026</text>
+<path d="M480,111 h5 l2,2 h7 a1.5,1.5 0 0 1 1.5,1.5 v6 a1.5,1.5 0 0 1 -1.5,1.5 h-14 a1.5,1.5 0 0 1 -1.5,-1.5 v-8 a1.5,1.5 0 0 1 1.5,-1.5 z" fill="#10b981"/>
+<text x="502" y="119" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="white" fill-opacity="0.55">Lookbook</text>
+<path d="M470,135 h5 l2,2 h7 a1.5,1.5 0 0 1 1.5,1.5 v6 a1.5,1.5 0 0 1 -1.5,1.5 h-14 a1.5,1.5 0 0 1 -1.5,-1.5 v-8 a1.5,1.5 0 0 1 1.5,-1.5 z" fill="#0891b2"/>
+<text x="492" y="143" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="white" fill-opacity="0.55">Blog</text>
+<path d="M470,159 h5 l2,2 h7 a1.5,1.5 0 0 1 1.5,1.5 v6 a1.5,1.5 0 0 1 -1.5,1.5 h-14 a1.5,1.5 0 0 1 -1.5,-1.5 v-8 a1.5,1.5 0 0 1 1.5,-1.5 z" fill="#e05a7a"/>
+<text x="492" y="167" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="white" fill-opacity="0.55">Team</text>
+<path d="M470,183 h5 l2,2 h7 a1.5,1.5 0 0 1 1.5,1.5 v6 a1.5,1.5 0 0 1 -1.5,1.5 h-14 a1.5,1.5 0 0 1 -1.5,-1.5 v-8 a1.5,1.5 0 0 1 1.5,-1.5 z" fill="#9b6fcb"/>
+<text x="492" y="191" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="white" fill-opacity="0.55">Press kit</text>
 
-<!-- ——— THUMBNAIL 3 (video / dark) — top-right ——— -->
-<rect x="642" y="67" width="72" height="52" rx="7" fill="#0d0d1f"/>
-<rect x="642" y="67" width="72" height="52" rx="7" fill="url(#acc)" fill-opacity="0.15"/>
-<!-- Play button -->
-<circle cx="678" cy="93" r="16" fill="white" fill-opacity="0.1"/>
-<polygon points="671,84 671,102 689,93" fill="white" fill-opacity="0.80"/>
-<!-- "VIDEO" label -->
-<text x="662" y="112" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
-      font-size="7" font-weight="600" letter-spacing="1.5" fill="white" fill-opacity="0.35">VIDEO</text>
-<rect x="642" y="67" width="72" height="52" rx="7" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
+<!-- Media grid -->
+<rect x="596" y="58" width="64" height="46" rx="6" fill="url(#tg1)"/>
+<path d="M596,104 L596,91 L614,78 L628,89 L642,76 L660,87 L660,104 Z" fill="white" fill-opacity="0.22"/>
+<circle cx="607" cy="70" r="6" fill="white" fill-opacity="0.65"/>
+<rect x="596" y="58" width="64" height="46" rx="6" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
+<rect x="668" y="58" width="64" height="46" rx="6" fill="url(#tg2)"/>
+<path d="M668,104 L668,91 L686,78 L700,89 L714,76 L732,87 L732,104 Z" fill="white" fill-opacity="0.22"/>
+<circle cx="679" cy="70" r="6" fill="white" fill-opacity="0.65"/>
+<rect x="668" y="58" width="64" height="46" rx="6" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
+<rect x="596" y="112" width="64" height="46" rx="6" fill="url(#tg4)"/>
+<path d="M596,158 L596,145 L614,132 L628,143 L642,130 L660,141 L660,158 Z" fill="white" fill-opacity="0.22"/>
+<circle cx="607" cy="124" r="6" fill="white" fill-opacity="0.65"/>
+<rect x="596" y="112" width="64" height="46" rx="6" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
+<!-- Selected thumbnail -->
+<rect x="665" y="109" width="70" height="52" rx="8" fill="url(#accH)"/>
+<rect x="668" y="112" width="64" height="46" rx="6" fill="url(#tg5)"/>
+<path d="M668,158 L668,145 L686,132 L700,143 L714,130 L732,141 L732,158 Z" fill="white" fill-opacity="0.22"/>
+<circle cx="679" cy="124" r="6" fill="white" fill-opacity="0.65"/>
+<rect x="668" y="112" width="64" height="46" rx="6" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
 
-<!-- ——— THUMBNAIL 4 (amber/warm) — bottom-left ——— -->
-<rect x="474" y="131" width="72" height="52" rx="7" fill="url(#tg4)"/>
-<path d="M474,183 L474,168 L494,153 L510,166 L526,151 L546,164 L546,183 Z"
-      fill="white" fill-opacity="0.22"/>
-<circle cx="486" cy="145" r="7" fill="white" fill-opacity="0.65"/>
-<rect x="474" y="131" width="72" height="52" rx="7" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
-
-<!-- ——— THUMBNAIL 5 (green/nature) — bottom-center ——— -->
-<rect x="558" y="131" width="72" height="52" rx="7" fill="url(#tg5)"/>
-<path d="M558,183 L558,168 L578,153 L594,166 L610,151 L630,164 L630,183 Z"
-      fill="white" fill-opacity="0.22"/>
-<circle cx="570" cy="145" r="7" fill="white" fill-opacity="0.65"/>
-<rect x="558" y="131" width="72" height="52" rx="7" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.12"/>
-
-<!-- ——— THUMBNAIL 6 (selected / active state) — bottom-right ——— -->
-<!-- Glowing selected border -->
-<rect x="639" y="128" width="78" height="58" rx="10" fill="url(#acc)"/>
-<rect x="642" y="131" width="72" height="52" rx="7" fill="url(#tg1)"/>
-<path d="M642,183 L642,168 L662,153 L678,166 L694,151 L714,164 L714,183 Z"
-      fill="white" fill-opacity="0.22"/>
-<circle cx="654" cy="145" r="7" fill="white" fill-opacity="0.65"/>
-<!-- Selected checkmark badge -->
-<circle cx="707" cy="136" r="8" fill="url(#acc)"/>
-<path d="M703,136 L706,139 L712,133" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- AI alt text chip -->
+<rect x="596" y="170" width="136" height="24" rx="12" fill="url(#acc)"/>
+<path d="M611,176 l1.6,4.4 l4.4,1.6 l-4.4,1.6 l-1.6,4.4 l-1.6,-4.4 l-4.4,-1.6 l4.4,-1.6 z" fill="white"/>
+<text x="623" y="186" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="white">AI alt text added</text>
 </svg>

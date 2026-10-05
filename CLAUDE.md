@@ -22,6 +22,7 @@ composer run phpcbf  # auto-fix
 # Tests
 composer run test:unit   # PHPUnit (Brain Monkey, no DB)
 npm run test:e2e         # Playwright (requires wp-env running)
+WP_BASE_URL=http://smm-shots.test npx playwright test   # same suite against the local Herd site ~/Sites/smm-shots (admin / password, demo data in demo.json); no Docker needed
 npm run test:e2e:ui
 
 # wp-env (Docker required)
@@ -42,19 +43,44 @@ Node: pin to Node 24 — run `nvm use` in project root.
 | Route | Methods | Controller |
 |---|---|---|
 | `/folders` | GET, POST | `RestFolders` |
-| `/folders/{id}` | PUT, DELETE | `RestFolders` |
+| `/folders/{id}` | PUT (name and/or color), DELETE | `RestFolders` |
 | `/folders/{id}/move` | POST | `RestFolders` |
+| `/folders/{id}/files` | GET (recursive url/path list for ZIP) | `RestFolders` |
+| `/folders/reorder` | POST | `RestFolders` |
+| `/folders/path` | POST (ensure path, used by folder uploads) | `RestFolders` |
+| `/folders/export`, `/folders/import` | GET, POST | `RestFolders` |
+| `/import/sources`, `/import` | GET, POST (other folder plugins, batched) | `RestFolders` |
 | `/media` | GET | `RestMedia` |
-| `/media/bulk-move` | POST | `RestMedia` |
-| `/media/bulk-delete` | DELETE | `RestMedia` |
+| `/media/bulk-move` | POST (`mode`: move, add, remove) | `RestMedia` |
+| `/media/bulk-delete` | DELETE (trash; `force` = permanent) | `RestMedia` |
+| `/media/bulk-restore`, `/media/bulk-update`, `/media/reorder` | POST | `RestMedia` |
+| `/media/scan-unused` | POST (batch of 10, cursor = `after`) | `RestMedia` |
 | `/media/{id}` | GET, PUT | `RestMedia` |
 | `/media/{id}/move` | POST | `RestMedia` |
+| `/media/{id}/replace` | POST (multipart `file`) | `RestMedia` |
 | `/media/{id}/usage` | GET | `RestMedia` |
-| `/ai/alt-text` | POST | `RestAi` |
-| `/ai/caption` | POST | `RestAi` |
+| `/user-state` | POST (starred, recent → user meta) | `RestMedia` |
+| `/ai/alt-text`, `/ai/caption` | POST | `RestAi` |
+| `/ai/generate` | POST (`field`: alt, caption, title, description; `save`) | `RestAi` |
 | `/settings` | GET, POST | `RestSettings` |
 
-Media routes require `upload_files`. Settings requires `manage_options`.
+All routes require `manage_categories` (Editor+), with per-attachment `edit_post` / `delete_post` checks on ID-taking routes. Settings requires `manage_options`.
+
+`/media` query params: `page, per_page, folder, search, type, orderby (date|modified|title|size|author|menu_order), order, ids, alt=missing, status=trash, unused=1, author, date_from, date_to`.
+
+## PHP Modules
+
+| Class | Role |
+|---|---|
+| `Core\Options` | Single `nhrsmm_settings` option: defaults, read, validated save |
+| `Core\Folders` | Folder terms: tree, counts, color/order (term meta), path, export/import, flat list |
+| `Core\Media` | Listing, search, update, move, trash/restore, bulk edit, reorder, replace file |
+| `Core\Usage` | Where-used lookup and the unused-files scan (`_nhrsmm_unused` post meta) |
+| `Core\Importer` | Reads other folder plugins' tables/taxonomies (read-only) |
+| `Core\Ai` | Alt, caption, title, description; prompt options; auto alt cron callback |
+| `Admin\NativeLibrary` | Folder tree in the media modal, folder dropdown in Media → Library grid/list and in narrow modals (`admin/js/nhrsmm-media-modal.js`, hand-written, not built; its CSS is an inline style on `media-views`). The tree is skipped in grid mode because that layout is not absolutely positioned. |
+| `Block` | `[nhrsmm_gallery]` shortcode and `nhrsmm/folder-gallery` block. Wraps core's `gallery_shortcode()` output in `.nhrsmm-gallery` with its own inline grid CSS (`nhrsmm-gallery` style handle), because core gallery markup has no column styles in block themes |
+| `Cli` | `wp nhrsmm alt` |
 
 ## Non-Obvious Implementation Details
 
@@ -75,9 +101,19 @@ For filled icons: source from `icons/filled/`, name as `<name>-filled`.
 
 **`_nhrsmm_filesize` post meta:** Written lazily in `format_attachment()` on first read (not on upload). Enables `orderby=meta_value_num` sort-by-size without a migration.
 
-**Upload flow:** `UploadModal.js` posts to WP's `async-upload.php` (legacy endpoint, `action=upload-attachment`, `media-form` nonce), then calls `POST /media/{id}/move` to assign a folder. Two steps because WP has no REST upload endpoint.
+**Upload flow:** `UploadModal.js` posts to WP's `async-upload.php` (legacy endpoint, `action=upload-attachment`, `media-form` nonce) with an extra `nhrsmm_folder` field. `App::on_attachment_add()` reads that field (or the default upload folder) and assigns the folder. The media modal script sends the same field through `wp.Uploader`. Dropped desktop folders are walked with `webkitGetAsEntry()` and their paths created through `POST /folders/path`; three uploads run at a time.
 
-**localStorage-only state:** `starredIds`, `thumbSize` (grid column size, 80–200 px), and `recentIds` never sync to DB. `thumbSize` (px) is separate from `thumbnail_size` in plugin settings (`small|medium|large`, controls which WP image size the API returns).
+**Storage (no custom tables, one option):** settings in `nhrsmm_settings`; folder color and order in term meta (`nhrsmm_color`, `nhrsmm_order`); custom file order in the core `menu_order` column; starred/recent in user meta (`nhrsmm_starred`, `nhrsmm_recent`); `_nhrsmm_filesize` and `_nhrsmm_unused` post meta; a one-hour `nhrsmm_import_{source}` transient during an import. `uninstall.php` removes all of them on every site.
+
+**Trash:** delete calls `wp_trash_post()` directly, so it works without the `MEDIA_TRASH` constant; core's scheduled cleanup empties it. `get_post_status()` returns the parent's status for attachments, so read `post_status` with `get_post_field()`.
+
+**ZIP download is built in the browser** (`buildZip()` in `utils.js`, stored/uncompressed) from file URLs. There is no server-side ZipArchive, temp file, or streamed response.
+
+**Search:** `Media::search_filter()` adds a `posts_search` filter for the one query so it also matches `_wp_attachment_image_alt` and `_wp_attached_file`.
+
+**Auto alt on upload:** off by default; queues a single `nhrsmm_auto_alt` cron event per image. Any change to when data is sent to the AI provider must be reflected in the readme's External Services section.
+
+**Browser-only state:** `thumbSize` (grid column size, 80–200 px), sidebar width/collapsed, open folders, and the last opened folder live in localStorage. `thumbSize` (px) is separate from `thumbnail_size` in plugin settings (`small|medium|large`).
 
 ## Frontend Entry Points
 
@@ -85,18 +121,21 @@ For filled icons: source from `icons/filled/`, name as `<name>-filled`.
 |---|---|---|
 | `admin/src/index.js` | `#nhrsmm-app` | `window.nhrsmmConfig` |
 | `admin/src/settings.js` | `#nhrsmm-settings-app` | `window.nhrsmmSettingsConfig` |
+| `admin/src/block.js` | block editor | `window.nhrsmmBlock` (`folders`) |
 
 **`nhrsmmConfig` shape:**
 ```js
 { restUrl, nonce, mediaUploadNonce, adminUrl, pluginUrl, settingsUrl,
   connectorsUrl, defaultView, thumbSize, perPage, version,
-  aiConfigured, aiProvider, currentUserId }
+  aiConfigured, aiProvider, currentUserId, startupFolder, starredIds, recentIds }
 ```
 
 **`nhrsmmSettingsConfig` shape:**
 ```js
 { restUrl, nonce, mediaLibraryUrl, connectorsUrl, wpMediaUrl, version,
-  aiConfigured, settings: { default_view, thumbnail_size, items_per_page } }
+  aiConfigured, folders, settings: { default_view, thumbnail_size, items_per_page,
+  startup_folder, default_upload_folder, auto_alt, ai_language, ai_alt_length,
+  ai_prompt, ai_context } }
 ```
 
 ## Key Conventions
@@ -104,7 +143,7 @@ For filled icons: source from `icons/filled/`, name as `<name>-filled`.
 - **Prefix:** `NHRSMM_` (constants), `nhrsmm_` (options, hooks, nonces, handles)
 - **REST namespace:** `nhrsmm/v1` | **Taxonomy:** `nhrsmm_media_folder` | **CSS scope:** `.nhrsmm`
 - **PHP 7.4+:** no union types in signatures; scalar return types only
-- **AI:** use `wp_ai_client_prompt()` only — never call providers directly. Gate all AI UI on `wp_supports_ai()`. Builder: `using_system_instruction()` → `with_text()` (or `with_file()`) → `generate_text()` returns `string|\WP_Error`. `is_supported_for_text_generation()` does NOT exist. AI Connectors page: `options-connectors.php`.
+- **AI:** use `wp_ai_client_prompt()` only — never call providers directly. Gate all AI UI on `Core\Ai::is_available()`: `wp_supports_ai()` alone is true on any site that has not disabled AI, even with no connector, so `is_available()` also asks the builder method `wp_ai_client_prompt()->is_supported_for_text_generation()` (a builder method; no global function of that name exists). Builder: `using_system_instruction()` → `with_text()` (or `with_file()`) → `generate_text()` returns `string|\WP_Error`. `is_supported_for_text_generation()` does NOT exist. AI Connectors page: `options-connectors.php`.
 - **JS i18n:** `.eslintrc.js` has `allowedTextDomain: ['nhrrob-smart-media-manager']` configured. All `__()` / `_n()` calls need the text domain. `sprintf()` with placeholders needs a `// translators:` comment above it.
 - **Docblocks:** PHP docblocks required on all public/protected methods (PHPCS enforces). JS inline comments for non-obvious WHY only — one line max.
 
