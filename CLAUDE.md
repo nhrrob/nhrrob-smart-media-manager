@@ -84,6 +84,8 @@ All routes require `manage_categories` (Editor+), with per-attachment `edit_post
 
 ## Non-Obvious Implementation Details
 
+**Query budget:** `Folders::flat()` and `export()` build the tree without counts (`tree( false )`), because the folder dropdowns load on every editor screen. Only `get_tree()` (the `/folders` route) runs the library-wide count queries. `Media::format_attachment()` reads folders with `get_the_terms()` so a list page uses the term cache `WP_Query` filled; do not switch it back to `wp_get_object_terms()` or set `update_post_term_cache` to false on list queries. `Folders::files()` loads posts in chunks of 200 and stops at its 2000-file cap. `Usage::get()` returns after the first hit when called with a limit of 1 (the unused scan). `Folders::delete()` leaves unassigning the files to `wp_delete_term()`; do not loop over them first.
+
 **Asset manifests:** `@wordpress/scripts` emits `admin/build/{name}.asset.php` with auto-detected WP package dependencies and a content-hash version. Never manage script deps manually.
 
 **CSS is hand-crafted:** `admin/css/nhrsmm-admin.css` is plain CSS (not a build output). Scoped under `.nhrsmm`. `admin/css/nhrsmm-icons.css` maps `.ti-xxx` to SVGs in `admin/svg/` via `mask-image`.
@@ -99,7 +101,7 @@ For filled icons: source from `icons/filled/`, name as `<name>-filled`.
 
 **`Folders::get_counts()` direct DB query:** `wp_term_taxonomy.count` is only updated for published posts — attachments use `post_status = 'inherit'` so it's always 0. The direct query counts `term_relationships` rows. The `phpcs:disable` block is intentional — keep it.
 
-**`_nhrsmm_filesize` post meta:** Written lazily in `format_attachment()` on first read (not on upload). Enables `orderby=meta_value_num` sort-by-size without a migration.
+**`_nhrsmm_filesize` post meta:** Written lazily in `format_attachment()` on first read (not on upload). Sort-by-size LEFT JOINs this meta through a `posts_clauses` filter (`Media::size_order_filter()`), so files with no cached size yet still appear in the list; a `meta_key` sort would drop them.
 
 **Upload flow:** `UploadModal.js` posts to WP's `async-upload.php` (legacy endpoint, `action=upload-attachment`, `media-form` nonce) with an extra `nhrsmm_folder` field. `App::on_attachment_add()` reads that field (or the default upload folder) and assigns the folder. The media modal script sends the same field through `wp.Uploader`. Dropped desktop folders are walked with `webkitGetAsEntry()` and their paths created through `POST /folders/path`; three uploads run at a time.
 
@@ -154,6 +156,21 @@ For filled icons: source from `icons/filled/`, name as `<name>-filled`.
 ## Release Exclusions
 
 `.distignore` (WP.org zip) and `.gitattributes` (git archive) must stay in sync. `vendor/` ships partially — autoloader + production deps only; dev packages excluded by path. `admin/build/` ships (never exclude it).
+
+## CI (GitHub Actions)
+
+A PR to `main` shows three checks: `Run Plugin Check`, `Semgrep + PHPStan` and `Endpoint authorization probe` (the last two are the two jobs of `security.yml`).
+
+| Workflow | Trigger | What it runs |
+|---|---|---|
+| `plugin-check.yml` | PR to `main` | Plugin Check on the repo checkout; dev-file notices (`hidden_files`, `.ai`, `.github`, `CLAUDE.md`) ignored |
+| `security.yml` | PR to `main`, manual | Semgrep `p/php`, PHPStan level 0 (`.github/security/phpstan.neon`), and the endpoint probe: every plugin REST route and AJAX action called as subscriber and anonymous with nonces forced valid; fails on any success response or attempted DB write |
+| `deploy.yml` | tag push | Deploy to WordPress.org |
+
+`.github/security/` is copied from `nhrrob-options-table-manager` (the reference). Run the probe locally:
+`python3 .github/security/probe.py --wp "wp --path=$HOME/Sites/smm-shots" --script "$PWD/.github/security/endpoint-probe.php"` (with `PROBE_PLUGIN_DIR` set to the plugin's directory on that site).
+
+Semgrep flags any `echo` whose expression contains a value derived from `$_GET`/`$_POST`, even through `selected()`. Call `selected()` / `checked()` as their own statements instead of concatenating their return value.
 
 ## Skills
 

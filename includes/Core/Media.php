@@ -31,18 +31,18 @@ class Media {
 		$file_type = sanitize_key( $params['type'] ?? '' );
 		$orderby   = sanitize_key( $params['orderby'] ?? 'date' );
 		$order     = 'ASC' === strtoupper( sanitize_key( $params['order'] ?? 'DESC' ) ) ? 'ASC' : 'DESC';
-		$ids       = isset( $params['ids'] ) ? array_filter( array_map( 'absint', (array) $params['ids'] ) ) : [];
-		$trash     = 'trash' === ( $params['status'] ?? '' );
+		// 500 is the cap on a user's starred list, the largest ID list the app sends.
+		$ids   = isset( $params['ids'] ) ? array_slice( array_filter( array_map( 'absint', (array) $params['ids'] ) ), 0, 500 ) : [];
+		$trash = 'trash' === ( $params['status'] ?? '' );
 
 		if ( ! empty( $ids ) ) {
 			$args  = [
-				'post_type'              => 'attachment',
-				'post_status'            => 'inherit',
-				'posts_per_page'         => count( $ids ),
-				'post__in'               => $ids,
-				'orderby'                => 'post__in',
-				'no_found_rows'          => true,
-				'update_post_term_cache' => false,
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'posts_per_page' => count( $ids ),
+				'post__in'       => $ids,
+				'orderby'        => 'post__in',
+				'no_found_rows'  => true,
 			];
 			$query = new \WP_Query( $args );
 			$items = [];
@@ -66,10 +66,11 @@ class Media {
 			'order'          => $order,
 		];
 
+		$size_filter = null;
 		if ( 'size' === $orderby ) {
-			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-			$args['meta_key'] = '_nhrsmm_filesize';
-			$args['orderby']  = 'meta_value_num';
+			// A meta_key sort would drop files whose size is not cached yet, so join the meta instead.
+			$size_filter = $this->size_order_filter( $order );
+			add_filter( 'posts_clauses', $size_filter );
 		} elseif ( 'menu_order' === $orderby ) {
 			$args['orderby'] = [
 				'menu_order' => 'ASC',
@@ -175,6 +176,9 @@ class Media {
 		if ( $search_filter ) {
 			remove_filter( 'posts_search', $search_filter );
 		}
+		if ( $size_filter ) {
+			remove_filter( 'posts_clauses', $size_filter );
+		}
 
 		$items = [];
 		foreach ( $query->posts as $post ) {
@@ -211,6 +215,22 @@ class Media {
 			);
 			// Core emits " AND ((…))"; widen it to " AND ( ((…)) OR EXISTS (…) )".
 			return preg_replace( '/^\s*AND\s*/', ' AND ( ', $sql, 1 ) . $extra . ' ) ';
+		};
+	}
+
+	/**
+	 * Builds a posts_clauses filter that sorts by the cached file size, keeping files that have none.
+	 *
+	 * @param string $order ASC or DESC.
+	 * @return \Closure
+	 */
+	private function size_order_filter( string $order ): \Closure {
+		$order = 'ASC' === $order ? 'ASC' : 'DESC';
+		return static function ( $clauses ) use ( $order ) {
+			global $wpdb;
+			$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} nhrsmm_size ON nhrsmm_size.post_id = {$wpdb->posts}.ID AND nhrsmm_size.meta_key = '_nhrsmm_filesize'";
+			$clauses['orderby'] = "CAST( nhrsmm_size.meta_value AS UNSIGNED ) {$order}, {$wpdb->posts}.ID DESC";
+			return $clauses;
 		};
 	}
 
@@ -527,8 +547,9 @@ class Media {
 			$thumb_md      = $thumb_md_data ? $thumb_md_data[0] : $thumb;
 		}
 
-		$folder_terms = wp_get_object_terms( $post->ID, 'nhrsmm_media_folder', [ 'fields' => 'ids' ] );
-		$folder_ids   = ! empty( $folder_terms ) && ! is_wp_error( $folder_terms ) ? array_map( 'intval', $folder_terms ) : [];
+		// get_the_terms() reads the term cache WP_Query already filled, so a list costs no query per file.
+		$folder_terms = get_the_terms( $post->ID, 'nhrsmm_media_folder' );
+		$folder_ids   = ! empty( $folder_terms ) && ! is_wp_error( $folder_terms ) ? array_map( 'intval', wp_list_pluck( $folder_terms, 'term_id' ) ) : [];
 		$folder_id    = $folder_ids ? $folder_ids[0] : 0;
 
 		$item = [

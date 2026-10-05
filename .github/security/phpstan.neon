@@ -1,0 +1,17 @@
+# PHPStan for the security workflow (dev/CI only — .github is not shipped).
+# Level 0 = undefined variables/functions/classes/methods, the class of bug that
+# fatals at runtime. Raise the level once the codebase is clean at the next one.
+# szepeviktor/phpstan-wordpress (WordPress stubs) is loaded by extension-installer.
+parameters:
+    level: 0
+    paths:
+        - ../../includes
+        - ../../nhrrob-smart-media-manager.php
+        - ../../uninstall.php
+    excludePaths:
+        # WP-CLI commands only load inside WP-CLI; its stubs don't support WP 7 stubs yet.
+        # "analyse" skips the file's own errors but still lets App.php find the Cli class.
+        analyse:
+            - ../../includes/Cli.php
+    ignoreErrors:
+        - '#unknown class WP_CLI#'

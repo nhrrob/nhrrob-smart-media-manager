@@ -59,6 +59,10 @@ class Usage {
 		foreach ( $featured as $row ) {
 			$add( $row, 'featured_image' );
 		}
+		// The unused-files scan only asks "is it used at all": skip the slower searches once it is.
+		if ( 1 === $limit && $usages ) {
+			return array_values( $usages );
+		}
 
 		$base    = $this->path_base( $attachment_id );
 		$by_id   = '%' . $wpdb->esc_like( 'wp-image-' . $attachment_id . '"' ) . '%';
@@ -83,6 +87,9 @@ class Usage {
 		);
 		foreach ( $content as $row ) {
 			$add( $row, 'content' );
+		}
+		if ( 1 === $limit && $usages ) {
+			return array_values( $usages );
 		}
 
 		if ( '' !== $base ) {

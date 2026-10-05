@@ -190,23 +190,10 @@ class FoldersTest extends TestCase {
 	}
 
 	public function test_delete_returns_true_on_success(): void {
-		Functions\expect( 'get_objects_in_term' )->once()->andReturn( [] );
+		// The files are taken out of the folder by wp_delete_term() itself.
+		Functions\expect( 'wp_remove_object_terms' )->never();
 		Functions\expect( 'get_term_children' )->once()->andReturn( [] );
 		Functions\expect( 'wp_delete_term' )->once()->andReturn( true );
-		// is_wp_error is called 3 times: for attachments, children, and wp_delete_term result.
-		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
-
-		$result = $this->folders->delete( 1 );
-
-		$this->assertTrue( $result );
-	}
-
-	public function test_delete_continues_when_get_objects_in_term_returns_wp_error(): void {
-		$error = new \WP_Error( 'db_error', 'Database error' );
-
-		Functions\when( 'get_objects_in_term' )->justReturn( $error );
-		Functions\when( 'get_term_children' )->justReturn( [] );
-		Functions\when( 'wp_delete_term' )->justReturn( true );
 		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
 
 		$result = $this->folders->delete( 1 );
@@ -217,7 +204,6 @@ class FoldersTest extends TestCase {
 	public function test_delete_continues_when_get_term_children_returns_wp_error(): void {
 		$error = new \WP_Error( 'db_error', 'Database error' );
 
-		Functions\when( 'get_objects_in_term' )->justReturn( [] );
 		Functions\when( 'get_term_children' )->justReturn( $error );
 		Functions\when( 'wp_delete_term' )->justReturn( true );
 		Functions\when( 'is_wp_error' )->alias( fn( $v ) => $v instanceof \WP_Error );
