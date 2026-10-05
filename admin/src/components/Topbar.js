@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useApp } from '../context';
 import { setUrlParams } from '../utils';
+import { ThemeToggle } from '../theme';
 
 const cfg = window.nhrsmmConfig || {};
 
@@ -139,6 +140,7 @@ export default function Topbar() {
 					<i className="ti ti-cloud-upload" />
 					{ __( 'Upload', 'nhrrob-smart-media-manager' ) }
 				</button>
+				<ThemeToggle />
 				<a
 					href={ cfg.settingsUrl }
 					className="btn-icon"

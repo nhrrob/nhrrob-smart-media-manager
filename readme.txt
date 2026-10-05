@@ -4,7 +4,7 @@ Tags: media library folders, media folders, gallery, alt text, ai
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,6 +21,7 @@ NHR Smart Media Manager organizes your WordPress media library into folders and 
 * **Folder Gallery Block** — Turn any folder into an image gallery on your site. Add the Folder Gallery block, pick a folder, and the gallery follows it: add, remove, or reorder images in the folder and every gallery using it updates on its own. Also available as a shortcode.
 * **Import and Export** — Import folders and file assignments from FileBird, Real Media Library, CatFolders, Folders, Enhanced Media Library, Wicked Folders, Media Library Organizer, Mediamatic, HappyFiles, and WP Media Folder. Export your folder structure as a JSON file and import it on another site.
 * **Modern Grid & List View** — Grid or sortable list view with thumbnail size control. Sort by date added, date modified, name, size, uploader, or your own custom order.
+* **Light and Dark Theme** — The Smart Library and its settings page follow your system's light or dark setting, with a toggle in the top bar to choose either one.
 * **File Details Panel** — Slide-in panel with editable title, alt text, caption, and description. See where each file is used: post content, featured images, custom fields, page builder data, product galleries, and the site logo.
 * **Files in Several Folders** — Keep one file in more than one folder without duplicating it.
 * **Bulk Operations** — Select multiple files and move them, add them to a folder, edit their title, alt text, caption, and description together, download them as a ZIP, or move them to the trash.
@@ -30,7 +31,7 @@ NHR Smart Media Manager organizes your WordPress media library into folders and 
 * **Smart Search & Filters** — Search by title, file name, alt text, and caption. Filter by file type, upload date, and your own uploads at the same time. Shareable URL state.
 * **Missing Alt Text View** — See every image without alt text, with a live count.
 * **Unused Files View** — Scan the library for files with no reference in post content, featured images, custom fields, page builder data, product galleries, or the site logo. Files used only in theme files or CSS are not detected, so review the list before deleting.
-* **AI Alt Text, Captions, Titles & Descriptions** — Generate text for a file with one click, for a selection, or for every image missing alt text, using the WordPress AI connector you configure at Settings → Connectors. Optionally write alt text automatically on upload. Choose the language, maximum length, extra instructions, and whether to use the page title and SEO focus keyphrase (Yoast SEO, Rank Math, SEOPress) as context.
+* **AI Alt Text, Captions, Titles & Descriptions** — Generate text for a file with one click, for a selection, or for every image missing alt text, using the WordPress AI connector you configure at Settings → Connectors. Optionally write alt text automatically on upload. Choose the language, preferred model, maximum length, extra instructions, and whether to use the page title and SEO focus keyphrase (Yoast SEO, Rank Math, SEOPress) as context.
 * **Upload Enhancements** — Assign files to folders on upload, drag-and-drop files or whole folders from your desktop (subfolders are kept), per-file progress bars, and a default upload folder.
 * **Starred & Recent** — Star files and reopen recent ones. Both lists are saved to your user account.
 * **WP-CLI** — `wp nhrsmm alt --limit=200` generates alt text for images that have none.
@@ -129,6 +130,15 @@ To rebuild the JavaScript assets: `npm install && npm run build`
 
 == Changelog ==
 
+= 1.2.0 =
+* New: Light and dark theme for the Smart Library and its settings page. Follows your system setting, with a toggle in the top bar.
+* New: Preferred AI model setting.
+* New: AI button next to the Alt Text and Caption fields in the details panel.
+* Improved: Folder dropdowns, media lists, the ZIP file listing, and the unused files scan run fewer database queries.
+* Improved: Larger folder names, and larger folder import and export buttons that stay visible at the bottom of the sidebar.
+* Improved: Clearer message when no AI provider is connected.
+* Fix: Sorting by size no longer hides files whose size was not calculated yet.
+
 = 1.1.0 =
 * New: Folder tree in the media modal and folder dropdown in Media → Library (grid and list), with upload into the selected folder.
 * New: Import folders from FileBird, Real Media Library, CatFolders, Folders, Enhanced Media Library, Wicked Folders, Media Library Organizer, Mediamatic, HappyFiles, and WP Media Folder.
@@ -169,6 +179,9 @@ To rebuild the JavaScript assets: `npm install && npm run build`
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Dark theme, a preferred AI model setting, faster folder dropdowns and media lists, and a fix for sorting by size.
 
 = 1.1.0 =
 Folders in the media modal and Media Library, import from other folder plugins, trash, bulk editing, and bulk AI alt text. Deleting a file now moves it to the trash first.

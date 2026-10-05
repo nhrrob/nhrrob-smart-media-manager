@@ -115,7 +115,9 @@ For filled icons: source from `icons/filled/`, name as `<name>-filled`.
 
 **Auto alt on upload:** off by default; queues a single `nhrsmm_auto_alt` cron event per image. Any change to when data is sent to the AI provider must be reflected in the readme's External Services section.
 
-**Browser-only state:** `thumbSize` (grid column size, 80–200 px), sidebar width/collapsed, open folders, and the last opened folder live in localStorage. `thumbSize` (px) is separate from `thumbnail_size` in plugin settings (`small|medium|large`).
+**Browser-only state:** `thumbSize` (grid column size, 80–200 px), sidebar width/collapsed, open folders, and the last opened folder live in localStorage. `thumbSize` (px) is separate from `thumbnail_size` in plugin settings (`small|medium|large`). The theme choice is `nhrsmm_theme` (`dark|light`; absent = follow the OS).
+
+**Dark theme:** `admin/src/theme.js` (`initTheme()` in both entry files, `<ThemeToggle />` in the top bar and settings header) sets `data-nhrsmm-theme` on `<html>`, not on the app root, because modals and menus are portalled to `<body>`. The dark block at the end of `nhrsmm-admin.css` only remaps tokens: neutrals are inverted and `--white` is the surface. So: use `var(--on-accent)`, never `var(--white)`, for text or marks on a brand, AI-gradient or image-overlay fill; and avoid new hard-coded colours, since they will not flip.
 
 ## Frontend Entry Points
 
@@ -136,7 +138,7 @@ For filled icons: source from `icons/filled/`, name as `<name>-filled`.
 ```js
 { restUrl, nonce, mediaLibraryUrl, connectorsUrl, wpMediaUrl, version,
   aiConfigured, folders, settings: { default_view, thumbnail_size, items_per_page,
-  startup_folder, default_upload_folder, auto_alt, ai_language, ai_alt_length,
+  startup_folder, default_upload_folder, auto_alt, ai_language, ai_model, ai_alt_length,
   ai_prompt, ai_context } }
 ```
 

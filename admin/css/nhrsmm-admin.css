@@ -30,6 +30,9 @@
     --gray-50:  #f9f9f9;
     --white:    #fff;
 
+    /* Text and marks on a brand, AI or image fill: stays white in the dark theme */
+    --on-accent: #fff;
+
     /* Semantic */
     --color-danger:     #c0392b;
     --color-danger-bg:  #fff0ef;
@@ -205,7 +208,7 @@ body.nhrsmm-media-page .wrap {
 
 .nhrsmm .smm-logo-icon i {
     font-size: 0.9375rem;
-    color: var(--white);
+    color: var(--on-accent);
 }
 
 .nhrsmm .smm-logo-name {
@@ -309,7 +312,7 @@ body.nhrsmm-media-page .wrap {
 
 .nhrsmm .btn-ghost-white:hover {
     background: var(--white-a18);
-    color: var(--white);
+    color: var(--on-accent);
 }
 
 .nhrsmm .btn-white {
@@ -323,7 +326,7 @@ body.nhrsmm-media-page .wrap {
 
 .nhrsmm .btn-ai {
     background: linear-gradient(135deg, var(--ai-from), var(--ai-to));
-    color: var(--white);
+    color: var(--on-accent);
     border: none;
 }
 
@@ -333,7 +336,7 @@ body.nhrsmm-media-page .wrap {
 
 .nhrsmm .btn-primary {
     background: var(--brand-800);
-    color: var(--white);
+    color: var(--on-accent);
 }
 
 .nhrsmm .btn-primary:hover {
@@ -368,7 +371,7 @@ body.nhrsmm-media-page .wrap {
 
 .nhrsmm .btn-danger-solid {
     background: var(--color-danger);
-    color: var(--white);
+    color: var(--on-accent);
     border: none;
 }
 
@@ -477,8 +480,8 @@ body.nhrsmm-media-page .wrap {
     gap: var(--sp-8);
     padding: var(--sp-6) var(--sp-8);
     border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    color: var(--gray-600);
+    font-size: var(--text-base);
+    color: var(--gray-700);
     cursor: pointer;
     user-select: none;
     transition: background 0.1s, color 0.1s;
@@ -491,7 +494,7 @@ body.nhrsmm-media-page .wrap {
 
 .nhrsmm .nav-item.active {
     background: var(--brand-800);
-    color: var(--white);
+    color: var(--on-accent);
     font-weight: 600;
     border-left: none;
     padding-left: var(--sp-8);
@@ -535,7 +538,7 @@ body.nhrsmm-media-page .wrap {
 
 .nhrsmm .nav-item.active .nav-count {
     background: var(--white-a15);
-    color: var(--white);
+    color: var(--on-accent);
 }
 
 /* Folder items */
@@ -569,8 +572,8 @@ body.nhrsmm-media-page .wrap {
     gap: var(--sp-6);
     padding: 5px var(--sp-8);
     border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    color: var(--gray-600);
+    font-size: var(--text-base);
+    color: var(--gray-700);
     cursor: pointer;
     user-select: none;
     position: relative;
@@ -584,7 +587,7 @@ body.nhrsmm-media-page .wrap {
 
 .nhrsmm .folder-item.active {
     background: var(--brand-800);
-    color: var(--white);
+    color: var(--on-accent);
     font-weight: 600;
     border-left: none;
     padding-left: var(--sp-8);
@@ -735,8 +738,8 @@ body.nhrsmm-media-page .wrap {
     content: '';
     width: 8px;
     height: 4px;
-    border-left: 1.5px solid var(--white);
-    border-bottom: 1.5px solid var(--white);
+    border-left: 1.5px solid var(--on-accent);
+    border-bottom: 1.5px solid var(--on-accent);
     transform: rotate(-45deg) translateY(-1px);
     display: block;
 }
@@ -745,7 +748,7 @@ body.nhrsmm-media-page .wrap {
     content: '';
     width: 8px;
     height: 2px;
-    background: var(--white);
+    background: var(--on-accent);
     display: block;
 }
 
@@ -934,8 +937,8 @@ body.nhrsmm-media-page .wrap {
     content: '';
     width: 8px;
     height: 4px;
-    border-left: 1.5px solid var(--white);
-    border-bottom: 1.5px solid var(--white);
+    border-left: 1.5px solid var(--on-accent);
+    border-bottom: 1.5px solid var(--on-accent);
     transform: rotate(-45deg) translateY(-1px);
     display: block;
 }
@@ -955,7 +958,7 @@ body.nhrsmm-media-page .wrap {
     opacity: 0;
     transition: opacity 0.12s, background 0.12s, color 0.12s;
     background: rgba(0, 0, 0, 0.3);
-    color: var(--white);
+    color: var(--on-accent);
     font-size: 0.8125rem;
     z-index: var(--z-card-overlay);
 }
@@ -1032,7 +1035,7 @@ body.nhrsmm-media-page .wrap {
     padding: 2px 5px;
     border-radius: var(--radius-sm);
     background: var(--overlay-60);
-    color: var(--white);
+    color: var(--on-accent);
     line-height: 1.4;
 }
 
@@ -1325,7 +1328,7 @@ body.nhrsmm-media-page .wrap {
     border-radius: var(--radius-full);
     background: rgba(0, 0, 0, 0.35);
     border: none;
-    color: var(--white);
+    color: var(--on-accent);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -1344,7 +1347,7 @@ body.nhrsmm-media-page .wrap {
     bottom: var(--sp-8);
     right: var(--sp-8);
     background: rgba(0, 0, 0, 0.45);
-    color: var(--white);
+    color: var(--on-accent);
     font-size: 0.6875rem;
     font-weight: 500;
     padding: 2px 7px;
@@ -1422,7 +1425,7 @@ body.nhrsmm-media-page .wrap {
     font-weight: 700;
     letter-spacing: 0.05em;
     background: linear-gradient(135deg, var(--ai-from), var(--ai-to));
-    color: var(--white);
+    color: var(--on-accent);
     padding: 1px 5px;
     border-radius: var(--radius-sm);
     text-transform: uppercase;
@@ -1561,7 +1564,7 @@ body.nhrsmm-media-page .wrap {
 .nhrsmm .btn-full.btn-ai {
     background: linear-gradient(135deg, var(--ai-from), var(--ai-to));
     border: none;
-    color: var(--white);
+    color: var(--on-accent);
     justify-content: center;
     font-weight: 600;
 }
@@ -1711,19 +1714,19 @@ body.nhrsmm-media-page .wrap {
     font-weight: 600;
     letter-spacing: 0.04em;
     background: linear-gradient(135deg, var(--ai-from), var(--ai-to));
-    color: var(--white);
+    color: var(--on-accent);
     padding: 2px 8px;
     border-radius: var(--radius-full);
 }
 
 .nhrsmm .status-version {
     font-family: var(--font-mono);
-    font-size: 0.625rem;
-    color: var(--gray-300);
+    font-size: var(--text-xs);
+    color: var(--gray-600);
 }
 
 .nhrsmm .status-sep {
-    color: var(--gray-300);
+    color: var(--gray-400);
 }
 
 /* ── UPLOAD MODAL ───────────────────────────────────────────── */
@@ -2369,7 +2372,7 @@ body.nhrsmm-media-page .wrap {
 /* stylelint-disable-next-line no-descending-specificity */
 .nhrsmm-settings .settings-brand-icon i {
     font-size: 0.9375rem;
-    color: var(--white);
+    color: var(--on-accent);
 }
 
 .nhrsmm-settings .settings-brand-name {
@@ -2853,15 +2856,31 @@ body.nhrsmm-media-page .wrap {
 
 .nhrsmm .sidebar-tools {
     display: flex;
-    gap: var(--sp-10);
+    gap: var(--sp-6);
+    position: sticky;
+    bottom: 0;
+    z-index: var(--z-above);
     margin-top: auto;
     padding: var(--sp-8) var(--sp-12);
     border-top: var(--border-subtle);
-    color: var(--gray-400);
+    background: var(--gray-50);
+}
+
+.nhrsmm .sidebar-tools .btn-icon-inline {
+    justify-content: center;
+    width: var(--height-btn-md);
+    height: var(--height-btn-md);
+    border: var(--border-default);
+    border-radius: var(--radius-md);
+    background: var(--white);
+    color: var(--gray-600);
+    font-size: 1.125rem;
 }
 
 .nhrsmm .sidebar-tools .btn-icon-inline:hover {
-    color: var(--gray-800);
+    border-color: var(--gray-300);
+    background: var(--gray-100);
+    color: var(--gray-900);
 }
 
 /* ── CONTEXT MENU EXTRAS ────────────────────────────────────── */
@@ -3027,4 +3046,80 @@ body.nhrsmm-media-page .wrap {
 .rtl .nhrsmm .details-file-url {
     direction: ltr;
     unicode-bidi: isolate;
+}
+
+/* ── DARK THEME ─────────────────────────────────────────────── */
+
+/* theme.js sets data-nhrsmm-theme on <html>: the saved choice, otherwise the OS setting.
+   Neutrals are inverted (--white is the surface), so rules written with tokens need no
+   dark variant; only the exceptions are listed below the token block. */
+:root[data-nhrsmm-theme="dark"] .nhrsmm {
+    color-scheme: dark;
+
+    --brand-800: #6d5efc;
+    --brand-700: #b9adff;
+    --brand-600: #8a7cff;
+    --brand-100: rgba(138, 124, 255, 0.32);
+    --brand-50:  rgba(138, 124, 255, 0.14);
+    --gray-900: #f1f2f7;
+    --gray-800: #e7e9f2;
+    --gray-700: #cfd3e0;
+    --gray-600: #b4b9cb;
+    --gray-500: #9aa1b8;
+    --gray-400: #7c839b;
+    --gray-300: #4a5068;
+    --gray-200: #363b50;
+    --gray-150: #2a2e3f;
+    --gray-100: #232737;
+    --gray-50:  #1f2230;
+    --white:    #1b1e2b;
+    --color-danger:     #f97066;
+    --color-danger-bg:  rgba(240, 68, 56, 0.14);
+    --color-success:    #32d583;
+    --color-success-bg: rgba(18, 183, 106, 0.14);
+    --color-warning:    #fdb022;
+    --color-warning-bg: rgba(247, 144, 9, 0.14);
+    --color-info:       #84adff;
+    --color-info-bg:    rgba(46, 144, 250, 0.14);
+    --shadow-shell: 0 2px 6px rgba(0, 0, 0, 0.4);
+    --shadow-pop:   0 8px 24px rgba(0, 0, 0, 0.55);
+}
+
+/* The page around the app, so it is not a dark panel in a light frame */
+:root[data-nhrsmm-theme="dark"] body.nhrsmm-page {
+    background: #14161f;
+}
+
+:root[data-nhrsmm-theme="dark"] body.nhrsmm-page #wpfooter {
+    color: #9aa1b8;
+}
+
+/* Brand as text on the dark surface needs the light violet, not the fill violet */
+:root[data-nhrsmm-theme="dark"] .nhrsmm .btn-white,
+:root[data-nhrsmm-theme="dark"] .nhrsmm .sort-opt-active,
+:root[data-nhrsmm-theme="dark"] .nhrsmm-settings .smm-radio-label:has(input:checked) {
+    color: var(--brand-700);
+}
+
+:root[data-nhrsmm-theme="dark"] .nhrsmm input[type="checkbox"],
+:root[data-nhrsmm-theme="dark"] .nhrsmm input[type="radio"] {
+    background: var(--gray-100);
+    border-color: var(--gray-300);
+}
+
+:root[data-nhrsmm-theme="dark"] .nhrsmm .btn-primary:hover {
+    background: var(--brand-600);
+}
+
+:root[data-nhrsmm-theme="dark"] .nhrsmm .btn-danger {
+    border-color: rgba(240, 68, 56, 0.4);
+}
+
+:root[data-nhrsmm-theme="dark"] .nhrsmm .btn-danger-solid {
+    background: #d92d20;
+}
+
+.nhrsmm .theme-toggle {
+    font-size: 1rem;
+    line-height: 1;
 }

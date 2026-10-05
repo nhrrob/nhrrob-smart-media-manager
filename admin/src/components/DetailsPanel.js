@@ -446,6 +446,10 @@ export default function DetailsPanel( { fileId } ) {
 					<div className="details-section">
 						<div className="details-section-label">
 							{ __( 'Alt Text', 'nhrrob-smart-media-manager' ) }
+							<FieldAiButton
+								busy={ aiState === 'loading' }
+								onClick={ generateAlt }
+							/>
 						</div>
 
 						{ aiState === 'loading' && (
@@ -590,6 +594,10 @@ export default function DetailsPanel( { fileId } ) {
 				<div className="details-section">
 					<div className="details-section-label">
 						{ __( 'Caption', 'nhrrob-smart-media-manager' ) }
+						<FieldAiButton
+							busy={ captionAiState === 'loading' }
+							onClick={ generateCaption }
+						/>
 					</div>
 
 					{ captionAiState === 'loading' && (
