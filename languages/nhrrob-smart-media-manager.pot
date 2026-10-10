@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: NHR Smart Media Manager – Media Library Folders & AI Alt Text 1.2.0\n"
+"Project-Id-Version: NHR Smart Media Manager – Media Library Folders & AI Alt Text 1.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/nhrrob-smart-media-manager\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-05T19:19:29+00:00\n"
+"POT-Creation-Date: 2026-10-10T08:12:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: nhrrob-smart-media-manager\n"
@@ -39,12 +39,100 @@ msgstr ""
 msgid "https://profiles.wordpress.org/nhrrob/"
 msgstr ""
 
+#: includes/Abilities.php:52
+msgid "Smart Media Manager"
+msgstr ""
+
+#: includes/Abilities.php:53
+msgid "Media library folders, files and where files are used."
+msgstr ""
+
+#: includes/Abilities.php:86
+msgid "Attachment ID, as returned by nhrsmm/list-media."
+msgstr ""
+
+#: includes/Abilities.php:92
+msgid "List media folders"
+msgstr ""
+
+#: includes/Abilities.php:93
+msgid "Returns the media folder tree (each folder with its id, name, file count and children) and library totals: all files, files in no folder, images without alt text and files in the trash."
+msgstr ""
+
+#: includes/Abilities.php:99
+msgid "List media files"
+msgstr ""
+
+#: includes/Abilities.php:100
+msgid "Returns one page of media files with id, title, alt text, caption, URL, type, size and folders. Filter by folder, search text or file type; alt \"missing\" lists images without alt text; unused lists files the last unused-files scan flagged."
+msgstr ""
+
+#: includes/Abilities.php:107
+msgid "Folder ID. 0 lists files that are in no folder."
+msgstr ""
+
+#: includes/Abilities.php:113
+msgid "File type, e.g. image, video, audio."
+msgstr ""
+
+#: includes/Abilities.php:136
+msgid "Find where a file is used"
+msgstr ""
+
+#: includes/Abilities.php:137
+msgid "Returns the posts and settings that reference one media file (featured image, post content, post meta, site icon or logo). A file used only from theme files or CSS is not found."
+msgstr ""
+
+#: includes/Abilities.php:148
+msgid "Create a media folder"
+msgstr ""
+
+#: includes/Abilities.php:149
+msgid "Creates a media folder, optionally inside another folder."
+msgstr ""
+
+#: includes/Abilities.php:160
+msgid "Parent folder ID. 0 or omitted creates a top-level folder."
+msgstr ""
+
+#: includes/Abilities.php:170
+msgid "Move files to a folder"
+msgstr ""
+
+#: includes/Abilities.php:171
+msgid "Moves media files into one folder, replacing the folders they were in. folder_id 0 takes them out of every folder. Files are not changed, only their folder. Returns how many were moved and the IDs that could not be."
+msgstr ""
+
+#: includes/Abilities.php:193
+msgid "Update a file's text fields"
+msgstr ""
+
+#: includes/Abilities.php:194
+msgid "Sets the alt text, title, caption and/or description of one media file. Only the fields passed are changed; the previous text is overwritten."
+msgstr ""
+
+#: includes/Abilities.php:293
+#: includes/Api/RestMedia.php:153
+#: includes/Api/RestMedia.php:253
+msgid "You cannot view this attachment."
+msgstr ""
+
+#: includes/Abilities.php:334
+#: includes/Api/RestAi.php:67
+#: includes/Api/RestAi.php:97
+#: includes/Api/RestAi.php:123
+#: includes/Api/RestMedia.php:172
+#: includes/Api/RestMedia.php:192
+#: includes/Api/RestMedia.php:315
+msgid "You cannot edit this attachment."
+msgstr ""
+
 #: includes/Admin/MediaPage.php:35
 msgid "NHR Smart Media Manager"
 msgstr ""
 
 #: includes/Admin/MediaPage.php:36
-#: includes/App.php:71
+#: includes/App.php:72
 msgid "Smart Library"
 msgstr ""
 
@@ -92,20 +180,6 @@ msgstr ""
 msgid "attachment_id is required."
 msgstr ""
 
-#: includes/Api/RestAi.php:67
-#: includes/Api/RestAi.php:97
-#: includes/Api/RestAi.php:123
-#: includes/Api/RestMedia.php:172
-#: includes/Api/RestMedia.php:192
-#: includes/Api/RestMedia.php:315
-msgid "You cannot edit this attachment."
-msgstr ""
-
-#: includes/Api/RestMedia.php:153
-#: includes/Api/RestMedia.php:253
-msgid "You cannot view this attachment."
-msgstr ""
-
 #: includes/Api/RestMedia.php:158
 #: includes/Core/Media.php:284
 msgid "Attachment not found."
@@ -120,16 +194,16 @@ msgstr ""
 msgid "No file was uploaded."
 msgstr ""
 
-#: includes/App.php:70
+#: includes/App.php:71
 #: admin/src/components/Topbar.js:147
 msgid "Settings"
 msgstr ""
 
-#: includes/App.php:87
+#: includes/App.php:88
 msgid "Media Folders"
 msgstr ""
 
-#: includes/App.php:88
+#: includes/App.php:89
 msgid "Media Folder"
 msgstr ""
 
