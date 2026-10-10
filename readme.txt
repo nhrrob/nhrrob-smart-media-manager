@@ -4,7 +4,7 @@ Tags: media library folders, media folders, gallery, alt text, ai
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -193,6 +193,9 @@ To rebuild the JavaScript assets: `npm install && npm run build`
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+AI agent and MCP support through six WordPress Abilities API abilities, and verified compatibility with PHP 7.4 through 8.5.
 
 = 1.2.0 =
 Dark theme, a preferred AI model setting, faster folder dropdowns and media lists, and a fix for sorting by size.

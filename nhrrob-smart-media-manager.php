@@ -5,7 +5,7 @@
  * Description: Media library folders, a folder tree in the media modal, a gallery block that follows a folder, bulk editing, and AI alt text with your AI connector.
  * Author: Nazmul Hasan Robin
  * Author URI: https://profiles.wordpress.org/nhrrob/
- * Version: 1.2.0
+ * Version: 1.3.0
  * Requires at least: 7.0
  * Requires PHP: 7.4
  * Text Domain: nhrrob-smart-media-manager
@@ -31,7 +31,7 @@ final class Nhrsmm_Smart_Media_Manager {
 	 *
 	 * @var string
 	 */
-	const VERSION = '1.2.0';
+	const VERSION = '1.3.0';
 
 	/**
 	 * Registers activation/deactivation hooks and defers boot to plugins_loaded.
