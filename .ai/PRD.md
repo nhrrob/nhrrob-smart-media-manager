@@ -132,6 +132,13 @@ Done 2026-10-05, on the final code: PHPCS clean · ESLint and Stylelint clean ·
 - Unit tests for `Usage` and `Importer` (both mostly SQL; tested against real databases instead).
 - Review, commit, tag (Robin).
 
+### 4.5 Next release — 1.3.0: AI readiness + PHP matrix (built 2026-10-10, unreleased)
+
+- **Abilities API** (`Abilities`): six `nhrsmm/*` abilities, each a thin wrapper over what the REST API already does, behind `manage_categories` plus a per-file attachment and `edit_post` check. Read-only: `list-folders`, `list-media`, `get-media-usage`. Writes: `create-folder`, `move-media`, `update-media`. Exposed to MCP through the WordPress MCP Adapter, which is not bundled (§1.1).
+- **Deliberately not built:** delete/trash, replace file, folder delete or rename, import, settings, and any ability that calls the AI provider (an agent can write the alt text itself; nothing here spends the user's AI credits).
+- **PHP:** supported and tested 7.4 → 8.5, plus 8.6 (non-blocking until its GA). `.github/workflows/php.yml`: PHPCS with PHPCompatibilityWP, then per version a syntax check, PHPUnit (8.1+) and `.github/ci/smoke.php` inside a real WordPress.
+- **Zip cost:** one file, `includes/Abilities.php`. Measure against §1.1 at release.
+
 ### 4.4 Backlog (free, not built)
 
 Found free in another plugin on 2026-10-05, so they can only ever be free here (PRD-PRO §0). Neither is in 1.1.0; each needs a zip-size decision first (§1.1).

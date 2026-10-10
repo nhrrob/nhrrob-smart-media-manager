@@ -20,6 +20,9 @@ git checkout dev
 - On `dev` branch
 - No uncommitted changes
 
+## Step 0.4: PHP Compatibility gate
+The **PHP Compatibility** workflow (`.github/workflows/php.yml`) must be green on the release PR: PHPCS with PHPCompatibilityWP, and on every PHP version from 7.4 up a syntax check, the unit tests (8.1+) and the runtime smoke test (`wp eval-file .github/ci/smoke.php`). The newest, not yet released PHP version is allowed to fail, but read its log.
+
 ## Step 0.5: Generate release zip
 
 Run the full release script — it lints, tests, builds, runs PCP, and produces the zip:

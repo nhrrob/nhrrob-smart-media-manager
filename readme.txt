@@ -35,6 +35,7 @@ NHR Smart Media Manager organizes your WordPress media library into folders and 
 * **Upload Enhancements** — Assign files to folders on upload, drag-and-drop files or whole folders from your desktop (subfolders are kept), per-file progress bars, and a default upload folder.
 * **Starred & Recent** — Star files and reopen recent ones. Both lists are saved to your user account.
 * **WP-CLI** — `wp nhrsmm alt --limit=200` generates alt text for images that have none.
+* **AI agent and MCP ready** — The plugin registers six abilities with the WordPress Abilities API, so AI agents and MCP clients (through the WordPress MCP Adapter) can list folders and files, find images without alt text, see where a file is used, create a folder, move files and write alt text, titles and captions. Editors and above only. Nothing can be deleted through them.
 * **Multisite** — Each site in a network has its own folders and settings.
 * **Keyboard Shortcuts** — Full keyboard navigation (Escape, Delete, Ctrl+A, Shift+click range select, Arrow keys).
 
@@ -105,6 +106,14 @@ It is moved to the Trash view, where you can restore it or delete it permanently
 
 Yes. Add the Folder Gallery block and pick a folder, or use the `[nhrsmm_gallery folder="12"]` shortcode. The gallery always shows what is in the folder, so you manage it from the media library instead of editing each page.
 
+= Can an AI agent or MCP client use this plugin? =
+
+Yes. The plugin registers six abilities with the WordPress Abilities API (they all start with `nhrsmm/`). Three only read: list folders, list files (with filters such as missing alt text) and where a file is used. Three make changes: create a folder, move files to a folder, and update a file's alt text, title, caption or description. They need the same permission as the Smart Library (Editor and above) and the right to edit each file. An agent cannot delete or replace a file, delete a folder or change settings. To use them over MCP, install the WordPress MCP Adapter plugin; this plugin does not bundle it. The abilities never call your AI provider.
+
+= Which PHP versions are supported? =
+
+PHP 7.4 and every later version. Each change is tested on PHP 7.4 through 8.5, and on the upcoming 8.6.
+
 = Can I move my folders from another plugin? =
 
 Yes. Open Smart Library and use the plug icon at the bottom of the folder sidebar. Folders and file assignments are copied; the other plugin's data is not changed.
@@ -129,6 +138,11 @@ https://github.com/nhrrob/nhrrob-smart-media-manager
 To rebuild the JavaScript assets: `npm install && npm run build`
 
 == Changelog ==
+
+= 1.3.0 =
+* New: AI agent and MCP support. Six abilities registered with the WordPress Abilities API: list folders, list files, where a file is used, create a folder, move files, and update alt text, title, caption or description. Editors and above; nothing can be deleted through them.
+* Compatibility: verified on PHP 7.4 through 8.5 and on PHP 8.6 release candidates.
+* Developer: every pull request now runs the PHPCompatibilityWP ruleset plus a syntax check, the unit tests and a runtime smoke test on each supported PHP version. The security probe also covers abilities.
 
 = 1.2.0 =
 * New: Light and dark theme for the Smart Library and its settings page. Follows your system setting, with a toggle in the top bar.
