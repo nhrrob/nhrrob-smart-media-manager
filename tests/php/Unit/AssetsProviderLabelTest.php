@@ -16,7 +16,6 @@ class AssetsProviderLabelTest extends TestCase {
 		parent::setUp();
 		$this->assets = new Assets();
 		$this->method = new \ReflectionMethod( Assets::class, 'get_ai_provider_label' );
-		$this->method->setAccessible( true );
 	}
 
 	private function invoke(): string {

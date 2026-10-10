@@ -81,6 +81,16 @@ All routes require `manage_categories` (Editor+), with per-attachment `edit_post
 | `Admin\NativeLibrary` | Folder tree in the media modal, folder dropdown in Media → Library grid/list and in narrow modals (`admin/js/nhrsmm-media-modal.js`, hand-written, not built; its CSS is an inline style on `media-views`). The tree is skipped in grid mode because that layout is not absolutely positioned. |
 | `Block` | `[nhrsmm_gallery]` shortcode and `nhrsmm/folder-gallery` block. Wraps core's `gallery_shortcode()` output in `.nhrsmm-gallery` with its own inline grid CSS (`nhrsmm-gallery` style handle), because core gallery markup has no column styles in block themes |
 | `Cli` | `wp nhrsmm alt` |
+| `Abilities` | Six `nhrsmm/*` abilities for AI agents and MCP clients (see below) |
+
+## Abilities (AI agents, MCP)
+
+`Abilities` registers on `wp_abilities_api_categories_init` / `wp_abilities_api_init` (only fired when something asks for the registry). Category `nhrsmm`; every ability is gated by `Abilities::check_permission()` (`manage_categories`, same as REST) and flagged `public` + `show_in_rest` + `mcp.public` so the WordPress MCP Adapter (not bundled) exposes it.
+
+- Read-only: `nhrsmm/list-folders`, `nhrsmm/list-media` (`folder, search, type, alt=missing, unused, page, per_page`), `nhrsmm/get-media-usage`.
+- Writes: `nhrsmm/create-folder`, `nhrsmm/move-media` (replaces the files' folders), `nhrsmm/update-media` (alt, title, caption, description).
+
+Rules: ID-taking abilities go through `Abilities::can_edit_attachment()`, which checks the post type as well as `edit_post` — `Core\Media::update()` and `bulk_move()` do not check that an ID is an attachment, and an agent may pass any ID. **Nothing destructive is offered**: no trash/delete, replace file, folder delete/rename, import, settings. **No ability calls the AI provider** (an agent writes alt text itself through `update-media`), so nothing here spends the user's AI credits or needs an External Services change. Core validates output against `output_schema`; keep schemas loose. `tests/php/Unit/AbilitiesTest.php` pins the list, gate and annotations; a new ability also needs the readme FAQ and PRD §4.5.
 
 ## Non-Obvious Implementation Details
 
@@ -146,7 +156,7 @@ For filled icons: source from `icons/filled/`, name as `<name>-filled`.
 
 - **Prefix:** `NHRSMM_` (constants), `nhrsmm_` (options, hooks, nonces, handles)
 - **REST namespace:** `nhrsmm/v1` | **Taxonomy:** `nhrsmm_media_folder` | **CSS scope:** `.nhrsmm`
-- **PHP 7.4+:** no union types in signatures; scalar return types only
+- **PHP 7.4+:** no union types in signatures; scalar return types only. Supported and tested through PHP 8.6. `composer.json` pins `config.platform.php` to 8.1 (the lowest PHPUnit 10 runs on) so dev dependencies work on every version CI tests with. When a PHP version reaches GA, move it from `include` into the `php` list in `php.yml` and add the next one as experimental.
 - **AI:** use `wp_ai_client_prompt()` only — never call providers directly. Gate all AI UI on `Core\Ai::is_available()`: `wp_supports_ai()` alone is true on any site that has not disabled AI, even with no connector, so `is_available()` also asks the builder method `wp_ai_client_prompt()->is_supported_for_text_generation()` (a builder method; no global function of that name exists). Builder: `using_system_instruction()` → `with_text()` (or `with_file()`) → `generate_text()` returns `string|\WP_Error`. `is_supported_for_text_generation()` does NOT exist. AI Connectors page: `options-connectors.php`.
 - **JS i18n:** `.eslintrc.js` has `allowedTextDomain: ['nhrrob-smart-media-manager']` configured. All `__()` / `_n()` calls need the text domain. `sprintf()` with placeholders needs a `// translators:` comment above it.
 - **Docblocks:** PHP docblocks required on all public/protected methods (PHPCS enforces). JS inline comments for non-obvious WHY only — one line max.
@@ -161,12 +171,13 @@ For filled icons: source from `icons/filled/`, name as `<name>-filled`.
 
 ## CI (GitHub Actions)
 
-A PR to `main` shows three checks: `Run Plugin Check`, `Semgrep + PHPStan` and `Endpoint authorization probe` (the last two are the two jobs of `security.yml`).
+A PR to `main` shows the **PHP Compatibility** checks (`PHPCS (WPCS + PHPCompatibilityWP)` and one `PHP x.y` per version) plus three more: `Run Plugin Check`, `Semgrep + PHPStan` and `Endpoint authorization probe` (the last two are the two jobs of `security.yml`).
 
 | Workflow | Trigger | What it runs |
 |---|---|---|
 | `plugin-check.yml` | PR to `main` | Plugin Check on the repo checkout; dev-file notices (`hidden_files`, `.ai`, `.github`, `CLAUDE.md`) ignored |
 | `security.yml` | PR to `main`, manual | Semgrep `p/php`, PHPStan level 0 (`.github/security/phpstan.neon`), and the endpoint probe: every plugin REST route and AJAX action called as subscriber and anonymous with nonces forced valid; fails on any success response or attempted DB write |
+| `php.yml` | PR to `main`, manual | PHPCS with PHPCompatibilityWP (`testVersion` 7.4-), then per PHP version (7.4–8.5 required, 8.6 non-blocking until its GA): syntax check, PHPUnit (8.1+ only, PHPUnit 10 needs it), and `.github/ci/smoke.php` in a real WordPress (every GET route and read-only ability as admin; fails on any PHP notice from the plugin) |
 | `deploy.yml` | tag push | Deploy to WordPress.org |
 
 `.github/security/` is copied from `nhrrob-options-table-manager` (the reference). Run the probe locally:

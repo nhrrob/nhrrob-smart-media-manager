@@ -47,6 +47,7 @@ class App {
 		( new Admin\Settings() )->register_hooks();
 		( new Admin\NativeLibrary() )->register_hooks();
 		( new Block() )->register_hooks();
+		( new Abilities() )->register_hooks();
 
 		add_filter( 'plugin_action_links_' . plugin_basename( NHRSMM_FILE ), [ $this, 'action_links' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
