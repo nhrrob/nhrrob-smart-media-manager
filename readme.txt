@@ -4,7 +4,7 @@ Tags: media library folders, media folders, gallery, alt text, ai
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -114,6 +114,10 @@ Yes. The plugin registers six abilities with the WordPress Abilities API (they a
 
 PHP 7.4 and every later version. Each change is tested on PHP 7.4 through 8.5, and on the upcoming 8.6.
 
+= Can other plugins extend the Smart Library? =
+
+Yes. Developers can hook in with the `nhrsmm_enqueue` action (add scripts to the Smart Library and settings screens), the `nhrsmm_media_query_args` filter (change a Smart Library list query), and the JavaScript filters `nhrsmm.settingsTabs`, `nhrsmm.detailsPanel` and `nhrsmm.searchPlaceholder` (add a settings tab, a section in the file details panel, or change the search box text).
+
 = Can I move my folders from another plugin? =
 
 Yes. Open Smart Library and use the plug icon at the bottom of the folder sidebar. Folders and file assignments are copied; the other plugin's data is not changed.
@@ -138,6 +142,10 @@ https://github.com/nhrrob/nhrrob-smart-media-manager
 To rebuild the JavaScript assets: `npm install && npm run build`
 
 == Changelog ==
+
+= 1.4.0 =
+* New: Hooks for developers: the `nhrsmm_enqueue` action, the `nhrsmm_media_query_args` filter, and the `nhrsmm.settingsTabs`, `nhrsmm.detailsPanel` and `nhrsmm.searchPlaceholder` JavaScript filters.
+* Fix: The settings page fits narrow screens: one column, and the tabs scroll sideways.
 
 = 1.3.0 =
 * New: AI agent and MCP support. Six abilities registered with the WordPress Abilities API: list folders, list files, where a file is used, create a folder, move files, and update alt text, title, caption or description. Editors and above; nothing can be deleted through them.
@@ -193,6 +201,9 @@ To rebuild the JavaScript assets: `npm install && npm run build`
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+Hooks that let other plugins add to the Smart Library and its settings. Nothing changes for you.
 
 = 1.3.0 =
 AI agent and MCP support through six WordPress Abilities API abilities, and verified compatibility with PHP 7.4 through 8.5.

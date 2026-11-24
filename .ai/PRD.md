@@ -4,7 +4,6 @@ Status: **1.0.3 released 2026-09-25** · **1.1.0 built and verified 2026-10-05**
 Last revised: 2026-10-05 (competitor review of 17 plugins; every gap that is free somewhere else was built into 1.1.0)
 
 > Dev-only document. Excluded from distribution (`.distignore` + `.gitattributes export-ignore`).
-> PRO/monetization scope: **[PRD-PRO.md](./PRD-PRO.md)**.
 > What already shipped is recorded in `readme.txt` (changelog + feature list), not here. Architecture, REST routes and storage are in the plugin's `CLAUDE.md`.
 
 ## 1. Principles (non-negotiable)
@@ -23,11 +22,11 @@ What was done to keep it down:
 
 From 1.1.0 on, **174 KB is the budget**: a new feature needs an equal removal or an explicit decision. Run `check:pcp` and a zip-size diff before every release.
 
-### 1.2 No PRO in the free codebase
+### 1.2 Nothing held back
 
-The free plugin carries **no PRO surface and no PRO wording**: no badges, no upgrade screen or link, no disabled "premium" controls, no "PRO" in code comments or UI strings. It will only expose a neutral **add-on API** (§3). Checked 2026-10-05: no such wording exists in the codebase.
+The plugin mentions no other edition: no badges, no upgrade screen or link, no disabled controls, no such wording in code comments or UI strings. Other plugins can extend it only through neutral hooks (§3).
 
-**Anything free in another plugin is free here.** The full rule is [PRD-PRO.md](./PRD-PRO.md) §0.
+**Anything free in another plugin is free here.**
 
 ### 1.3 No custom database tables
 
@@ -64,7 +63,7 @@ Settings live in one option (`nhrsmm_settings`). Everything else uses core stora
 - **AI:** `wp_ai_client_prompt()` only, gated on `wp_supports_ai()`. Requires WordPress 7.0, which is why `Requires at least` is 7.0.
 - **PHP 7.4:** no union types, no PHP 8 syntax.
 - **Multisite:** folders and settings are per site (taxonomy terms and a per-site option). Uninstall loops every site. No Network Admin screen.
-- **Add-on API: not built yet.** The free plugin has no extension points today. Before any add-on can exist it needs, at minimum: a PHP filter on the app boot payload (`window.nhrsmmConfig`), a PHP action after the app script is enqueued, a filter on the list query arguments, and a JS filter for extra sidebar views and bulk actions. Add these only when the add-on work starts (PRD-PRO §6), not before.
+- **Extension hooks (1.4.0):** the `nhrsmm_enqueue` action (fired before the Smart Library or settings script is enqueued, with its handle, so another plugin's script prints first), the `nhrsmm_media_query_args` filter (`$args, $params`, the Smart Library list query), and the JS filters `nhrsmm.settingsTabs` (`{ slug, label, icon, component }` entries), `nhrsmm.detailsPanel` (components rendered in the details panel with `{ file, inTrash }`) and `nhrsmm.searchPlaceholder`. Neutral: no other plugin is named. Add a hook only when another plugin needs it.
 
 ## 4. Release 1.1.0
 
@@ -141,10 +140,15 @@ Done 2026-10-05, on the final code: PHPCS clean · ESLint and Stylelint clean ·
 
 ### 4.4 Backlog (free, not built)
 
-Found free in another plugin on 2026-10-05, so they can only ever be free here (PRD-PRO §0). Neither is in 1.1.0; each needs a zip-size decision first (§1.1).
+Found free in another plugin on 2026-10-05, so they can only ever be free here (§1.2). Neither is in 1.1.0; each needs a zip-size decision first (§1.1).
 
 - **Alt text audit:** flag generic ("image", "logo", a file name), too-short and duplicated alt text next to the existing Missing alt text view. Rule-based, no AI needed. Free in Filikod.
 - **Duplicate file finder:** identical files by content hash, with where each copy is used. Free in Filikod.
+
+Found free in another plugin on 2026-11-24 (so free here):
+
+- **Smart folders:** saved rule-based views (type, size, date, uploader, missing alt, unused, dimensions). Free in KooKoa Folders ("unlimited smart (rule-based) folders") and FolderForge.
+- **Unattended alt text for the whole library:** a WP-Cron job that fills missing alt text in small batches through the site's AI connector. Free in AltCraft AI (nightly cron, Settings → Connectors). Today the plugin has bulk AI from an open screen, alt text on upload and `wp nhrsmm alt`.
 
 Smaller competitor features seen in the 2026-10-05 review and not built. None was judged worth the weight yet; listed so they are not rediscovered later.
 
@@ -158,9 +162,9 @@ Smaller competitor features seen in the 2026-10-05 review and not built. None wa
 
 ## 5. Not planned (would add weight or risk without clear demand)
 
-Revisit only on real user requests. Anything here is still free if it ever ships, unless PRD-PRO §3 lists it.
+Revisit only on real user requests. Anything here is still free if it ever ships, unless it is something no other plugin gives away.
 
-- **AI file rename.** Free in AltGenix, so it could never be PRO; renaming changes URLs and breaks references that cannot all be found.
+- **AI file rename.** Free in AltGenix; renaming changes URLs and breaks references that cannot all be found.
 - **Folders for posts, pages and custom post types.** Wicked Folders and Folders (Premio) do this free; it is a different product from a media manager.
 - **Image compression, WebP/AVIF conversion, thumbnail regeneration.** An optimizer plugin's job.
 - **SVG upload.** Safe SVG (1M+ installs) does it; sanitizing SVG is a security responsibility not worth taking on here.
@@ -180,7 +184,7 @@ Revisit only on real user requests. Anything here is still free if it ever ships
 
 ## 7. Decided (don't relitigate)
 
-- **Free vs PRO line (2026-10-05):** all 26 items in §4.1 are free because each is free in at least one other plugin. PRO is only what nobody gives away (PRD-PRO §3).
+- **Free line (2026-10-05):** all 26 items in §4.1 are free because each is free in at least one other plugin.
 - **Media modal integration is vanilla JS on the core media views,** not a React app injected into the modal.
 - **ZIP is built in the browser** to avoid server-side archive code and streamed responses (§1.4).
 - **Delete means trash.** Permanent delete is only available from the Trash view.

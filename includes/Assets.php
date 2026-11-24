@@ -123,6 +123,7 @@ class Assets {
 	public function enqueue_on_page( string $hook ): void {
 		if ( $this->is_media_page( $hook ) ) {
 			$this->enqueue_common();
+			$this->enqueue_extensions( 'nhrsmm-app' );
 			wp_enqueue_script( 'nhrsmm-app' );
 
 			$settings = Core\Options::get();
@@ -153,6 +154,7 @@ class Assets {
 
 		if ( $this->is_settings_page( $hook ) ) {
 			$this->enqueue_common();
+			$this->enqueue_extensions( 'nhrsmm-settings' );
 			wp_enqueue_script( 'nhrsmm-settings' );
 
 			$settings = Core\Options::get();
@@ -172,6 +174,25 @@ class Assets {
 				]
 			);
 		}
+	}
+
+	/**
+	 * Lets other plugins enqueue their scripts and styles on a plugin screen.
+	 *
+	 * Fired before the screen's own script is enqueued, so a script enqueued here prints
+	 * first and its JS filters (`nhrsmm.settingsTabs`, `nhrsmm.detailsPanel`,
+	 * `nhrsmm.searchPlaceholder`) are in place when the app renders.
+	 *
+	 * @param string $handle The screen's script handle: nhrsmm-app or nhrsmm-settings.
+	 * @return void
+	 */
+	private function enqueue_extensions( string $handle ): void {
+		/**
+		 * Fires on the Smart Library and settings screens, before the app script is enqueued.
+		 *
+		 * @param string $handle The screen's script handle: nhrsmm-app or nhrsmm-settings.
+		 */
+		do_action( 'nhrsmm_enqueue', $handle );
 	}
 
 	/**

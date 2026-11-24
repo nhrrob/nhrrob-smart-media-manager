@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { applyFilters } from '@wordpress/hooks';
 import { useApp } from '../context';
 import { setUrlParams } from '../utils';
 import { ThemeToggle } from '../theme';
@@ -51,9 +52,9 @@ export default function Topbar() {
 				<input
 					ref={ searchRef }
 					type="text"
-					placeholder={ __(
-						'Search files…',
-						'nhrrob-smart-media-manager'
+					placeholder={ applyFilters(
+						'nhrsmm.searchPlaceholder',
+						__( 'Search files…', 'nhrrob-smart-media-manager' )
 					) }
 					autoComplete="off"
 					onInput={ onSearchInput }

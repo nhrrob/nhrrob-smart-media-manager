@@ -92,6 +92,18 @@ All routes require `manage_categories` (Editor+), with per-attachment `edit_post
 
 Rules: ID-taking abilities go through `Abilities::can_edit_attachment()`, which checks the post type as well as `edit_post` — `Core\Media::update()` and `bulk_move()` do not check that an ID is an attachment, and an agent may pass any ID. **Nothing destructive is offered**: no trash/delete, replace file, folder delete/rename, import, settings. **No ability calls the AI provider** (an agent writes alt text itself through `update-media`), so nothing here spends the user's AI credits or needs an External Services change. Core validates output against `output_schema`; keep schemas loose. `tests/php/Unit/AbilitiesTest.php` pins the list, gate and annotations; a new ability also needs the readme FAQ and PRD §4.5.
 
+## Extension hooks (1.4.0)
+
+Neutral extension points; the plugin names no other plugin. Keep them stable: plugins that use them depend on 1.4.0 or later.
+
+| Hook | Kind | Where |
+|---|---|---|
+| `nhrsmm_enqueue( $handle )` | PHP action | `Assets::enqueue_extensions()`, on the Smart Library (`nhrsmm-app`) and settings (`nhrsmm-settings`) screens, **before** the app script is enqueued, so another plugin's script prints first and its JS filters exist when the app renders. Such scripts must not depend on the app's handle. |
+| `nhrsmm_media_query_args( $args, $params )` | PHP filter | `Media::get_list()`, the `WP_Query` args of a list (not the `ids` path). Runs before the search and size filters are attached. |
+| `nhrsmm.settingsTabs` | JS filter | `SettingsApp`: an array of `{ slug, label, icon, component }`; an entry with `component` renders that component as its tab. |
+| `nhrsmm.detailsPanel` | JS filter | `DetailsPanel`: an array of components, each rendered after Description with `{ file, inTrash }`. |
+| `nhrsmm.searchPlaceholder` | JS filter | `Topbar`: the search box placeholder. |
+
 ## Non-Obvious Implementation Details
 
 **Query budget:** `Folders::flat()` and `export()` build the tree without counts (`tree( false )`), because the folder dropdowns load on every editor screen. Only `get_tree()` (the `/folders` route) runs the library-wide count queries. `Media::format_attachment()` reads folders with `get_the_terms()` so a list page uses the term cache `WP_Query` filled; do not switch it back to `wp_get_object_terms()` or set `update_post_term_cache` to false on list queries. `Folders::files()` loads posts in chunks of 200 and stops at its 2000-file cap. `Usage::get()` returns after the first hit when called with a limit of 1 (the unused scan). `Folders::delete()` leaves unassigning the files to `wp_delete_term()`; do not loop over them first.
