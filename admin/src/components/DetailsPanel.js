@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { applyFilters } from '@wordpress/hooks';
 import { useApp } from '../context';
 import { get, put, post, upload } from '../api';
 import {
@@ -743,6 +744,12 @@ export default function DetailsPanel( { fileId } ) {
 						} }
 					/>
 				</div>
+
+				{ applyFilters( 'nhrsmm.detailsPanel', [], file ).map(
+					( Section, i ) => (
+						<Section key={ i } file={ file } inTrash={ inTrash } />
+					)
+				) }
 
 				<div className="details-section">
 					<div className="details-section-label">

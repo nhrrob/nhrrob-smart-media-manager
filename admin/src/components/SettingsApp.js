@@ -1,5 +1,6 @@
 import { useState, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { applyFilters } from '@wordpress/hooks';
 import { ThemeToggle } from '../theme';
 
 const cfg = window.nhrsmmSettingsConfig || {};
@@ -21,6 +22,9 @@ export default function SettingsApp() {
 	const urlTab =
 		new URLSearchParams( window.location.search ).get( 'tab' ) || 'general';
 	const [ tab, setTab ] = useState( urlTab );
+	// Other plugins add { slug, label, icon, component } entries; the component renders the tab.
+	const tabs = applyFilters( 'nhrsmm.settingsTabs', TABS );
+	const ExtraTab = tabs.find( ( t ) => t.slug === tab )?.component;
 	const [ settings, setSettings ] = useState(
 		cfg.settings || {
 			default_view: 'grid',
@@ -82,7 +86,7 @@ export default function SettingsApp() {
 					<div className="settings-header-sep" />
 
 					<div className="settings-tabs">
-						{ TABS.map( ( t ) => (
+						{ tabs.map( ( t ) => (
 							<button
 								key={ t.slug }
 								className={ `settings-tab${
@@ -146,6 +150,7 @@ export default function SettingsApp() {
 									saving={ saving }
 								/>
 							) }
+							{ ExtraTab && <ExtraTab /> }
 						</div>
 
 						<aside className="settings-aside">

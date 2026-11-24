@@ -165,6 +165,14 @@ class Media {
 			}
 		}
 
+		/**
+		 * Filters the WP_Query arguments of a Smart Library media list (not the ID-list path).
+		 *
+		 * @param array $args   WP_Query arguments.
+		 * @param array $params The list parameters, as sanitized by the REST route.
+		 */
+		$args = (array) apply_filters( 'nhrsmm_media_query_args', $args, $params );
+
 		$search_filter = null;
 		if ( ! empty( $search ) ) {
 			$search_filter = $this->search_filter( $search );
