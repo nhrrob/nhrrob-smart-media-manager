@@ -1,7 +1,7 @@
 # PRD — Smart Media Manager (Free) — "NHR Smart Media Manager", slug `nhrrob-smart-media-manager`
 
 Status: **1.0.3 released 2026-09-25** · **1.1.0 built and verified 2026-10-05** (uncommitted on `dev`, version bumped; Robin reviews, commits and tags) · Owner: Nazmul Hasan Robin (nhrrob)
-Last revised: 2026-10-05 (competitor review of 17 plugins; every gap that is free somewhere else was built into 1.1.0)
+Last revised: 2026-10-05 (feature review; every gap that is free somewhere else was built into 1.1.0)
 
 > Dev-only document. Excluded from distribution (`.distignore` + `.gitattributes export-ignore`).
 > What already shipped is recorded in `readme.txt` (changelog + feature list), not here. Architecture, REST routes and storage are in the plugin's `CLAUDE.md`.
@@ -41,7 +41,7 @@ Settings live in one option (`nhrsmm_settings`). Everything else uses core stora
 
 ## 2. Product
 
-**Positioning (decided 2026-10-05):** a media folder manager that matches the free tier of FileBird, Real Media Library and Folders, with AI metadata as the reason to pick it over them. The folder competitors have no AI; the AI alt text plugins charge per image or need their own API key and have no folders.
+**Scope (decided 2026-10-05):** a media folder manager with everything people expect from a folder plugin for free, with AI metadata through the site's own AI connector as the reason to pick it.
 
 **One home per action.** A new feature must slot into one of these places.
 
@@ -67,9 +67,9 @@ Settings live in one option (`nhrsmm_settings`). Everything else uses core stora
 
 ## 4. Release 1.1.0
 
-### 4.1 Built 2026-10-05 (the 26 gaps from the competitor review)
+### 4.1 Built 2026-10-05 (the 26 gaps from the feature review)
 
-Each item was missing in 1.0.3 and is free in at least one other plugin (§8).
+Each item was missing in 1.0.3 and is free in at least one other plugin.
 
 **Expected in every folder plugin**
 
@@ -126,7 +126,7 @@ Done 2026-10-05, on the final code: PHPCS clean · ESLint and Stylelint clean ·
 - **Robin's decisions** in §6 (zip size, `Requires at least`).
 - A human dropping a real folder from the desktop once (the traversal logic is tested, the browser drop event is not).
 - The plugin was syntax-checked on PHP 7.4, not run on it.
-- Wicked Folders, HappyFiles and WP Media Folder imports are unverified: media folders are paid-only in all three. The Wicked taxonomy name follows its confirmed `wf_{post_type}_folders` pattern; `happyfiles_category`, `wpmf-category` and the older Mediamatic taxonomy `mediamatic_wpfolder` are from memory.
+- Wicked Folders, HappyFiles and WP Media Folder imports are unverified: none of them could be installed with media folders to test against. The Wicked taxonomy name follows its confirmed `wf_{post_type}_folders` pattern; `happyfiles_category`, `wpmf-category` and the older Mediamatic taxonomy `mediamatic_wpfolder` are from memory.
 - Screenshots were taken on a site with no AI connector, so they show no AI status or AI buttons. Retake 2 and 3 on a connected site if the listing should show AI in action.
 - Unit tests for `Usage` and `Importer` (both mostly SQL; tested against real databases instead).
 - Review, commit, tag (Robin).
@@ -142,43 +142,43 @@ Done 2026-10-05, on the final code: PHPCS clean · ESLint and Stylelint clean ·
 
 Found free in another plugin on 2026-10-05, so they can only ever be free here (§1.2). Neither is in 1.1.0; each needs a zip-size decision first (§1.1).
 
-- **Alt text audit:** flag generic ("image", "logo", a file name), too-short and duplicated alt text next to the existing Missing alt text view. Rule-based, no AI needed. Free in Filikod.
-- **Duplicate file finder:** identical files by content hash, with where each copy is used. Free in Filikod.
+- **Alt text audit:** flag generic ("image", "logo", a file name), too-short and duplicated alt text next to the existing Missing alt text view. Rule-based, no AI needed.
+- **Duplicate file finder:** identical files by content hash, with where each copy is used.
 
 Found free in another plugin on 2026-11-24 (so free here):
 
-- **Smart folders:** saved rule-based views (type, size, date, uploader, missing alt, unused, dimensions). Free in KooKoa Folders ("unlimited smart (rule-based) folders") and FolderForge.
-- **Unattended alt text for the whole library:** a WP-Cron job that fills missing alt text in small batches through the site's AI connector. Free in AltCraft AI (nightly cron, Settings → Connectors). Today the plugin has bulk AI from an open screen, alt text on upload and `wp nhrsmm alt`.
+- **Smart folders:** saved rule-based views (type, size, date, uploader, missing alt, unused, dimensions).
+- **Unattended alt text for the whole library:** a WP-Cron job that fills missing alt text in small batches through the site's AI connector. Today the plugin has bulk AI from an open screen, alt text on upload and `wp nhrsmm alt`.
 
-Smaller competitor features seen in the 2026-10-05 review and not built. None was judged worth the weight yet; listed so they are not rediscovered later.
+Smaller features seen in the 2026-10-05 review and not built. None was judged worth the weight yet; listed so they are not rediscovered later.
 
-- **Folder tree extras:** clone a folder (Wicked Folders), select several folders to delete at once (FileBird, Folders, Wicked), create several folders in one go (Folders), flat tree view and folder icon themes (FileBird Pro).
-- **Inside the media modal:** drag files onto a folder and create folders there (FileBird, Real Media Library). Today that is done in Smart Library (§4.2).
-- **Default attributes per file type** on upload (Media Library Organizer, free).
+- **Folder tree extras:** clone a folder, select several folders to delete at once, create several folders in one go, flat tree view and folder icon themes.
+- **Inside the media modal:** drag files onto a folder and create folders there. Today that is done in Smart Library (§4.2).
+- **Default attributes per file type** on upload.
 - **Uploader filter as a user picker** instead of "only my uploads" (§4.2).
-- **Per-folder custom file order** (Real Media Library); today the order is per file (§4.2).
-- **Duplicate a file, ZIP upload with auto-extract** (Media Library Organizer Pro).
-- **Background removal** (Enable Media Replace, through ShortPixel's service): needs an external service, so not a fit (§1.4).
+- **Per-folder custom file order**; today the order is per file (§4.2).
+- **Duplicate a file, ZIP upload with auto-extract**.
+- **Background removal**: needs an external service, so not a fit (§1.4).
 
 ## 5. Not planned (would add weight or risk without clear demand)
 
 Revisit only on real user requests. Anything here is still free if it ever ships, unless it is something no other plugin gives away.
 
-- **AI file rename.** Free in AltGenix; renaming changes URLs and breaks references that cannot all be found.
-- **Folders for posts, pages and custom post types.** Wicked Folders and Folders (Premio) do this free; it is a different product from a media manager.
+- **AI file rename.** renaming changes URLs and breaks references that cannot all be found.
+- **Folders for posts, pages and custom post types.** It is a different product from a media manager.
 - **Image compression, WebP/AVIF conversion, thumbnail regeneration.** An optimizer plugin's job.
-- **SVG upload.** Safe SVG (1M+ installs) does it; sanitizing SVG is a security responsibility not worth taking on here.
+- **SVG upload.** Sanitizing SVG is a security responsibility not worth taking on here; dedicated plugins do it.
 - **Physical folders on disk / changing file URLs.** Breaks links; the virtual model is the selling point.
 - **File access protection, private URLs, hotlink blocking.** Needs server rules; high support cost.
-- **Per-user private folder trees.** Free in FileBird, so it could only ever be free here; it complicates every query and the permission model. Wait for demand.
-- **EXIF/IPTC mapping, custom media taxonomies, MIME type manager.** Media Library Assistant and Enhanced Media Library own this niche.
+- **Per-user private folder trees.** Free if it ever ships; it complicates every query and the permission model. Wait for demand.
+- **EXIF/IPTC mapping, custom media taxonomies, MIME type manager.** Dedicated metadata plugins cover this.
 - **Undo for the last action.** Trash already covers the destructive case.
 - **Server-side ZIP, cloud storage connectors, FTP sync.**
 
 ## 6. Open decisions
 
 - **Zip size:** accept 174 KB as the new baseline (§1.1), or cut features to get closer to 112 KB? Candidates to cut if needed: gallery block, unused scan, the importer sources that could not be verified.
-- **`Requires at least: 7.0`:** only AI needs 7.0. Lowering it would reach far more sites, since folder competitors support much older versions. Not changed without Robin's confirmation.
+- **`Requires at least: 7.0`:** only AI needs 7.0. Lowering it would reach far more sites, since the folder features work on much older versions. Not changed without Robin's confirmation.
 - **Banner and screenshots (done 2026-10-05, Robin to approve):** the banner was redrawn from `banner-source.svg` with a folder tree and an AI alt text chip, and eight screenshots were taken from demo content on `smm-shots`. Replace either if they do not match the look you want.
 - **Modal tree depth:** add drag-to-folder and folder creation inside the modal, or leave that to Smart Library (§4.2)?
 
@@ -192,19 +192,3 @@ Revisit only on real user requests. Anything here is still free if it ever ships
 - **Name and tags (2026-10-05):** display name **NHR Smart Media Manager – Media Library Folders & AI Alt Text**; in-app title stays "Smart Media Manager". Tags: `media library folders, media folders, gallery, alt text, ai`.
 - **Folder Gallery is a headline feature (2026-10-06):** it has its own readme section, FAQ entry, screenshot and the `gallery` tag (which took the place of `file manager`). It is described as a gallery that follows a folder, not as a full gallery plugin: no lightbox, captions layout or album pages.
 - **The slug, text domain, `nhrsmm` prefixes and REST namespace never change.**
-
-## 8. Sources
-
-Checked 2026-10-05 from the WordPress.org listings (descriptions and free/Pro notes); none of the plugins were installed, except that the source of the eight folder plugins was read for their storage schema.
-
-- FileBird (200k installs): https://wordpress.org/plugins/filebird/ — free: unlimited folders and subfolders, modal tree, import, export, per-user folders, startup folder, gallery block; Pro: sort options, sort by size, folder colors, ZIP download, post-type folders.
-- Real Media Library (100k): https://wordpress.org/plugins/real-media-library-lite/ — free: modal filter, shortcuts (file in several folders), custom order, folder upload, gallery, multisite, import.
-- Folders by Premio (90k): https://wordpress.org/plugins/folders/ — free: folder colors, media replace, import/export, undo, multiple folders; Pro: subfolders, dynamic folders, unused media cleanup.
-- Media Library Organizer (20k): https://wordpress.org/plugins/media-library-organizer/ — free: ZIP export, default attributes; Pro: AI image categorization, advanced search, duplicate file, ZIP upload, EXIF/IPTC.
-- Wicked Folders (20k): https://wordpress.org/plugins/wicked-folders/ — media folders are Pro; free has colors, dynamic folders (posts only), breadcrumbs.
-- CatFolders (6k): https://wordpress.org/plugins/catfolders/ — Pro: subfolders, sort options, folder permissions.
-- Mediamatic (1k): https://wordpress.org/plugins/mediamatic/ — free: media replace, CSV export; Pro: subfolders, colors, per-user folders, role permissions, ZIP.
-- Media Library Assistant (70k), Enhanced Media Library (60k), Media Library Helper (10k): bulk metadata editing, taxonomy filters, missing-alt search — all free.
-- AltText.ai (20k): https://wordpress.org/plugins/alttext-ai/ — paid credits; auto on upload, bulk, WP-CLI, SEO keyphrase, 130 languages.
-- AI Alt Text Generator (2k): https://wordpress.org/plugins/ai-alt-text-generator/ — 50 free images a month or own API key; page context, keyphrase.
-- Media File Renamer (40k): AI rename is Pro. Enable Media Replace (600k): free replace. Media Cleaner (90k): free unused scan with trash; page builder support and filesystem scan are Pro.
